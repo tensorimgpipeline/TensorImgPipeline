@@ -142,3 +142,4 @@ cython_debug/
 data/datasets/*
 data/models/*
 test_reports/*
+wandb/*
