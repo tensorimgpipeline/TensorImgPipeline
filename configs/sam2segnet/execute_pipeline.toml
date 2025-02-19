@@ -10,6 +10,14 @@ params = { optimizer = "SGD", scheduler = "StepLR", criterion = "CrossEntropyLos
 type = "HyperParameters"
 params = { config_file = "configs/sam2segnet/hyper_config.toml" }
 
+[permanences.wandb_logger]
+type = "WandBLogger"
+params = { project = "Sam2Segnet", entity = "lit-rvc", name = "first-test-run", tags = [
+    "testing",
+    "training",
+], notes = "This run is part of a sweep: ", count = 10 }
+
+
 [permanences.network]
 type = "Network"
 params = { model = "deeplabv3_resnet50", num_classes = 21, pretrained = true }
@@ -29,3 +37,7 @@ type = "PredictMasks"
 
 [processes.train_model]
 type = "TrainModel"
+
+[processes.results]
+type = "ResultProcess"
+params = { selected_images = { train = [28, 46, 60, 63, 90] } }
