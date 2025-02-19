@@ -123,7 +123,7 @@ class ProgressManager(Permanence):
         _init_live():
             Initializes the live update group with the progress objects.
 
-        progress_task(task_name, visible=True):
+        progress_task(task_name, visible=False):
             A decorator to wrap functions for progress tracking.
 
         cleanup():
@@ -140,6 +140,8 @@ class ProgressManager(Permanence):
         self.console = console
         self.progress_dict = {
             "overall": self._create_progress(),
+            "cleanup": self._create_progress(color="#FFFF55"),
+            "result": self._create_progress(color="#5555FF"),
         }
         if direct:
             self._init_live()
@@ -176,13 +178,13 @@ class ProgressManager(Permanence):
         group = Group(*self.progress_dict.values())
         self.live = Live(group, console=self.console)
 
-    def progress_task(self, task_name, visible=True):
+    def progress_task(self, task_name, visible=False):
         """
         A decorator to add a progress tracking task to a function.
 
         Args:
             task_name (str): The name of the task to be tracked.
-            visible (bool, optional): Whether the task should be visible when done. Defaults to True.
+            visible (bool, optional): Whether the task should be visible when done. Defaults to False.
 
         Returns:
             function: The decorated function with progress tracking.
