@@ -323,4 +323,4 @@ if __name__ == "__main__":
         raise error
 
     # Run the pipeline
-    observer.run()
+    observer.run_wandb()

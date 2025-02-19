@@ -34,7 +34,8 @@ class ErrorCode(Enum):
     INSTANTIATION_FAILURE = ("INS001", "Object instantiation failed")
     PROCESS_EXECUTION = ("PROC001", "")
     PARAM_VALIDATION = ("PARAM001", "Invalid parameter configuration")
-    PERMA_KEY = ("PERMA001", "Invalid Permanence object")
+    PERMA_KEY = ("PERMA002", "Invalid Permanence object")
+    SWEEP_NO_CONFIG = ("SWEEP001", "Hyper parameters are required for wandb logging.")
 
     def __init__(self, code: str, message: str):
         self.code = code
@@ -125,3 +126,12 @@ class PermanenceKeyError(PermanenceError):
 
     def __str__(self) -> str:
         return f"[{self.error_code.code}]: {self.error_code.message} -> {self.key}"
+
+
+class SweepNoConfigError(PermanenceError):
+    def __init__(self) -> None:
+        error_code = ErrorCode.SWEEP_NO_CONFIG
+        super().__init__(error_code)
+
+    def __str__(self) -> str:
+        return f"[{self.error_code.code}]: {self.error_code.message}"

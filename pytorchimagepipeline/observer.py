@@ -20,8 +20,10 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 """
 
+from __future__ import annotations
+
 from functools import wraps
-from typing import Any, Optional
+from typing import Any
 
 from pytorchimagepipeline.abstractions import AbstractObserver, Permanence, PipelineProcess
 from pytorchimagepipeline.errors import (
@@ -29,6 +31,7 @@ from pytorchimagepipeline.errors import (
     ErrorCode,
     ExecutionError,
     PermanenceKeyError,
+    SweepNoConfigError,
 )
 
 
@@ -42,7 +45,7 @@ class Observer(AbstractObserver):
         """
         self._permanences = permanences
         self._processes: list[PipelineProcess] = []
-        self._current_process: Optional[PipelineProcess] = None
+        self._current_process: PipelineProcess | None = None
 
     def add_process(self, process: PipelineProcess) -> None:
         """Adds a process to the pipeline.
@@ -52,27 +55,31 @@ class Observer(AbstractObserver):
         """
         self._processes.append(process)
 
-    def run(self) -> None:
-        """
-        Executes each process in the list of processes.
+    def run_wandb(self) -> None:
+        wandb_logger = self._permanences.get("wandb_logger", None)
+        if wandb_logger:
+            hyperparams: Permanence | dict[str, Any] = self._permanences.get("hyperparams", {})
+            if not hyperparams:
+                raise SweepNoConfigError()
+            wandb_logger.create_sweep(hyperparams.hyperparams.get("sweep_configuration", {}))
+            wandb_logger.create_sweep_agent(self.run)
+        else:
+            self.run()
 
-        Iterates over the processes, sets the current process, and executes it.
-        If an error occurs during the execution of a process, it handles the error.
-        Resets the current process to None after each execution.
-
-        Returns:
-            None
-        """
-
+    def _get_progress_decorator(self) -> callable:
         def empty_decorator(func):
             @wraps(func)
             def wrapper(total, *args, **kwargs):
                 return func(0, total, None, *args, **kwargs)
 
         progress_manager = self._permanences.get("progress_manager", None)
-        decorator = progress_manager.progress_task if progress_manager else empty_decorator
+        progress_decorator = progress_manager.progress_task if progress_manager else empty_decorator
+        return progress_decorator
 
-        @decorator("overall")
+    def _get_inner_run(self):
+        progress_decorator = self._get_progress_decorator()
+
+        @progress_decorator("overall")
         def _inner_run(task_id, total, progress) -> None:
             for idx in range(total):
                 process = self._processes[idx]
@@ -86,11 +93,48 @@ class Observer(AbstractObserver):
                 if progress:
                     progress.advance(task_id)
 
+        return _inner_run
+
+    def _get_inner_cleanup(self):
+        progress_decorator = self._get_progress_decorator()
+
+        @progress_decorator("cleanup")
+        def _inner_cleanup(task_id, total, progress) -> None:
+            for idx in range(total):
+                progress.advance(task_id)
+                permanence_keys = list(self._permanences.keys())
+                permanence = self._permanences[permanence_keys[idx]]
+                permanence.cleanup()
+
+        return _inner_cleanup
+
+    def run(self) -> None:
+        """
+        Executes each process in the list of processes.
+
+        Iterates over the processes, sets the current process, and executes it.
+        If an error occurs during the execution of a process, it handles the error.
+        Resets the current process to None after each execution.
+
+        Returns:
+            None
+        """
+
+        progress_manager = self._permanences.get("progress_manager", None)
+        wandb_logger = self._permanences.get("wandb_logger", None)
+        if wandb_logger:
+            wandb_logger.init_wandb()
+
+        _inner_run = self._get_inner_run()
+        _inner_cleanup = self._get_inner_cleanup()
+
         if progress_manager:
             with self._permanences["progress_manager"].live:
                 _inner_run(len(self._processes))
+                _inner_cleanup(len(self._permanences))
         else:
             _inner_run(len(self._processes))
+            _inner_cleanup(len(self._permanences))
 
     def _handle_error(self, error: Exception) -> None:
         """
