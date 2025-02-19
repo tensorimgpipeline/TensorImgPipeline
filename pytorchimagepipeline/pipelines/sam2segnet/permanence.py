@@ -564,7 +564,7 @@ class Network(Permanence):
         self._load_model()
 
     def cleanup(self):
-        pass
+        self._load_model()
 
     def _load_model(self):
         if self.model not in self.implemented_models:
