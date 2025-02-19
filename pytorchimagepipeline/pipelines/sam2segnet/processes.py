@@ -5,6 +5,7 @@ import torchvision
 from segment_anything import SamPredictor, sam_model_registry
 from tqdm import tqdm
 
+import wandb
 from pytorchimagepipeline.abstractions import AbstractObserver, PipelineProcess
 from pytorchimagepipeline.pipelines.sam2segnet.utils import get_palette
 
@@ -72,8 +73,9 @@ class TrainModel(PipelineProcess):
         self.model.to(self.device)
 
         # Hyperparameters
-        observer.get_permanence("hyperparams").calculate_batch_size(self.device)
-        self.hyperparams = observer.get_permanence("hyperparams").hyperparams
+        self.wandb_logger = observer.get_permanence("wandb_logger")
+        self.wandb_logger.global_step = 0
+        self.hyperparams = wandb.config
 
         # Data
         self.datasets = observer.get_permanence("data")
@@ -109,6 +111,7 @@ class TrainModel(PipelineProcess):
             self.model.train()
             running_loss = 0.0
             for idx, data in enumerate(self.train_loader):
+                progress.advance(train_id)
                 inputs, labels = data
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
 
@@ -122,9 +125,10 @@ class TrainModel(PipelineProcess):
                 self.optimizer.step()
 
                 running_loss += loss.item()
-                progress.advance(train_id)
+                self.wandb_logger.log_metrics({"train_loss": loss.item()})
                 progress.update(train_id, status=f"Loss: {running_loss / (idx + 1)}")
             self.scheduler.step()
+            self.wandb_logger.log_metrics({"epoch_loss": running_loss / len(self.train_loader)})
             return running_loss
 
         return _train_step
@@ -136,13 +140,14 @@ class TrainModel(PipelineProcess):
             val_loss = 0.0
             with torch.no_grad():
                 for idx, data in enumerate(self.val_loader):
+                    progress.advance(val_id)
                     inputs, labels = data
                     inputs, labels = inputs.to(self.device), labels.to(self.device)
                     outputs = self.model(inputs)
                     loss = self.criterion(outputs, labels)
                     val_loss += loss.item()
-                    progress.advance(val_id)
                     progress.update(val_id, status=f"Mean Val Loss: {val_loss / (idx + 1)}")
+            self.wandb_logger.log_metrics({"val_loss": val_loss / len(self.val_loader)})
             return val_loss
 
         return _validate_step
@@ -154,13 +159,14 @@ class TrainModel(PipelineProcess):
             test_loss = 0.0
             with torch.no_grad():
                 for idx, data in enumerate(self.test_loader):
+                    progress.advance(test_id)
                     inputs, labels = data
                     inputs, labels = inputs.to(self.device), labels.to(self.device)
                     outputs = self.model(inputs)
                     loss = self.criterion(outputs, labels)
                     test_loss += loss.item()
-                    progress.advance(test_id)
                     progress.update(test_id, status=f"Loss: {test_loss / (idx + 1)}")
+            self.wandb_logger.log_metrics({"test_loss": test_loss / len(self.test_loader)})
             return test_loss
 
         return _test_step
@@ -176,11 +182,11 @@ class TrainModel(PipelineProcess):
             num_val = len(self.val_loader)
             num_test = len(self.test_loader)
             for epoch in range(total):
+                progress.advance(epoch_id)
                 running_loss = _train_step(num_train)
 
                 if self.datasets.val_available():
                     val_loss = _validate_step(num_val)
-                progress.advance(epoch_id)
                 status = f"Epoch: {epoch + 1}, Loss: {running_loss / num_train}"
                 progress.update(epoch_id, status=status)
 
