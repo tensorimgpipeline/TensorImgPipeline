@@ -39,6 +39,7 @@ class Sam2SegnetConfig:
             self._read_config()
             self.wandb_config = WandBLoggerConfig(**self.config.get("wandb", {}))
             self.data_config = DataConfig(**self.config.get("data", {}))
+            self.mask_creator_config = MaskCreatorConfig(**self.config.get("mask_creator", {}))
             self.components_config = ComponentsConfig(**self.config.get("components", {}))
             self.hyperparams_config = HyperParamsConfig(**self.config.get("hyperparams", {}))
             self.network_config = NetworkConfig(**self.config.get("network", {}))
