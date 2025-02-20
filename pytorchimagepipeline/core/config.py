@@ -10,6 +10,8 @@ class WandBLoggerConfig(AbstractConfig):
     project: str
     name: str
     tags: list[str] = field(default_factory=[])
+    notes: str = ""
+    count: int = 1
 
     def __post_init__(self):
         super().__init__()
@@ -22,5 +24,5 @@ class WandBLoggerConfig(AbstractConfig):
             raise InvalidConfigError(context="wrong-type-project", value=self.project)
         if not isinstance(self.name, str):
             raise InvalidConfigError(context="wrong-type-run-name", value=self.name)
-        if self.tags and not any(type(y) is not str for y in self.tags):
+        if self.tags and any(type(y) is not str for y in self.tags):
             raise InvalidConfigError(context="wrong-type-tags", value=self.tags)
