@@ -1,43 +1,29 @@
-[permanences.data]
-type = "Datasets"
-params = { root = "data/datasets/mars", data_format = "pascalvoc" }
+[wandb]
+project = "Sam2Segnet"
+entity = "lit-rvc"
+name = "first-test-run"
+tags = ["testing", "training"]
+notes = "This run is part of a sweep: "
+count = 10
 
-[permanences.training_components]
-type = "TrainingComponents"
-params = { optimizer = "SGD", scheduler = "StepLR", criterion = "CrossEntropyLoss" }
+[data]
+root = "data/datasets/mars"
+data_format = "PascalVocFormat"
 
-[permanences.hyperparams]
-type = "HyperParameters"
-params = { config_file = "configs/sam2segnet/hyper_config.toml" }
+[mask_creator]
+morph_size = 1
+border_size = 4
+ignore_value = 255
 
-[permanences.wandb_logger]
-type = "WandBLogger"
-params = { project = "Sam2Segnet", entity = "lit-rvc", name = "first-test-run", tags = [
-    "testing",
-    "training",
-], notes = "This run is part of a sweep: ", count = 10 }
+[components]
+optimizer = "SGD"
+scheduler = "StepLR"
+criterion = "CrossEntropyLoss"
 
+[hyperparams]
+config_file = "configs/sam2segnet/hyper_config.toml"
 
-[permanences.network]
-type = "Network"
-params = { model = "deeplabv3_resnet50", num_classes = 21, pretrained = true }
-
-[permanences.progress_manager]
-type = "Sam2SegnetProgressManager"
-
-[permanences.mask_creator]
-type = "MaskCreator"
-params = { morph_size = 1, border_size = 4, ignore_value = 255 }
-
-[permanences.device]
-type = "Device"
-
-[processes.predict_masks]
-type = "PredictMasks"
-
-[processes.train_model]
-type = "TrainModel"
-
-[processes.results]
-type = "ResultProcess"
-params = { selected_images = { train = [28, 46, 60, 63, 90] } }
+[network]
+model = "deeplabv3_resnet50"
+num_classes = 21
+pretrained = true
