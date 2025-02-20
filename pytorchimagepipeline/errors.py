@@ -82,6 +82,14 @@ class ConfigSectionError(BuilderError):
         super().__post_init__(ErrorCode.CONFIG_SECTION)
 
 
+class InvalidConfigError(Exception):
+    def __init__(self, context: str, value: str) -> None:
+        self.context = context
+        self.value = value
+        msg = f"Config entry with value {self.value} does failed with context: {self.context}"
+        super().__init__(msg)
+
+
 class RegistryError(BuilderError):
     """Raised for class registration issues"""
 
