@@ -21,12 +21,47 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 """
 
+import inspect
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
+
+from pytorchimagepipeline.errors import InvalidConfigError
 
 
 class AbstractObserver(ABC):
     """Base class for the Observer class"""
+
+    def __init__(self, config):
+        self.__parse_config__(config)
+        self.__init_permanences__()
+        self.__init_processes__()
+
+    @abstractmethod
+    def __parse_config__(self, config) -> None: ...
+
+    @abstractmethod
+    def __init_permanences__(self) -> None:
+        """Initializes the permanences.
+
+        This method initializes the permanences that are used by the observer.
+        The implementation details depend on the concrete observer class.
+
+        Returns:
+            None: This method doesn't return any value
+        """
+        ...
+
+    @abstractmethod
+    def __init_processes__(self) -> None:
+        """Initializes the processes.
+
+        This method initializes the processes that are used by the observer.
+        The implementation details depend on the concrete observer class.
+
+        Returns:
+            None: This method doesn't return any value
+        """
+        ...
 
     @abstractmethod
     def run(self) -> None:
@@ -95,3 +130,23 @@ class PipelineProcess(ABC):
             bool: True if the process should be skipped, False otherwise.
         """
         ...
+
+
+class AbstractConfig(ABC):
+    def __init__(self):
+        self.validate()
+
+    @abstractmethod
+    def validate(self) -> None: ...
+
+    def validate_params(self, params: dict[str, Any], cls: type):
+        signature = inspect.signature(cls)  # Get constructor signature
+
+        # Get expected parameters (excluding 'self')
+        expected_params = list(signature.parameters.keys())
+        if "self" in expected_params:
+            expected_params.remove("self")
+
+        # Check if all required parameters are provided
+        if not set(params.keys()).issubset(expected_params):
+            raise InvalidConfigError(context="params-not-valid", value=str(cls))
