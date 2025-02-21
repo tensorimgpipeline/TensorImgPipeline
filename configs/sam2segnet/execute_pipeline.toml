@@ -1,3 +1,4 @@
+# Permanences
 [wandb]
 project = "Sam2Segnet"
 entity = "lit-rvc"
@@ -27,3 +28,10 @@ config_file = "configs/sam2segnet/hyper_config.toml"
 model = "deeplabv3_resnet50"
 num_classes = 21
 pretrained = true
+
+# Processes
+[predict_mask]
+force = false
+
+[training]
+force = false
