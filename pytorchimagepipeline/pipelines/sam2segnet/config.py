@@ -89,3 +89,23 @@ class NetworkConfig(AbstractConfig):
         if not isinstance(self.pretrained, bool):
             raise InvalidConfigError(context="only-bool-pretrained", value=self.pretrained)
 
+
+@dataclass
+class ProcessConfig(AbstractConfig):
+    force: bool = False
+
+    def validate(self):
+        if not isinstance(self.force, bool):
+            raise InvalidConfigError(context="invalid-force-type", value=f"{self.force=}")
+
+
+@dataclass
+class PredictMaskConfig(ProcessConfig): ...
+
+
+@dataclass
+class TrainModelConfig(ProcessConfig): ...
+
+
+if __name__ == "__main__":
+    config = HyperParamsConfig(config_file="configs/sam2segnet/hyper_params.toml")
