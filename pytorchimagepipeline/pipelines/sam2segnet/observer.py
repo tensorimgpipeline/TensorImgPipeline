@@ -7,7 +7,7 @@ from typing import Any, AnyStr
 import tomllib
 from permanence import Datasets, HyperParameters, MaskCreator, Network, Sam2SegnetProgressManager, TrainingComponents
 
-from pytorchimagepipeline.abstractions import AbstractObserver, Permanence, PipelineProcess
+from pytorchimagepipeline.abstractions import AbstractObserver, ProcessPlanType
 from pytorchimagepipeline.core.config import WandBLoggerConfig
 from pytorchimagepipeline.core.permanences import Device, WandBLogger
 from pytorchimagepipeline.errors import InvalidConfigError
@@ -17,7 +17,10 @@ from pytorchimagepipeline.pipelines.sam2segnet.config import (
     HyperParamsConfig,
     MaskCreatorConfig,
     NetworkConfig,
+    PredictMaskConfig,
+    TrainModelConfig,
 )
+from pytorchimagepipeline.pipelines.sam2segnet.processes import PredictMasks, TrainModel
 
 
 @dataclass
@@ -37,12 +40,16 @@ class Sam2SegnetConfig:
         self.config_file = Path(self.config_file)
         if self.config_file.exists():
             self._read_config()
+            # Load Permanence configs
             self.wandb_config = WandBLoggerConfig(**self.config.get("wandb", {}))
             self.data_config = DataConfig(**self.config.get("data", {}))
             self.mask_creator_config = MaskCreatorConfig(**self.config.get("mask_creator", {}))
             self.components_config = ComponentsConfig(**self.config.get("components", {}))
             self.hyperparams_config = HyperParamsConfig(**self.config.get("hyperparams", {}))
             self.network_config = NetworkConfig(**self.config.get("network", {}))
+            # Load Process configs
+            self.predict_mask_config = PredictMaskConfig(**self.config.get("predict_masks", {}))
+            self.train_model_config = TrainModelConfig(**self.config.get("train_model", {}))
         else:
             raise InvalidConfigError(context="missing-execution-config", value=self.config)
 
@@ -69,7 +76,10 @@ class Sam2SegnetObserver(AbstractObserver):
         self.progress = Sam2SegnetProgressManager()
 
     def __init_processes__(self):
-        pass
+        self.process_plan: ProcessPlanType = {
+            "predict_masks": PredictMasks,
+            "train_model": TrainModel,
+        }
 
 
 if __name__ == "__main__":
