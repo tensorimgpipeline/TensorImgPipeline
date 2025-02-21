@@ -14,10 +14,6 @@ class DataConfig(AbstractConfig):
     root: Path | AnyStr
     data_format: str
 
-    def __post_init__(self):
-        self.root = Path(self.root)
-        super().__init__()
-
     def validate(self):
         if not self.root.exists():
             raise InvalidConfigError(context="root-not-found", value=self.root)
@@ -35,9 +31,6 @@ class ComponentsConfig(AbstractConfig):
 
     optimizer_params: dict[str, Any] = field(default_factory=dict)
     scheduler_params: dict[str, Any] = field(default_factory=dict)
-
-    def __post_init__(self):
-        super().__init__()
 
     def validate(self) -> None:
         if not hasattr(torch.optim, self.optimizer):
@@ -60,9 +53,6 @@ class MaskCreatorConfig(AbstractConfig):
     border_size: int
     ignore_value: int
 
-    def __post_init__(self):
-        super().__init__()
-
     def validate(self):
         if self.morph_size < 1:
             raise InvalidConfigError(context="non-positive-morph-size", value=self.morph_size)
@@ -75,10 +65,6 @@ class MaskCreatorConfig(AbstractConfig):
 @dataclass
 class HyperParamsConfig(AbstractConfig):
     config_file: Path | AnyStr
-
-    def __post_init__(self):
-        self.config_file = Path(self.config_file)
-        super().__init__()
 
     def validate(self):
         if not self.config_file.exists():
@@ -95,13 +81,11 @@ class NetworkConfig(AbstractConfig):
     num_classes: int
     pretrained: bool
 
-    def __post_init__(self):
-        super().__init__()
-
     def validate(self):
         if self.num_classes < 1:
-            raise InvalidConfigError(context="invalid_class_num", value=self.config_file)
+            raise InvalidConfigError(context="invalid-class-num", value=self.config_file)
         if not isinstance(self.model, str):
             raise InvalidConfigError(context="only-str-model", value=self.model)
         if not isinstance(self.pretrained, bool):
             raise InvalidConfigError(context="only-bool-pretrained", value=self.pretrained)
+

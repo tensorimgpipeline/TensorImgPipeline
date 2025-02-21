@@ -23,7 +23,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import inspect
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from dataclasses import dataclass, fields
+from pathlib import Path
+from typing import Any, Optional, Union, get_args, get_origin, get_type_hints
 
 from pytorchimagepipeline.errors import InvalidConfigError
 
@@ -132,8 +134,13 @@ class PipelineProcess(ABC):
         ...
 
 
+ProcessPlanType = dict[str, type(PipelineProcess)]
+
+
+@dataclass
 class AbstractConfig(ABC):
-    def __init__(self):
+    def __post_init__(self):
+        self._apply_path()
         self.validate()
 
     @abstractmethod
@@ -150,3 +157,18 @@ class AbstractConfig(ABC):
         # Check if all required parameters are provided
         if not set(params.keys()).issubset(expected_params):
             raise InvalidConfigError(context="params-not-valid", value=str(cls))
+
+    def _apply_path(self):
+        hints = get_type_hints(self.__class__)
+        for field in fields(self):
+            field_name = field.name
+            field_type = hints[field_name]
+            value = getattr(self, field_name)
+
+            # Check if the field type is a union
+            origin = get_origin(field_type)
+            if origin is Union:
+                args = get_args(field_type)
+                # If the field accepts Path and also a string type
+                if Path in args and isinstance(value, str):
+                    setattr(self, field_name, Path(value))

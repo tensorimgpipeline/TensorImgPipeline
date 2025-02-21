@@ -13,9 +13,6 @@ class WandBLoggerConfig(AbstractConfig):
     notes: str = ""
     count: int = 1
 
-    def __post_init__(self):
-        super().__init__()
-
     def validate(self):
         # TODO How to querry projects, entity, etc from wandb
         if not isinstance(self.entity, str):
