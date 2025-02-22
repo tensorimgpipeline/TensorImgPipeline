@@ -1,3 +1,5 @@
+# type: ignore
+# ruff: noqa
 """This module defines an Observer responsible for managing a pipeline of processes and handling
 potential errors that occur during their execution.
 

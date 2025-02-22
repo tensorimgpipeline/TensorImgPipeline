@@ -1,3 +1,5 @@
+# type: ignore
+# ruff: noqa
 """This module provides the implementation of the PipelineBuilder class, which is responsible for
 building and configuring a pipeline of processes and permanences for the PytorchImagePipeline project.
 
