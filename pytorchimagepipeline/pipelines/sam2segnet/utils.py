@@ -6,12 +6,12 @@ import torch
 
 
 class MissingBndBoxError(ValueError):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Missing <bndbox> element for an object in the XML file.")
 
 
 class MissingSizeElementError(ValueError):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Missing <size> element in the XML file.")
 
 
@@ -22,7 +22,7 @@ class BndBox:
     xmax: int
     ymax: int
 
-    def to_tensor(self, device=None) -> torch.Tensor:
+    def to_tensor(self, device: torch.device | None = None) -> torch.Tensor:
         """
         Converts the bounding box to a PyTorch tensor.
         Returns:
@@ -93,7 +93,7 @@ def parse_voc_xml(xml_file: Path) -> tuple[ImageAnnotation | None, None | Except
     return ImageAnnotation(folder, filename, width, height, depth, objects), None
 
 
-def get_palette(N=256, normalized=False):
+def get_palette(N: int = 256, normalized: bool = False) -> list[int]:
     """
     Generates a color palette with N colors.
     Source: https://gist.github.com/wllhf/a4533e0adebe57e3ed06d4b50c8419ae
@@ -107,7 +107,7 @@ def get_palette(N=256, normalized=False):
         list: A flattened list of RGB color values. The length of the list is 3 * N.
     """
 
-    def bitget(byteval, idx):
+    def bitget(byteval: int, idx: int) -> bool:
         return (byteval & (1 << idx)) != 0
 
     dtype = torch.float32 if normalized else torch.uint8

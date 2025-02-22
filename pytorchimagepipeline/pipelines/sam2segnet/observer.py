@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, AnyStr
+from typing import Any
 
-import tomllib
-from permanence import Datasets, HyperParameters, MaskCreator, Network, Sam2SegnetProgressManager, TrainingComponents
+from permanence import Datasets, HyperParameters, MaskCreator, Network, TrainingComponents
 
-from pytorchimagepipeline.abstractions import AbstractObserver, ProcessPlanType
+from pytorchimagepipeline.abstractions import AbstractCombinedConfig, AbstractSimpleObserver, ProcessPlanType
 from pytorchimagepipeline.core.config import WandBLoggerConfig
-from pytorchimagepipeline.core.permanences import Device, WandBLogger
+from pytorchimagepipeline.core.permanences import Device
 from pytorchimagepipeline.errors import InvalidConfigError
 from pytorchimagepipeline.pipelines.sam2segnet.config import (
     ComponentsConfig,
@@ -24,19 +23,19 @@ from pytorchimagepipeline.pipelines.sam2segnet.processes import PredictMasks, Tr
 
 
 @dataclass
-class Sam2SegnetConfig:
-    config_file: Path | AnyStr
+class Sam2SegnetConfig(AbstractCombinedConfig):
+    config_file: Path | str
 
-    config: dict[str, Any] = field(default_factory=dict)
+    config: dict[str, Any] = field(init=False)
 
-    wandb_config: WandBLoggerConfig | None = None
-    data_config: DataConfig | None = None
-    components_config: ComponentsConfig | None = None
-    mask_creator_config: MaskCreatorConfig | None = None
-    hyperparams_config: HyperParamsConfig | None = None
-    network_config: NetworkConfig | None = None
+    wandb_config: WandBLoggerConfig = field(init=False)
+    data_config: DataConfig = field(init=False)
+    components_config: ComponentsConfig = field(init=False)
+    mask_creator_config: MaskCreatorConfig = field(init=False)
+    hyperparams_config: HyperParamsConfig = field(init=False)
+    network_config: NetworkConfig = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.config_file = Path(self.config_file)
         if self.config_file.exists():
             self._read_config()
@@ -48,40 +47,40 @@ class Sam2SegnetConfig:
             self.hyperparams_config = HyperParamsConfig(**self.config.get("hyperparams", {}))
             self.network_config = NetworkConfig(**self.config.get("network", {}))
             # Load Process configs
-            self.predict_mask_config = PredictMaskConfig(**self.config.get("predict_masks", {}))
+            self.predict_masks_config = PredictMaskConfig(**self.config.get("predict_masks", {}))
             self.train_model_config = TrainModelConfig(**self.config.get("train_model", {}))
         else:
-            raise InvalidConfigError(context="missing-execution-config", value=self.config)
-
-    def _read_config(self):
-        with self.config_file.open("rb") as content:
-            self.config = tomllib.load(content)
+            raise InvalidConfigError(context="missing-execution-config", value=f"{self.config=}")
 
 
-class Sam2SegnetObserver(AbstractObserver):
-    def __parse_config__(self, config):
-        self.config = Sam2SegnetConfig(config)
+@dataclass
+class Sam2SegnetObserver(AbstractSimpleObserver):
+    def __parse_config__(self, config_file: Path) -> None:
+        self.config = Sam2SegnetConfig(config_file=config_file)
 
-    def __init_permanences__(self):
+    def __init_permanences__(self) -> None:
         # Core Permanences
         self.device = Device().device
-        self.wandb = WandBLogger(**self.config.wandb_config)
+        # self.wandb = WandBLogger(**asdict(self.config.wandb_config))
         # Sam2Segnet Permanences
-        self.data = Datasets(**self.config.data_config)
-        self.training_components = TrainingComponents(**self.config.components_config)
-        self.hyperparams = HyperParameters(**self.config.hyperparams_config)
-        self.hyperparams.calculate_batch_size()
-        self.network = Network(**self.config.network_config)
-        self.mask_creator = MaskCreator(**self.config.mask_creator_config)
-        self.progress = Sam2SegnetProgressManager()
+        self.data = Datasets(**asdict(self.config.data_config))
+        self.training_components = TrainingComponents(**asdict(self.config.components_config))
+        self.hyperparams = HyperParameters(**asdict(self.config.hyperparams_config))
+        self.hyperparams.calculate_batch_size(self.device)
+        self.network = Network(**asdict(self.config.network_config))
+        self.mask_creator = MaskCreator(**asdict(self.config.mask_creator_config))
+        # self.progress = Sam2SegnetProgressManager()
 
-    def __init_processes__(self):
+    def __init_processes__(self) -> None:
+        self.config: Sam2SegnetConfig
         self.process_plan: ProcessPlanType = {
-            "predict_masks": PredictMasks,
-            "train_model": TrainModel,
+            "predict_masks": (PredictMasks, self.config.predict_masks_config),
+            "train_model": (TrainModel, self.config.train_model_config),
         }
 
 
 if __name__ == "__main__":
     config_file = Path("configs/sam2segnet/execute_pipeline.toml")
-    observer = Sam2SegnetConfig(config_file)
+    observer = Sam2SegnetObserver(config_file=config_file)
+
+    observer.run()

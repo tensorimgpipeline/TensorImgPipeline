@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, AnyStr
+from typing import Any
 
 import torch
 
@@ -11,16 +11,18 @@ from pytorchimagepipeline.pipelines.sam2segnet import formats
 
 @dataclass
 class DataConfig(AbstractConfig):
-    root: Path | AnyStr
+    root: Path | str
     data_format: str
 
-    def validate(self):
+    def validate(self) -> None:
+        if not isinstance(self.root, Path):
+            self.root = Path(self.root)
         if not self.root.exists():
-            raise InvalidConfigError(context="root-not-found", value=self.root)
+            raise InvalidConfigError(context="root-not-found", value=f"{self.root=}")
         if not self.root.is_dir():
-            raise InvalidConfigError(context="root-not-dir", value=self.root)
+            raise InvalidConfigError(context="root-not-dir", value=f"{self.root=}")
         if not hasattr(formats, self.data_format):
-            raise InvalidConfigError(context="format-not-available", value=self.data_format)
+            raise InvalidConfigError(context="format-not-available", value=f"{self.data_format=}")
 
 
 @dataclass
@@ -53,26 +55,28 @@ class MaskCreatorConfig(AbstractConfig):
     border_size: int
     ignore_value: int
 
-    def validate(self):
+    def validate(self) -> None:
         if self.morph_size < 1:
-            raise InvalidConfigError(context="non-positive-morph-size", value=self.morph_size)
+            raise InvalidConfigError(context="non-positive-morph-size", value=f"{self.morph_size=}")
         if self.border_size < 1:
-            raise InvalidConfigError(context="non-positive-border-size", value=self.border_size)
+            raise InvalidConfigError(context="non-positive-border-size", value=f"{self.border_size=}")
         if self.ignore_value < -1 or self.ignore_value > 255:
-            raise InvalidConfigError(context="ignore-value-uint8-range", value=self.ignore_value)
+            raise InvalidConfigError(context="ignore-value-uint8-range", value=f"{self.ignore_value=}")
 
 
 @dataclass
 class HyperParamsConfig(AbstractConfig):
-    config_file: Path | AnyStr
+    config_file: Path | str
 
-    def validate(self):
+    def validate(self) -> None:
+        if not isinstance(self.config_file, Path):
+            self.config_file = Path(self.config_file)
         if not self.config_file.exists():
-            raise InvalidConfigError(context="params-not-found", value=self.config_file)
+            raise InvalidConfigError(context="params-not-found", value=f"{self.config_file=}")
         if not self.config_file.is_file():
-            raise InvalidConfigError(context="params-not-file", value=self.config_file)
+            raise InvalidConfigError(context="params-not-file", value=f"{self.config_file=}")
         if not self.config_file.suffix == ".toml":
-            raise InvalidConfigError(context="params-not-toml", value=self.config_file)
+            raise InvalidConfigError(context="params-not-toml", value=f"{self.config_file=}")
 
 
 @dataclass

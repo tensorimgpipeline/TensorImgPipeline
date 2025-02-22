@@ -19,14 +19,14 @@ class ModelNotSupportedError(Exception):
 
 
 class FormatNotSupportedError(Exception):
-    def __init__(self, format_name, supported_formats) -> None:
-        super().__init(
+    def __init__(self, format_name: str, supported_formats: str) -> None:
+        super().__init__(
             f"Format {format_name} is not supported. Please choose one of the supported formats: {supported_formats}"
         )
 
 
 class ModeError(Exception):
-    def __init__(self, mode) -> None:
-        super().__init(
+    def __init__(self, mode: str) -> None:
+        super().__init__(
             f"Mode {mode} is not supported. Please choose one of the supported modes: ['train', 'val', 'test']"
         )

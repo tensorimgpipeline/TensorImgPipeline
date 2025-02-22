@@ -11,17 +11,17 @@ class PascalVocFormat:
     data: list[str] = field(default_factory=list)
     ignore = 255
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         with (self.root / "mean_std.json").open() as file_obj:
             self.mean_std = json.load(file_obj)
 
         with (self.root / "classes.json").open() as file_obj:
             self.classes = json.load(file_obj)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.data)
 
-    def get_data(self, mode):
+    def get_data(self, mode: str) -> None:
         data_file = self.root / f"ImageSets/Segmentation/{mode}.txt"
 
         if data_file.exists():
