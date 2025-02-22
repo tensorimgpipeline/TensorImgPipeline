@@ -4,7 +4,7 @@ from typing import Any
 
 import torch
 
-from pytorchimagepipeline.abstractions import AbstractConfig
+from pytorchimagepipeline.abstractions import AbstractConfig, ProcessConfig
 from pytorchimagepipeline.errors import InvalidConfigError
 from pytorchimagepipeline.pipelines.sam2segnet import formats
 
@@ -85,22 +85,13 @@ class NetworkConfig(AbstractConfig):
     num_classes: int
     pretrained: bool
 
-    def validate(self):
+    def validate(self) -> None:
         if self.num_classes < 1:
-            raise InvalidConfigError(context="invalid-class-num", value=self.config_file)
+            raise InvalidConfigError(context="invalid-class-num", value=f"{self.num_classes=}")
         if not isinstance(self.model, str):
-            raise InvalidConfigError(context="only-str-model", value=self.model)
+            raise InvalidConfigError(context="only-str-model", value=f"{self.model=}")
         if not isinstance(self.pretrained, bool):
-            raise InvalidConfigError(context="only-bool-pretrained", value=self.pretrained)
-
-
-@dataclass
-class ProcessConfig(AbstractConfig):
-    force: bool = False
-
-    def validate(self):
-        if not isinstance(self.force, bool):
-            raise InvalidConfigError(context="invalid-force-type", value=f"{self.force=}")
+            raise InvalidConfigError(context="only-bool-pretrained", value=f"{self.pretrained=}")
 
 
 @dataclass
