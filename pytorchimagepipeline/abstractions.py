@@ -22,24 +22,61 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import inspect
+import logging
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, fields
+from dataclasses import asdict, dataclass, field, fields, is_dataclass
 from pathlib import Path
-from typing import Any, Optional, Union, get_args, get_origin, get_type_hints
+from typing import Any, Optional, TypeVar, Union, get_args, get_origin, get_type_hints
+
+import tomllib
 
 from pytorchimagepipeline.errors import InvalidConfigError
 
 
+@dataclass
+class AbstractCombinedConfig(ABC):
+    config_file: Path | str = field(init=False)
+
+    @abstractmethod
+    def __post_init__(self) -> None: ...
+
+    def _read_config(self) -> None:
+        if not isinstance(self.config_file, Path):
+            self.config_file = Path(self.config_file)
+        with self.config_file.open("rb") as content:
+            self.config = tomllib.load(content)
+
+
+class Permanence(ABC):
+    """Base class for objects that persist through the entire pipeline lifecycle"""
+
+    @abstractmethod
+    def cleanup(self) -> Optional[Exception]:
+        """Cleans up data from RAM or VRAM.
+
+        Since the objects are permanent, it might be necessary to call a cleanup.
+        This will be executed by the observer.
+
+        Returns:
+            Optional[Exception]: An exception if an error occurs during cleanup, otherwise None.
+        """
+        ...
+
+
+@dataclass(kw_only=True)
 class AbstractObserver(ABC):
     """Base class for the Observer class"""
 
-    def __init__(self, config):
-        self.__parse_config__(config)
+    config_file: Path | str
+    config: AbstractCombinedConfig = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.__parse_config__(self.config_file)
         self.__init_permanences__()
         self.__init_processes__()
 
     @abstractmethod
-    def __parse_config__(self, config) -> None: ...
+    def __parse_config__(self, config_file: Path | str) -> None: ...
 
     @abstractmethod
     def __init_permanences__(self) -> None:
@@ -78,22 +115,6 @@ class AbstractObserver(ABC):
         ...
 
 
-class Permanence(ABC):
-    """Base class for objects that persist through the entire pipeline lifecycle"""
-
-    @abstractmethod
-    def cleanup(self) -> Optional[Exception]:
-        """Cleans up data from RAM or VRAM.
-
-        Since the objects are permanent, it might be necessary to call a cleanup.
-        This will be executed by the observer.
-
-        Returns:
-            Optional[Exception]: An exception if an error occurs during cleanup, otherwise None.
-        """
-        ...
-
-
 class PipelineProcess(ABC):
     """Abstract base class for pipeline processes"""
 
@@ -113,7 +134,7 @@ class PipelineProcess(ABC):
         self.force = force
 
     @abstractmethod
-    def execute(self) -> Optional[Exception]:
+    def execute(self) -> None:
         """Executes the process.
 
         Args:
@@ -134,19 +155,16 @@ class PipelineProcess(ABC):
         ...
 
 
-ProcessPlanType = dict[str, type(PipelineProcess)]
-
-
 @dataclass
 class AbstractConfig(ABC):
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._apply_path()
         self.validate()
 
     @abstractmethod
     def validate(self) -> None: ...
 
-    def validate_params(self, params: dict[str, Any], cls: type):
+    def validate_params(self, params: dict[str, Any], cls: type) -> None:
         signature = inspect.signature(cls)  # Get constructor signature
 
         # Get expected parameters (excluding 'self')
@@ -158,10 +176,10 @@ class AbstractConfig(ABC):
         if not set(params.keys()).issubset(expected_params):
             raise InvalidConfigError(context="params-not-valid", value=str(cls))
 
-    def _apply_path(self):
+    def _apply_path(self) -> None:
         hints = get_type_hints(self.__class__)
-        for field in fields(self):
-            field_name = field.name
+        for _field in fields(self):
+            field_name = _field.name
             field_type = hints[field_name]
             value = getattr(self, field_name)
 
