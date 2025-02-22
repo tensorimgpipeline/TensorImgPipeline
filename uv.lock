@@ -2416,6 +2416,7 @@ dependencies = [
     { name = "torchvision" },
     { name = "tqdm" },
     { name = "typer" },
+    { name = "types-defusedxml" },
     { name = "wandb" },
 ]
 
@@ -2450,6 +2451,7 @@ requires-dist = [
     { name = "torchvision", specifier = ">=0.20.1" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "typer", specifier = ">=0.15.1" },
+    { name = "types-defusedxml", specifier = ">=0.7.0.20240218" },
     { name = "wandb", specifier = ">=0.19.6" },
 ]
 
@@ -3210,6 +3212,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/cb/ce/dca7b219718afd37a0068f4f2530a727c2b74a8b6e8e0c0080a4c0de4fcd/typer-0.15.1.tar.gz", hash = "sha256:a0588c0a7fa68a1978a069818657778f86abe6ff5ea6abf472f940a08bfe4f0a", size = 99789 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d0/cc/0a838ba5ca64dc832aa43f727bd586309846b0ffb2ce52422543e6075e8a/typer-0.15.1-py3-none-any.whl", hash = "sha256:7994fb7b8155b64d3402518560648446072864beefd44aa2dc36972a5972e847", size = 44908 },
+]
+
+[[package]]
+name = "types-defusedxml"
+version = "0.7.0.20240218"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/5c/04/acc0a4ef3ea7eff334e3bc73e7a7af54f06684dfea405c0c81fb28a243ab/types-defusedxml-0.7.0.20240218.tar.gz", hash = "sha256:05688a7724dc66ea74c4af5ca0efc554a150c329cb28c13a64902cab878d06ed", size = 5493 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/82/a3/6c007483045d362f45cc30955eb07644a3e8a0d57ee6293f5b540b127558/types_defusedxml-0.7.0.20240218-py3-none-any.whl", hash = "sha256:2b7f3c5ca14fdbe728fab0b846f5f7eb98c4bd4fd2b83d25f79e923caa790ced", size = 7827 },
 ]
 
 [[package]]
