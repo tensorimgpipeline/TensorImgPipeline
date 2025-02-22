@@ -192,6 +192,15 @@ class AbstractConfig(ABC):
                     setattr(self, field_name, Path(value))
 
 
+@dataclass
+class ProcessConfig(AbstractConfig):
+    force: bool = False
+
+    def validate(self) -> None:
+        if not isinstance(self.force, bool):
+            raise InvalidConfigError(context="invalid-force-type", value=f"{self.force=}")
+
+
 TConfig = TypeVar("TConfig", bound=AbstractConfig)
 TProcess = TypeVar("TProcess", bound=PipelineProcess)
 ProcessPlanType = dict[str, tuple[type[TProcess], TConfig]]
