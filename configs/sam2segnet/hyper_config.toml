@@ -1,3 +1,18 @@
+# DIRECT
+batch_size = 16
+num_epochs = 50
+aux_lambda = 0.0
+[optimizer]
+lr = 0.01
+momentum = 0.9
+dampening = 0.0
+weight_decay = 0.0
+
+[scheduler]
+step_size = 10
+
+
+# SWEEP
 [sweep_configuration]
 method = "random"
 
@@ -11,6 +26,10 @@ values = [16]
 [sweep_configuration.parameters.num_epochs]
 values = [50]
 
+[sweep_configuration.parameters.aux_lambda]
+min = 0.0
+max = 0.4
+
 [sweep_configuration.parameters.optimizer.parameters]
 lr = { min = 0.001, max = 0.1 }
 momentum = { min = 0.0, max = 0.9 }
@@ -19,7 +38,3 @@ weight_decay = { min = 0.0, max = 0.3 }
 
 [sweep_configuration.parameters.scheduler.parameters]
 step_size = { values = [10] }
-
-[sweep_configuration.parameters.aux_lambda]
-min = 0.0
-max = 0.4
