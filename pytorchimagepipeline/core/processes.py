@@ -1,3 +1,6 @@
+# type: ignore
+# ruff: noqa
+
 # Random selected images for final result
 # Training: [tensor([28]), tensor([46]), tensor([60]), tensor([63]), tensor([90])]
 # Validation: [tensor([10]), tensor([18]), tensor([35]), tensor([57]), tensor([79])]
@@ -15,7 +18,7 @@ from collections import OrderedDict
 import torch
 
 import wandb
-from pytorchimagepipeline.abstractions import PipelineProcess
+from pytorchimagepipeline.abstractions import AbstractObserver, PipelineProcess
 
 
 class ResultProcess(PipelineProcess):
@@ -48,7 +51,7 @@ class ResultProcess(PipelineProcess):
             Returns False indicating that this process should not be skipped.
     """
 
-    def __init__(self, observer, force, selected_images: dict[str, list[int]]):
+    def __init__(self, observer: AbstractObserver, force: bool, selected_images: dict[str, list[int]]):
         super().__init__(observer, force)
         self.progress_manager = observer.get_permanence("progress_manager")
 

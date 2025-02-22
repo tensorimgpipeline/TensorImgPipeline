@@ -3,20 +3,21 @@ from dataclasses import dataclass
 from functools import wraps
 from logging import info, warning
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 import torch
-from rich.console import Group
+from rich.console import Console, Group
 from rich.live import Live
 from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
 
 import wandb
 from pytorchimagepipeline.abstractions import Permanence
 from pytorchimagepipeline.errors import SweepNoConfigError
+from wandb.wandb_run import Run
 
 
 class VRAMUsageError(RuntimeError):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("All devices are using more than 80% of VRAM")
 
 
@@ -98,6 +99,16 @@ class Device(Permanence):
         pass
 
 
+class NullProgressManager(Permanence):
+    """
+    A null progress manager that does not perform any progress tracking.
+
+    This class is used if a observer does not provide a progress manager.
+    """
+
+    ...
+
+
 class ProgressManager(Permanence):
     """
     Manages progress tracking for tasks using the Rich library.
@@ -130,7 +141,7 @@ class ProgressManager(Permanence):
             not used
     """
 
-    def __init__(self, console=None, direct=False):
+    def __init__(self, console: Console | None = None, direct: bool = False) -> None:
         """
         Initializes the instance of the class.
 
@@ -146,7 +157,7 @@ class ProgressManager(Permanence):
         if direct:
             self._init_live()
 
-    def _create_progress(self, color="#F55500", with_status=False):
+    def _create_progress(self, color: str = "#F55500", with_status: bool = False) -> Progress:
         """
         Create a progress bar with specified color.
 
@@ -168,7 +179,7 @@ class ProgressManager(Permanence):
             console=self.console,
         )
 
-    def _init_live(self):
+    def _init_live(self) -> None:
         """
         Initializes the live attribute with a Live object.
         This method creates a Group object using the values from the
@@ -178,7 +189,7 @@ class ProgressManager(Permanence):
         group = Group(*self.progress_dict.values())
         self.live = Live(group, console=self.console)
 
-    def progress_task(self, task_name, visible=False):
+    def progress_task(self, task_name: str, visible: bool = False) -> Callable[[Any], Any]:
         """
         A decorator to add a progress tracking task to a function.
 
@@ -199,9 +210,9 @@ class ProgressManager(Permanence):
             - Update the task visibility when done.
         """
 
-        def decorator(func):
+        def decorator(func):  # type: ignore  # noqa: PGH003
             @wraps(func)
-            def wrapper(total, *args, **kwargs):
+            def wrapper(total: int, *args, **kwargs):  # type: ignore  # noqa: PGH003
                 progress_key = next((key for key in self.progress_dict if task_name.lower() in key), None)
                 if progress_key is None:
                     raise NotImplementedError(f"Progress for {task_name} not found")
@@ -223,7 +234,7 @@ class ProgressManager(Permanence):
 
         return decorator
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         self._init_live()
 
 
@@ -298,9 +309,9 @@ class WandBLogger(Permanence):
 
         self.cache_path = Path.home() / ".cache/wandb_local/sweep_id"
 
-        self.sweep_id = None
+        self.sweep_id: str | None = None
 
-        self.run_ids = []
+        self.run_ids: list[Run] = []
 
         self.global_step = 0
 
@@ -313,10 +324,9 @@ class WandBLogger(Permanence):
         if self.sweep_id is not None:
             self._write_cache_sweep_id()
 
-    def create_sweep_agent(self, func: callable) -> None:
-        self.agent = wandb.agent(
-            self.sweep_id, function=func, entity=self.entity, project=self.project, count=self.count
-        )
+    def create_sweep_agent(self, func: Callable[[Any], Any]) -> None:
+        if self.sweep_id:
+            wandb.agent(self.sweep_id, function=func, entity=self.entity, project=self.project, count=self.count)
 
     def init_wandb(self) -> None:
         """
@@ -337,7 +347,7 @@ class WandBLogger(Permanence):
         )
         self.run_ids.append(run_id)
 
-    def _is_sweep_active(self):
+    def _is_sweep_active(self) -> str | bool:
         if self.sweep_id is None:
             return False
         api = wandb.Api()
@@ -350,9 +360,10 @@ class WandBLogger(Permanence):
             return sweep.state.lower() in ["running", "pending"]
 
     def _write_cache_sweep_id(self) -> None:
-        self.cache_path.parent.mkdir(parents=True, exist_ok=True)
-        with self.cache_path.open("w") as f:
-            f.write(self.sweep_id)
+        if self.sweep_id:
+            self.cache_path.parent.mkdir(parents=True, exist_ok=True)
+            with self.cache_path.open("w") as f:
+                f.write(self.sweep_id)
 
     def _read_cached_sweep_id(self) -> None:
         if self.cache_path.exists():
