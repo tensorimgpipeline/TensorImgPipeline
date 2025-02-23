@@ -1,5 +1,3 @@
-import os
-
 import torch
 
 import wandb
@@ -23,7 +21,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 global_step = 0
 
 # Training loop
-for epoch in range(epochs):
+for _ in range(epochs):
     model.train()
     total_loss = 0
 
