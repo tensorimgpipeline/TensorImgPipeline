@@ -20,7 +20,10 @@ classifiers = [
 ]
 dependencies = [
     "defusedxml>=0.7.1",
+    "numpy>=2.0.2",
+    "opencv-python>=4.11.0.86",
     "rich>=13.9.4",
+    "segment-anything",
     "tomli ; python_version < '3.11'",
     "torch>=2.5.1",
     "torchvision>=0.20.1",
@@ -72,6 +75,10 @@ check_untyped_defs = true
 warn_return_any = true
 warn_unused_ignores = true
 show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = ["torchvision.*", "segment_anything.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -140,3 +147,6 @@ source = ["pytorchimagepipeline"]
 [tool.deptry]
 extend_exclude = ["notebooks/*", "submodules/*"]
 ignore = ["DEP002"]
+
+[tool.uv.sources]
+segment-anything = { path = "submodules/sam" }
