@@ -52,7 +52,7 @@ class ImageAnnotation:
     objects: list[ObjectAnnotation] = field(default_factory=list)
 
 
-def parse_voc_xml(xml_file: Path) -> tuple[ImageAnnotation | None, None | Exception]:
+def parse_voc_xml(xml_file: Path) -> ImageAnnotation:
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
@@ -63,7 +63,7 @@ def parse_voc_xml(xml_file: Path) -> tuple[ImageAnnotation | None, None | Except
     # Ensure 'size' exists
     size = root.find("size")
     if size is None:
-        return None, MissingSizeElementError()
+        raise MissingSizeElementError()
 
     # Extract size details safely
     width = int(size.findtext("width") or 0)
@@ -80,7 +80,7 @@ def parse_voc_xml(xml_file: Path) -> tuple[ImageAnnotation | None, None | Except
 
         bndbox = obj.find("bndbox")
         if bndbox is None:
-            return None, MissingBndBoxError()
+            raise MissingBndBoxError()
 
         bbox = BndBox(
             xmin=int(bndbox.findtext("xmin") or 0),
@@ -90,7 +90,7 @@ def parse_voc_xml(xml_file: Path) -> tuple[ImageAnnotation | None, None | Except
         )
         objects.append(ObjectAnnotation(name, pose, truncated, difficult, bbox))
 
-    return ImageAnnotation(folder, filename, width, height, depth, objects), None
+    return ImageAnnotation(folder, filename, width, height, depth, objects)
 
 
 def get_palette(N: int = 256, normalized: bool = False) -> list[int]:

@@ -1,31 +1,37 @@
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable
 
 import torch
 import torchvision
 from segment_anything import SamPredictor, sam_model_registry
-from tqdm import tqdm
 
 import wandb
-from pytorchimagepipeline.abstractions import AbstractObserver, PipelineProcess
+import wandb.sdk as wandb_sdk
+from pytorchimagepipeline.abstractions import PipelineProcess
 from pytorchimagepipeline.pipelines.sam2segnet.utils import get_palette
+
+if TYPE_CHECKING:
+    from pytorchimagepipeline.pipelines.sam2segnet.observer import Sam2SegnetObserver
 
 
 class PredictMasks(PipelineProcess):
-    def __init__(self, observer: AbstractObserver, force: bool) -> None:
+    def __init__(self, observer: Sam2SegnetObserver, force: bool) -> None:
         super().__init__(observer, force)
         sam_checkpoint = Path("data/models/sam_vit_h_4b8939.pth")
         model_type = "vit_h"
         self.sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
-        self.device = observer.get_permanence("device").device
-        self.dataset = observer.get_permanence("data").sam_dataset
-        self.mask_creator = observer.get_permanence("mask_creator")
-        self.progress_manager = observer.get_permanence("progress_manager")
+        self.device = observer.device
+        self.dataset = observer.data.sam_dataset
+        self.mask_creator = observer.mask_creator
+        if hasattr(observer, "progress"):
+            self.progress_manager = observer.progress
 
-    def execute(self):
+    def execute(self) -> None:
         self.sam.to(self.device)
         predictor = SamPredictor(self.sam)
 
-        bar = tqdm(len(self.dataset), desc="Predicting masks")
         for data in self.dataset:
             image, bboxes, bbox_classes, filestem = data
             bbox_classes_idx = torch.tensor(
@@ -57,28 +63,30 @@ class PredictMasks(PipelineProcess):
             mask_path = self.dataset.target_location / f"{filestem}.png"
             mask_as_pil.save(mask_path)
 
-            bar.update(1)
-            bar.refresh()
-
-    def skip(self):
+    def skip(self) -> bool:
         return self.dataset.all_created() and not self.force
 
 
 class TrainModel(PipelineProcess):
-    def __init__(self, observer, force):
+    def __init__(self, observer: Sam2SegnetObserver, force: bool) -> None:
         super().__init__(observer, force)
-        self.progress_manager = observer.get_permanence("progress_manager")
-        self.device = observer.get_permanence("device").device
-        self.model = observer.get_permanence("network").model_instance
+        if hasattr(observer, "progress"):
+            self.progress_manager = observer.progress
+        self.device = observer.device
+        self.model = observer.network.model_instance
         self.model.to(self.device)
 
         # Hyperparameters
-        self.wandb_logger = observer.get_permanence("wandb_logger")
-        self.wandb_logger.global_step = 0
-        self.hyperparams = wandb.config
+        self.hyperparams: dict[str, Any] | wandb_sdk.wandb_config.Config
+        if hasattr(observer, "wandb"):
+            self.wandb_logger = observer.wandb
+            self.wandb_logger.global_step = 0
+            self.hyperparams = wandb.config
+        else:
+            self.hyperparams = observer.hyperparams.hyperparams
 
         # Data
-        self.datasets = observer.get_permanence("data")
+        self.datasets = observer.data
         batch_size = self.hyperparams.get("batch_size", 20)
         trainset = self.datasets.segnet_dataset_train
         valset = self.datasets.segnet_dataset_val
@@ -89,7 +97,7 @@ class TrainModel(PipelineProcess):
         self.test_loader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
 
         # Training components
-        components = observer.get_permanence("training_components")
+        components = observer.training_components
         ignore_index = self.datasets.data_container.ignore
         self.criterion = components.Criterion(**self.hyperparams.get("criterion", {}), ignore_index=ignore_index)
         self.optimizer = components.Optimizer(self.model.parameters(), **self.hyperparams.get("optimizer", {}))
@@ -98,20 +106,18 @@ class TrainModel(PipelineProcess):
         )
         self.num_epochs = self.hyperparams.get("num_epochs", 20)
 
-    def skip(self):
+    def skip(self) -> bool:
         return False
 
-    def execute(self):
+    def execute(self) -> None:
         _epoch_step = self.get_epoch_step()
         _epoch_step(self.num_epochs)
 
-    def get_train_step(self) -> callable:
-        @self.progress_manager.progress_task("train", visible=False)
-        def _train_step(train_id, total, progress):
+    def get_train_step(self) -> Callable[[], float]:
+        def _train_step() -> float:
             self.model.train()
             running_loss = 0.0
-            for idx, data in enumerate(self.train_loader):
-                progress.advance(train_id)
+            for data in self.train_loader:
                 inputs, labels = data
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
 
@@ -125,74 +131,62 @@ class TrainModel(PipelineProcess):
                 self.optimizer.step()
 
                 running_loss += loss.item()
-                self.wandb_logger.log_metrics({"train_loss": loss.item()})
-                progress.update(train_id, status=f"Loss: {running_loss / (idx + 1)}")
+                if hasattr(self, "wandb_logger"):
+                    self.wandb_logger.log_metrics({"train_loss": loss.item()})
             self.scheduler.step()
-            self.wandb_logger.log_metrics({"epoch_loss": running_loss / len(self.train_loader)})
+            if hasattr(self, "wandb_logger"):
+                self.wandb_logger.log_metrics({"epoch_loss": running_loss / len(self.train_loader)})
             return running_loss
 
         return _train_step
 
-    def get_validate_step(self) -> callable:
-        @self.progress_manager.progress_task("val", visible=False)
-        def _validate_step(val_id, total, progress):
+    def get_validate_step(self) -> Callable[[], float]:
+        def _validate_step() -> float:
             self.model.eval()
             val_loss = 0.0
             with torch.no_grad():
-                for idx, data in enumerate(self.val_loader):
-                    progress.advance(val_id)
+                for data in self.val_loader:
                     inputs, labels = data
                     inputs, labels = inputs.to(self.device), labels.to(self.device)
                     outputs = self.model(inputs)
                     loss = self.criterion(outputs, labels)
                     val_loss += loss.item()
-                    progress.update(val_id, status=f"Mean Val Loss: {val_loss / (idx + 1)}")
-            self.wandb_logger.log_metrics({"val_loss": val_loss / len(self.val_loader)})
+            if hasattr(self, "wandb_logger"):
+                self.wandb_logger.log_metrics({"val_loss": val_loss / len(self.val_loader)})
             return val_loss
 
         return _validate_step
 
-    def get_test_step(self) -> callable:
-        @self.progress_manager.progress_task("test", visible=False)
-        def _test_step(test_id, total, progress):
+    def get_test_step(self) -> Callable[[], float]:
+        def _test_step() -> float:
             self.model.eval()
             test_loss = 0.0
             with torch.no_grad():
-                for idx, data in enumerate(self.test_loader):
-                    progress.advance(test_id)
+                for data in self.test_loader:
                     inputs, labels = data
                     inputs, labels = inputs.to(self.device), labels.to(self.device)
                     outputs = self.model(inputs)
                     loss = self.criterion(outputs, labels)
                     test_loss += loss.item()
-                    progress.update(test_id, status=f"Loss: {test_loss / (idx + 1)}")
-            self.wandb_logger.log_metrics({"test_loss": test_loss / len(self.test_loader)})
+            if hasattr(self, "wandb_logger"):
+                self.wandb_logger.log_metrics({"test_loss": test_loss / len(self.test_loader)})
             return test_loss
 
         return _test_step
 
-    def get_epoch_step(self) -> callable:
+    def get_epoch_step(self) -> Callable[[int], None]:
         _train_step = self.get_train_step()
         _validate_step = self.get_validate_step()
         _test_step = self.get_test_step()
 
-        @self.progress_manager.progress_task("epoch", visible=False)
-        def _epoch_step(epoch_id, total, progress):
-            num_train = len(self.train_loader)
-            num_val = len(self.val_loader)
-            num_test = len(self.test_loader)
-            for epoch in range(total):
-                progress.advance(epoch_id)
-                running_loss = _train_step(num_train)
+        def _epoch_step(total: int) -> None:
+            for _ in range(total):
+                _train_step()
 
                 if self.datasets.val_available():
-                    val_loss = _validate_step(num_val)
-                status = f"Epoch: {epoch + 1}, Loss: {running_loss / num_train}"
-                progress.update(epoch_id, status=status)
+                    _validate_step()
 
             if self.datasets.test_available():
-                test_loss = _test_step(num_test)
-                status = f"Epoch: {epoch + 1}, Loss: {running_loss / num_train}, Val Loss: {val_loss / num_val}, Test Loss: {test_loss / num_test}"
-                progress.update(epoch_id, status=status)
+                _test_step()
 
         return _epoch_step

@@ -41,7 +41,7 @@ class AbstractCombinedConfig(ABC):
     def __post_init__(self) -> None: ...
 
     def _read_config(self) -> None:
-        if not isinstance(self.config_file, Path):
+        if isinstance(self.config_file, str):
             self.config_file = Path(self.config_file)
         with self.config_file.open("rb") as content:
             self.config = tomllib.load(content)
@@ -67,7 +67,7 @@ class Permanence(ABC):
 class AbstractObserver(ABC):
     """Base class for the Observer class"""
 
-    config_file: Path | str
+    config_file: Path
     config: AbstractCombinedConfig = field(init=False)
 
     def __post_init__(self) -> None:
@@ -76,7 +76,7 @@ class AbstractObserver(ABC):
         self.__init_processes__()
 
     @abstractmethod
-    def __parse_config__(self, config_file: Path | str) -> None: ...
+    def __parse_config__(self, config_file: Path) -> None: ...
 
     @abstractmethod
     def __init_permanences__(self) -> None:

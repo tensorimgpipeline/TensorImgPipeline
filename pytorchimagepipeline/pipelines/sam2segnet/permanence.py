@@ -3,9 +3,12 @@ from __future__ import annotations
 import dataclasses
 import json
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from logging import warning
 from pathlib import Path
+from typing import Any
+
+from numpy import dtype, floating, integer, ndarray
 
 try:
     from tomllib import load as toml_load  # type ignore[import-not-found]
@@ -21,6 +24,7 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.models.segmentation as segmentation
 import torchvision.transforms.v2 as transforms
+from rich.console import Console
 from torchvision.datasets import VisionDataset
 from torchvision.io import decode_image
 from torchvision.tv_tensors import Mask
@@ -34,8 +38,8 @@ from pytorchimagepipeline.pipelines.sam2segnet.errors import (
     ModeError,
     ModelNotSupportedError,
 )
-from pytorchimagepipeline.pipelines.sam2segnet.formats import PascalVocFormat
-from pytorchimagepipeline.pipelines.sam2segnet.utils import parse_voc_xml
+from pytorchimagepipeline.pipelines.sam2segnet.formats import DatasetFormat, PascalVocFormat
+from pytorchimagepipeline.pipelines.sam2segnet.utils import BndBox, parse_voc_xml
 
 
 class Sam2SegnetProgressManager(ProgressManager):
@@ -56,7 +60,7 @@ class Sam2SegnetProgressManager(ProgressManager):
             Initializes the progress manager with optional console output.
     """
 
-    def __init__(self, console=None):
+    def __init__(self, console: Console | None = None) -> None:
         """
         Initialize the class with optional console parameter.
 
@@ -110,13 +114,15 @@ class TrainingComponents(Permanence):
     optimizer: str
     scheduler: str
     criterion: str
+    optimizer_params: dict = field(default_factory=dict)
+    scheduler_params: dict = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._load_optimizer()
         self._load_scheduler()
         self._load_criterion()
 
-    def _load_optimizer(self):
+    def _load_optimizer(self) -> None:
         optimizers = {
             "SGD": torch.optim.SGD,
             "Adam": torch.optim.Adam,
@@ -125,14 +131,14 @@ class TrainingComponents(Permanence):
         }
         self.Optimizer = optimizers[self.optimizer]
 
-    def _load_scheduler(self):
-        schedulers = {
+    def _load_scheduler(self) -> None:
+        schedulers: dict[str, type[torch.optim.lr_scheduler.LRScheduler]] = {
             "StepLR": torch.optim.lr_scheduler.StepLR,
             "MultiStepLR": torch.optim.lr_scheduler.MultiStepLR,
             "ExponentialLR": torch.optim.lr_scheduler.ExponentialLR,
             "ReduceLROnPlateau": torch.optim.lr_scheduler.ReduceLROnPlateau,
         }
-        schedulers_default_params = {
+        schedulers_default_params: dict[str, dict[str, Any]] = {
             "StepLR": {"step_size": 30},
             "MultiStepLR": {"milestones": [30, 60, 90]},
             "ExponentialLR": {"gamma": 0.95},
@@ -141,7 +147,7 @@ class TrainingComponents(Permanence):
         self.Scheduler = schedulers[self.scheduler]
         self.scheduler_params = schedulers_default_params[self.scheduler]
 
-    def _load_criterion(self):
+    def _load_criterion(self) -> None:
         criteria = {
             "CrossEntropyLoss": torch.nn.CrossEntropyLoss,
             "BCELoss": torch.nn.BCELoss,
@@ -150,7 +156,7 @@ class TrainingComponents(Permanence):
         }
         self.Criterion = criteria[self.criterion]
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         pass
 
 
@@ -176,15 +182,17 @@ class HyperParameters(Permanence):
 
     config_file: Path | str
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.config_file = Path(self.config_file)
         self.hyperparams = self._load_hyperparams()
 
-    def _load_hyperparams(self):
+    def _load_hyperparams(self) -> dict[str, Any] | Any:
+        if isinstance(self.config_file, str):
+            self.config_file = Path(self.config_file)
         with self.config_file.open(mode="rb") as file:
             return toml_load(file)
 
-    def calculate_batch_size(self, device: torch.device):
+    def calculate_batch_size(self, device: torch.device) -> None:
         # Calculate the batch size based on the available memory
         total_memory = torch.cuda.get_device_properties(device).total_memory
         reserved_memory = torch.cuda.memory_reserved(device)
@@ -198,7 +206,7 @@ class HyperParameters(Permanence):
 
         self.hyperparams["batch_size"] = batch_max_size if batch_size > batch_max_size else batch_size
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         pass
 
 
@@ -226,40 +234,41 @@ class Datasets(Permanence):
     root: Path | str
     data_format: str
 
-    def __post_init__(self):
-        self.root = Path(self.root)
+    def __post_init__(self) -> None:
+        if isinstance(self.root, str):
+            self.root = Path(self.root)
         self._load_data_container(self.data_format)
-        self.sam_dataset: VisionDataset = SamDataset(self.root, data_container=self.data_container)
+        self.sam_dataset: VisionDataset = SamDataset(self.root, data_container=self.data_container)  # type: ignore [no-any-unimported]
         train_transforms, val_test_transforms = self._get_transforms()
 
-        self.segnet_dataset_train: VisionDataset = SegnetDataset(
+        self.segnet_dataset_train: VisionDataset = SegnetDataset(  # type: ignore [no-any-unimported]
             self.root, data_container=self.data_container, transforms=train_transforms, mode="train"
         )
-        self.segnet_dataset_val: VisionDataset = SegnetDataset(
+        self.segnet_dataset_val: VisionDataset = SegnetDataset(  # type: ignore [no-any-unimported]
             self.root, data_container=self.data_container, transforms=val_test_transforms, mode="val"
         )
-        self.segnet_dataset_test: VisionDataset = SegnetDataset(
+        self.segnet_dataset_test: VisionDataset = SegnetDataset(  # type: ignore [no-any-unimported]
             self.root, data_container=self.data_container, transforms=val_test_transforms, mode="test"
         )
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         pass
 
-    def _load_data_container(self, data_format):
-        supported_formats = ["pascalvoc"]
+    def _load_data_container(self, data_format: str) -> None:
+        supported_formats = ["PascalVocFormat"]
 
-        if data_format == "pascalvoc":
+        if data_format == "PascalVocFormat":
             self.data_container = PascalVocFormat(self.root)
         else:
-            raise FormatNotSupportedError(format, supported_formats)
+            raise FormatNotSupportedError(f"{data_format=}", str(supported_formats))
 
-    def val_available(self):
+    def val_available(self) -> bool:
         return len(self.segnet_dataset_val) > 0
 
-    def test_available(self):
+    def test_available(self) -> bool:
         return len(self.segnet_dataset_test) > 0
 
-    def _get_transforms(self):
+    def _get_transforms(self) -> tuple[Any, Any]:
         """
         Based on https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_getting_started.html
         Creates and returns the transformation pipelines for training and validation/testing datasets.
@@ -347,17 +356,15 @@ class MaskCreator(Permanence):
     morph_size: int = 3
     border_size: int = 4
     ignore_value: int = 255
-    current_masks: torch.Tensor = None
+    current_masks: torch.Tensor = field(init=False)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         pass
 
-    def set_current_masks(self, masks: torch.ByteTensor) -> None:
+    def set_current_masks(self, masks: torch.Tensor) -> None:
         self.current_masks = masks
 
-    def create_mask(
-        self, masks: torch.FloatTensor | torch.cuda.FloatTensor
-    ) -> torch.ByteTensor | torch.cuda.ByteTensor:
+    def create_mask(self, masks: torch.Tensor) -> torch.Tensor:
         """
         Creates and processes a mask tensor by applying a series of morphological operations and
         merging masks based on their position.
@@ -377,7 +384,7 @@ class MaskCreator(Permanence):
         self._merge_masks()
         return self.current_masks.type(torch.uint8)
 
-    def _check_masks(self):
+    def _check_masks(self) -> None:
         """
         Checks the validity of the current masks.
 
@@ -396,7 +403,7 @@ class MaskCreator(Permanence):
             warning(UserWarning("Masks are not in float32 format. Converting to float32."))
             self.set_current_masks(self.current_masks.type(torch.float32))
 
-    def _merge_masks(self):
+    def _merge_masks(self) -> None:
         """
         Merge stacked binary masks where higher indices have priority
 
@@ -411,7 +418,7 @@ class MaskCreator(Permanence):
             result[mask > 0] = mask[mask > 0]
         self.set_current_masks(result)
 
-    def _create_border(self):
+    def _create_border(self) -> None:
         """
         Creates a border around the current masks by performing max pooling with a specified kernel size and padding.
         The mask + current mask are saved as the new current mask.
@@ -434,7 +441,7 @@ class MaskCreator(Permanence):
         # Add the border to the mask
         self.set_current_masks(self.current_masks + border)
 
-    def _erode(self, kernel_size=3, padding=1):
+    def _erode(self, kernel_size: int = 3, padding: int = 1) -> torch.Tensor:
         """
         Dilates the current masks using a max pooling operation.
         This Implementation is only used for binary masks.
@@ -453,7 +460,7 @@ class MaskCreator(Permanence):
         dilated = -F.max_pool2d(-masks, kernel_size=kernel_size, stride=1, padding=padding)
         return dilated
 
-    def _dilate(self, kernel_size=3, padding=1):
+    def _dilate(self, kernel_size: int = 3, padding: int = 1) -> torch.Tensor:
         """
         Dilates the current masks using a max pooling operation.
         This Implementation is only used for binary masks.
@@ -472,19 +479,19 @@ class MaskCreator(Permanence):
         dilated = F.max_pool2d(masks, kernel_size=kernel_size, stride=1, padding=padding)
         return dilated
 
-    def _opening(self):
+    def _opening(self) -> None:
         kernel_size = self._get_kernel_size()
         padding = self.morph_size
         self.set_current_masks(self._erode(kernel_size=kernel_size, padding=padding))
         self.set_current_masks(self._dilate(kernel_size=kernel_size, padding=padding))
 
-    def _closing(self):
+    def _closing(self) -> None:
         kernel_size = self._get_kernel_size()
         padding = self.morph_size
         self.current_masks = self._dilate(kernel_size=kernel_size, padding=padding)
         self.current_masks = self._erode(kernel_size=kernel_size, padding=padding)
 
-    def _get_kernel_size(self):
+    def _get_kernel_size(self) -> int:
         return 2 * self.morph_size + 1
 
 
@@ -515,9 +522,9 @@ class Network(Permanence):
     num_classes: int
     pretrained: bool
 
-    model_instance: torch.nn.Module = None
+    model_instance: torch.nn.Module = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.implemented_models = {
             "fcn_resnet50": segmentation.fcn_resnet50,
             "fnc_resnet101": segmentation.fcn_resnet101,
@@ -536,21 +543,21 @@ class Network(Permanence):
         }
         self._load_model()
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         self._load_model()
 
-    def _load_model(self):
+    def _load_model(self) -> None:
         if self.model not in self.implemented_models:
-            raise ModelNotSupportedError(self.model, self.implemented_models)
+            raise ModelNotSupportedError(self.model, f"{self.implemented_models=}")
         get_model_func = self.implemented_models[self.model]
         weights = self.pretrained_weights[self.model] if self.pretrained else None
 
         self.model_instance = get_model_func(weights=weights, num_classes=self.num_classes)
 
 
-class SamDataset(VisionDataset):
-    def __init__(self, root=None, data_container=None):
-        self.root = Path(root)
+class SamDataset(VisionDataset):  # type: ignore [no-any-unimported]
+    def __init__(self, root: Path, data_container: DatasetFormat) -> None:
+        self.root: Path = root
 
         self.dataobj = type(data_container)(**dataclasses.asdict(data_container))
         self.dataobj.get_data("train")
@@ -560,37 +567,43 @@ class SamDataset(VisionDataset):
 
         self.target_location = self.root / "SegmentationClassSAM"
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.dataobj.data)
 
-    def __getitem__(self, index):
+    def __getitem__(
+        self, index: int
+    ) -> tuple[ndarray[Any, dtype[integer[Any] | floating[Any]]], list[BndBox], list[str], str]:
         # Read filestem
         filestem = self.dataobj.data[index]
 
         # Read Image
-        img = cv2.imread(self.root / "JPEGImages" / f"{filestem}.jpg")
+        img = cv2.imread(str(self.root / "JPEGImages" / f"{filestem}.jpg"))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         # Read Annotations
-        annotation, error = parse_voc_xml(self.root / "Annotations" / f"{filestem}.xml")
-        if error:
-            raise error
+        annotation = parse_voc_xml(self.root / "Annotations" / f"{filestem}.xml")
         bboxes = [obj.bndbox for obj in annotation.objects]
         bbox_classes = [obj.name for obj in annotation.objects]
 
         return img, bboxes, bbox_classes, filestem
 
-    def all_created(self):
+    def all_created(self) -> torch.Tensor:
         files = (Path(stem).with_suffix(".png") for stem in self.dataobj.data)
-        return torch.tensor(list(map(Path.exists, map(self.target_location.joinpath, files))), dtype=bool).all()
+        return torch.tensor(list(map(Path.exists, map(self.target_location.joinpath, files))), dtype=torch.bool).all()
 
-    def save_item(self, index, mask):
+    def save_item(self, index: int, mask: torch.Tensor) -> None:
         mask = mask.squeeze()
         torchvision.utils.save_image(mask, str(self.target_location / self.images[index].name), "png")
 
 
-class SegnetDataset(VisionDataset):
-    def __init__(self, root=None, transforms=None, mode="train", data_container=None):
+class SegnetDataset(VisionDataset):  # type: ignore [no-any-unimported]
+    def __init__(
+        self,
+        root: Path,
+        data_container: DatasetFormat,
+        transforms: Any = None,
+        mode: str = "train",
+    ) -> None:
         super().__init__(root, transforms=transforms)
         if mode not in ["train", "val", "test"]:
             raise ModeError(mode)
@@ -601,10 +614,10 @@ class SegnetDataset(VisionDataset):
         self.dataobj = type(data_container)(**dataclasses.asdict(data_container))
         self.dataobj.get_data(mode)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.dataobj)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> tuple[torch.Tensor, torch.Tensor]:
         filestem = self.dataobj.data[index]
 
         # Read Image

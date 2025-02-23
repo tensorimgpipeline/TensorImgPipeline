@@ -12,7 +12,7 @@ class MaskShapeError(Exception):
 
 
 class ModelNotSupportedError(Exception):
-    def __init__(self, model_name: str, supported_models: list[str]) -> None:
+    def __init__(self, model_name: str, supported_models: str) -> None:
         super().__init__(
             f"Model {model_name} is not supported. Please choose one of the supported models: {supported_models}"
         )

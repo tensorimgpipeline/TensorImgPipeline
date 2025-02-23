@@ -15,7 +15,7 @@ class DataConfig(AbstractConfig):
     data_format: str
 
     def validate(self) -> None:
-        if not isinstance(self.root, Path):
+        if isinstance(self.root, str):
             self.root = Path(self.root)
         if not self.root.exists():
             raise InvalidConfigError(context="root-not-found", value=f"{self.root=}")
@@ -69,7 +69,7 @@ class HyperParamsConfig(AbstractConfig):
     config_file: Path | str
 
     def validate(self) -> None:
-        if not isinstance(self.config_file, Path):
+        if isinstance(self.config_file, str):
             self.config_file = Path(self.config_file)
         if not self.config_file.exists():
             raise InvalidConfigError(context="params-not-found", value=f"{self.config_file=}")
