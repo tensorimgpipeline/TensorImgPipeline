@@ -4,7 +4,8 @@ from typing import Any
 
 import torch
 
-from pytorchimagepipeline.abstractions import AbstractConfig, ProcessConfig
+from pytorchimagepipeline.abstractions import AbstractCombinedConfig, AbstractConfig, ProcessConfig
+from pytorchimagepipeline.core.config import WandBLoggerConfig
 from pytorchimagepipeline.errors import InvalidConfigError
 from pytorchimagepipeline.pipelines.sam2segnet import formats
 
@@ -100,6 +101,37 @@ class PredictMaskConfig(ProcessConfig): ...
 
 @dataclass
 class TrainModelConfig(ProcessConfig): ...
+
+
+@dataclass
+class Sam2SegnetConfig(AbstractCombinedConfig):
+    config_file: Path | str
+
+    config: dict[str, Any] = field(init=False)
+
+    wandb_config: WandBLoggerConfig = field(init=False)
+    data_config: DataConfig = field(init=False)
+    components_config: ComponentsConfig = field(init=False)
+    mask_creator_config: MaskCreatorConfig = field(init=False)
+    hyperparams_config: HyperParamsConfig = field(init=False)
+    network_config: NetworkConfig = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.config_file = Path(self.config_file)
+        if self.config_file.exists():
+            self._read_config()
+            # Load Permanence configs
+            self.wandb_config = WandBLoggerConfig(**self.config.get("wandb", {}))
+            self.data_config = DataConfig(**self.config.get("data", {}))
+            self.mask_creator_config = MaskCreatorConfig(**self.config.get("mask_creator", {}))
+            self.components_config = ComponentsConfig(**self.config.get("components", {}))
+            self.hyperparams_config = HyperParamsConfig(**self.config.get("hyperparams", {}))
+            self.network_config = NetworkConfig(**self.config.get("network", {}))
+            # Load Process configs
+            self.predict_masks_config = PredictMaskConfig(**self.config.get("predict_masks", {}))
+            self.train_model_config = TrainModelConfig(**self.config.get("train_model", {}))
+        else:
+            raise InvalidConfigError(context="missing-execution-config", value=f"{self.config=}")
 
 
 if __name__ == "__main__":
