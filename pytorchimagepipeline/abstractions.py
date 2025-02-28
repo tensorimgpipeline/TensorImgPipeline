@@ -243,3 +243,42 @@ class AbstractSimpleObserver(AbstractObserver):
             process_instance = process(self, **asdict(process_config))
             if not process_instance.skip():
                 process_instance.execute()
+
+
+@dataclass(kw_only=True)
+class AbstractProgressObserver(AbstractObserver):
+    process_plan: ProcessPlanType = field(init=False)
+
+    def run(self) -> None:
+        """
+        Executes each process in the list of processes.
+
+        Iterates over the processes, sets the current process, and executes it.
+        If an error occurs during the execution of a process, it handles the error.
+        Resets the current process to None after each execution.
+
+        Returns:
+            None
+        """
+        if not self.process_plan:
+            raise ValueError(self.process_plan)  # TODO add custom error
+
+        self._iter_processes()
+
+        self._iter_cleanup()
+
+    def _iter_cleanup(self) -> None:
+        for _field in fields(self):
+            if isinstance(_field, Permanence):
+                _field.cleanup()
+
+    def _iter_processes(self) -> None:
+        for step, process_with_config in self.process_plan.items():
+            logging.debug(f"Executing Process {step}")
+            process: type[PipelineProcess] = process_with_config[0]
+            process_config: type[AbstractConfig] = process_with_config[1]
+            if not (is_dataclass(process_config) and not isinstance(process_config, type)):
+                raise RuntimeError(process_config)
+            process_instance = process(self, **asdict(process_config))
+            if not process_instance.skip():
+                process_instance.execute()
