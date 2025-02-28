@@ -221,7 +221,7 @@ class ProgressManager(Permanence):
             console=self.console,
         )
 
-    def _init_live(self) -> None:
+    def init_live(self) -> None:
         """
         Initializes the live attribute with a Live object.
         This method creates a Group object using the values from the
@@ -230,6 +230,32 @@ class ProgressManager(Permanence):
         """
         group = Group(*self.progress_dict.values())
         self.live = Live(group, console=self.console)
+
+    def add_task_to_progress(self, task_description: str, total: int) -> int:
+        """
+        Add a task to the specified progress object.
+
+        Args:
+            task_description (str): Description of the task to be added.
+            This must match with a progress object name or a split of a progress object name.
+            total (int): The total number of steps for the task.
+
+        Returns:
+            int: The task_id of the added task.
+        """
+        progress = self._get_progress_for_task(task_description)
+        return progress.add_task(task_description, total=total, status="")
+
+    def _get_progress_for_task(self, task_description: str) -> Progress:
+        for key in self.progress_dict:
+            if task_description == key:
+                return self.progress_dict[key]
+            keys = key.split("-")
+            if task_description in keys:
+                return self.progress_dict[key]
+            else:
+                continue
+        raise RuntimeError(f"{task_description=}")
 
     def progress_task(self, task_name: str, visible: bool = False) -> Callable[[Any], Any]:
         """
@@ -430,3 +456,27 @@ class WandBLogger(Permanence):
         This method closes the Weights and Biases run.
         """
         # wandb.finish()
+
+
+if __name__ == "__main__":
+    progress_manager = ProgressManager()
+    progress_manager.add_progress("test1")
+    progress_manager.add_progress("test2")
+    for progress in progress_manager.progress_dict.values():
+        bar_col = progress.columns[1]
+        if isinstance(bar_col, BarColumn):
+            print(bar_col.complete_style)
+    # [
+    #     "#F55500",
+    #     "#FFFF55",
+    #     "#5555FF",
+    #     "#55ffaa",
+    #     "#80ff55",
+    # ]
+
+    progress_manager.add_progress("train-val-test", with_status=True)
+    task = TaskID(progress_manager.add_task_to_progress("train", 100))
+    progress_manager.init_live()
+    with progress_manager.live:
+        for _ in range(100):
+            progress_manager.progress_dict["train-val-test"].advance(task)
