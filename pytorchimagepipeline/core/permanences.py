@@ -8,11 +8,12 @@ from typing import Any, Callable, Optional
 import torch
 from rich.console import Console, Group
 from rich.live import Live
-from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
+from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeRemainingColumn
 
 import wandb
 from pytorchimagepipeline.abstractions import Permanence
 from pytorchimagepipeline.errors import SweepNoConfigError
+from pytorchimagepipeline.pipelines.sam2segnet.utils import create_color
 from wandb.wandb_run import Run
 
 
@@ -154,8 +155,49 @@ class ProgressManager(Permanence):
             "cleanup": self._create_progress(color="#FFFF55"),
             "result": self._create_progress(color="#5555FF"),
         }
+        self.bar_colors: list[str] = []
         if direct:
-            self._init_live()
+            self.init_live()
+
+    def add_progresses(self, progresses: list[dict[str, Any]]) -> None:
+        """
+        Add multiple progress objects to the progress_dict.
+        Also re-initializes the live attribute.
+
+        Args:
+            names (dict): A dictionary of task names and their visibility status.
+        """
+        for progress in progresses:
+            self.add_progress(**progress)
+        self.init_live()
+
+    def add_progress(self, name: str, with_status: bool = False) -> None:
+        """
+        Add a progress object to the progress_dict.
+
+        Args:
+            with_status (bool): Whether to include a status column. Defaults to False.
+            color (str): The color to use for the progress bar. Default is "#F55500".
+
+        Returns:
+            Progress: A Progress object configured with the specified color.
+        """
+        self._get_bar_colors()
+        color = create_color(self.bar_colors)
+        self.bar_colors.append(color)
+        progress = self._create_progress(color, with_status)
+        self.progress_dict[name] = progress
+
+    def _get_bar_colors(self) -> None:
+        if len(self.bar_colors) == len(self.progress_dict):
+            # All Bar colors are allready captured
+            return
+        self.bar_colors = []
+        for progress in self.progress_dict.values():
+            if not isinstance(progress.columns[1], BarColumn):
+                raise TypeError(f"{progress.columns[1]=}")
+            bar_column: BarColumn = progress.columns[1]
+            self.bar_colors.append(str(bar_column.complete_style))
 
     def _create_progress(self, color: str = "#F55500", with_status: bool = False) -> Progress:
         """
