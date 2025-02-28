@@ -5,7 +5,7 @@ from typing import Any
 import torch
 
 from pytorchimagepipeline.abstractions import AbstractCombinedConfig, AbstractConfig, ProcessConfig
-from pytorchimagepipeline.core.config import WandBLoggerConfig
+from pytorchimagepipeline.core.config import WandBManagerConfig
 from pytorchimagepipeline.errors import InvalidConfigError
 from pytorchimagepipeline.pipelines.sam2segnet import formats
 
@@ -109,7 +109,7 @@ class Sam2SegnetConfig(AbstractCombinedConfig):
 
     config: dict[str, Any] = field(init=False)
 
-    wandb_config: WandBLoggerConfig = field(init=False)
+    wandb_config: WandBManagerConfig = field(init=False)
     data_config: DataConfig = field(init=False)
     components_config: ComponentsConfig = field(init=False)
     mask_creator_config: MaskCreatorConfig = field(init=False)
@@ -121,7 +121,7 @@ class Sam2SegnetConfig(AbstractCombinedConfig):
         if self.config_file.exists():
             self._read_config()
             # Load Permanence configs
-            self.wandb_config = WandBLoggerConfig(**self.config.get("wandb", {}))
+            self.wandb_config = WandBManagerConfig(**self.config.get("wandb", {}))
             self.data_config = DataConfig(**self.config.get("data", {}))
             self.mask_creator_config = MaskCreatorConfig(**self.config.get("mask_creator", {}))
             self.components_config = ComponentsConfig(**self.config.get("components", {}))

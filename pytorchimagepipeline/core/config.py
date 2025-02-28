@@ -5,7 +5,7 @@ from pytorchimagepipeline.errors import InvalidConfigError
 
 
 @dataclass
-class WandBLoggerConfig(AbstractConfig):
+class WandManagerConfig(AbstractConfig):
     entity: str
     project: str
     name: str

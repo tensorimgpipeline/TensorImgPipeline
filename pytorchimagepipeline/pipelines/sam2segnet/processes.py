@@ -10,6 +10,7 @@ from segment_anything import SamPredictor, sam_model_registry
 import wandb
 import wandb.sdk as wandb_sdk
 from pytorchimagepipeline.abstractions import PipelineProcess
+from pytorchimagepipeline.core.permanences import NullProgressManager, NullWandBManager, WandBManager
 from pytorchimagepipeline.pipelines.sam2segnet.utils import get_palette
 
 if TYPE_CHECKING:
@@ -70,16 +71,16 @@ class PredictMasks(PipelineProcess):
 class TrainModel(PipelineProcess):
     def __init__(self, manager: Sam2SegnetManager, force: bool) -> None:
         super().__init__(manager, force)
-        if hasattr(manager, "progress"):
-            self.progress_manager = manager.progress
+        self.progress_manager = manager.progress or NullProgressManager()
         self.device = manager.device
         self.model = manager.network.model_instance
         self.model.to(self.device)
 
         # Hyperparameters
         self.hyperparams: dict[str, Any] | wandb_sdk.wandb_config.Config
-        if hasattr(manager, "wandb"):
-            self.wandb_logger = manager.wandb
+        self.wandb_manager = manager.wandb or NullWandBManager()
+
+        if isinstance(self.wand_manager, WandBManager):
             self.wandb_logger.global_step = 0
             self.hyperparams = wandb.config
         else:

@@ -307,9 +307,13 @@ class ProgressManager(Permanence):
 
 
 @dataclass
-class WandBLogger(Permanence):
+class NullWandBManager(Permanence): ...
+
+
+@dataclass
+class WandBManager(Permanence):
     """
-    WandbLogger class for managing logging of metrics to Weights and Biases.
+    WandBManager class for managing logging of metrics to Weights and Biases.
 
     This class inherits from the Permanence class and is responsible for logging metrics
     to Weights and Biases.
