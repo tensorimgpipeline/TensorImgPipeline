@@ -83,7 +83,7 @@ class Sam2SegnetProgressManager(ProgressManager):
             "train_val_test": self._create_progress(color="#5522ff", with_status=True),
         }
 
-        self._init_live()
+        self.init_live()
 
 
 @dataclass

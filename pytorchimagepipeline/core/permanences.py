@@ -235,7 +235,7 @@ class ProgressManager(Permanence):
         return decorator
 
     def cleanup(self) -> None:
-        self._init_live()
+        self.init_live()
 
 
 @dataclass
