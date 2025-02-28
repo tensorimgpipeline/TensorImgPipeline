@@ -1,8 +1,11 @@
+import colorsys
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import defusedxml.ElementTree as ET
+import numpy as np
 import torch
+from matplotlib.colors import hex2color, rgb2hex
 
 
 class MissingBndBoxError(ValueError):
@@ -123,3 +126,27 @@ def get_palette(N: int = 256, normalized: bool = False) -> list[int]:
         cmap[i] = torch.tensor([r, g, b])
     cmap = cmap / 255 if normalized else cmap
     return cmap.flatten().tolist()
+
+
+def create_color(hex_colors: list[str]) -> str:
+    rgb2hsv = np.vectorize(colorsys.rgb_to_hsv)
+    # Convert to RGB
+    rgb_colors = [hex2color(color) for color in hex_colors]
+
+    # Convert to numpy array
+    colors_array = np.array(rgb_colors)
+
+    # Convert to HSV
+    r, g, b = colors_array.T
+    h, s, v = rgb2hsv(r, g, b)
+    hsv = np.stack([h, s, v], axis=-1)
+
+    # To create a new color we place them in the middle between two colors with the biggest gap
+    # based on hue.
+    hsv.sort(axis=0)
+    distance_between = np.diff(hsv, axis=0)
+    selected_distance = np.argmax(distance_between[:, 0])
+    selected_color = hsv[selected_distance]
+    selected_color[0] = selected_color[0] + (distance_between[selected_distance] / 2)[0]
+
+    return rgb2hex(colorsys.hsv_to_rgb(*selected_color))
