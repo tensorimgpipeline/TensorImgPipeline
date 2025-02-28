@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from pytorchimagepipeline.abstractions import AbstractSimpleObserver, ProcessPlanType
-from pytorchimagepipeline.core.permanences import Device
+from pytorchimagepipeline.core.permanences import Device, ProgressManager
 from pytorchimagepipeline.pipelines.sam2segnet.config import Sam2SegnetConfig
 from pytorchimagepipeline.pipelines.sam2segnet.permanence import (
     Datasets,
@@ -22,6 +22,14 @@ class Sam2SegnetObserver(AbstractSimpleObserver):
         self.config = Sam2SegnetConfig(config_file=config_file)
 
     def __init_permanences__(self) -> None:
+        # Core Init Permanences
+        self.progress = ProgressManager()
+        additional_progresses = [
+            {"name": "create_masks", "with_status": True},
+            {"name": "epoch", "with_status": True},
+            {"name": "train-val-test", "with_status": True},
+        ]
+        self.progress.add_progresses(additional_progresses)
         # Core Permanences
         self.device = Device().device
         # self.wandb = WandBlogger(**asdict(self.config.wandb_config))
