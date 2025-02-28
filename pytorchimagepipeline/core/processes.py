@@ -18,7 +18,7 @@ from collections import OrderedDict
 import torch
 
 import wandb
-from pytorchimagepipeline.abstractions import AbstractObserver, PipelineProcess
+from pytorchimagepipeline.abstractions import AbstractManager, PipelineProcess
 
 
 class ResultProcess(PipelineProcess):
@@ -27,7 +27,7 @@ class ResultProcess(PipelineProcess):
     the training, validation, and testing phases of a machine learning pipeline.
 
     Attributes:
-        progress_manager: An instance of the progress manager obtained from the observer.
+        progress_manager: An instance of the progress manager obtained from the manager.
         total_epochs: The total number of epochs configured in wandb.
         train_images_indices: A list of indices for the training images.
         val_images_indices: A list of indices for the validation images.
@@ -51,19 +51,19 @@ class ResultProcess(PipelineProcess):
             Returns False indicating that this process should not be skipped.
     """
 
-    def __init__(self, observer: AbstractObserver, force: bool, selected_images: dict[str, list[int]]):
-        super().__init__(observer, force)
-        self.progress_manager = observer.get_permanence("progress_manager")
+    def __init__(self, manager: AbstractManager, force: bool, selected_images: dict[str, list[int]]):
+        super().__init__(manager, force)
+        self.progress_manager = manager.get_permanence("progress_manager")
 
-        self.device = observer.get_permanence("device").device
-        self.model = observer.get_permanence("network").model_instance
+        self.device = manager.get_permanence("device").device
+        self.model = manager.get_permanence("network").model_instance
         self.model.to(self.device)
 
         self.train_images_indices = selected_images.get("train")
         self.val_images_indices = selected_images.get("val")
         self.test_images_indices = selected_images.get("test")
 
-        self.datasets = observer.get_permanence("data")
+        self.datasets = manager.get_permanence("data")
         self.trainset = self.datasets.segnet_dataset_train
         self.valset = self.datasets.segnet_dataset_val
         self.testset = self.datasets.segnet_dataset_test

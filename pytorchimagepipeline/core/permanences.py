@@ -104,7 +104,7 @@ class NullProgressManager(Permanence):
     """
     A null progress manager that does not perform any progress tracking.
 
-    This class is used if a observer does not provide a progress manager.
+    This class is used if a manager does not provide a progress manager.
     """
 
     ...

@@ -13,20 +13,20 @@ from pytorchimagepipeline.abstractions import PipelineProcess
 from pytorchimagepipeline.pipelines.sam2segnet.utils import get_palette
 
 if TYPE_CHECKING:
-    from pytorchimagepipeline.pipelines.sam2segnet.observer import Sam2SegnetObserver
+    from pytorchimagepipeline.pipelines.sam2segnet.manager import Sam2SegnetManager
 
 
 class PredictMasks(PipelineProcess):
-    def __init__(self, observer: Sam2SegnetObserver, force: bool) -> None:
-        super().__init__(observer, force)
+    def __init__(self, manager: Sam2SegnetManager, force: bool) -> None:
+        super().__init__(manager, force)
         sam_checkpoint = Path("data/models/sam_vit_h_4b8939.pth")
         model_type = "vit_h"
         self.sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
-        self.device = observer.device
-        self.dataset = observer.data.sam_dataset
-        self.mask_creator = observer.mask_creator
-        if hasattr(observer, "progress"):
-            self.progress_manager = observer.progress
+        self.device = manager.device
+        self.dataset = manager.data.sam_dataset
+        self.mask_creator = manager.mask_creator
+        if hasattr(manager, "progress"):
+            self.progress_manager = manager.progress
 
     def execute(self) -> None:
         self.sam.to(self.device)
@@ -68,25 +68,25 @@ class PredictMasks(PipelineProcess):
 
 
 class TrainModel(PipelineProcess):
-    def __init__(self, observer: Sam2SegnetObserver, force: bool) -> None:
-        super().__init__(observer, force)
-        if hasattr(observer, "progress"):
-            self.progress_manager = observer.progress
-        self.device = observer.device
-        self.model = observer.network.model_instance
+    def __init__(self, manager: Sam2SegnetManager, force: bool) -> None:
+        super().__init__(manager, force)
+        if hasattr(manager, "progress"):
+            self.progress_manager = manager.progress
+        self.device = manager.device
+        self.model = manager.network.model_instance
         self.model.to(self.device)
 
         # Hyperparameters
         self.hyperparams: dict[str, Any] | wandb_sdk.wandb_config.Config
-        if hasattr(observer, "wandb"):
-            self.wandb_logger = observer.wandb
+        if hasattr(manager, "wandb"):
+            self.wandb_logger = manager.wandb
             self.wandb_logger.global_step = 0
             self.hyperparams = wandb.config
         else:
-            self.hyperparams = observer.hyperparams.hyperparams
+            self.hyperparams = manager.hyperparams.hyperparams
 
         # Data
-        self.datasets = observer.data
+        self.datasets = manager.data
         batch_size = self.hyperparams.get("batch_size", 20)
         trainset = self.datasets.segnet_dataset_train
         valset = self.datasets.segnet_dataset_val
@@ -97,7 +97,7 @@ class TrainModel(PipelineProcess):
         self.test_loader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
 
         # Training components
-        components = observer.training_components
+        components = manager.training_components
         ignore_index = self.datasets.data_container.ignore
         self.criterion = components.Criterion(**self.hyperparams.get("criterion", {}), ignore_index=ignore_index)
         self.optimizer = components.Optimizer(self.model.parameters(), **self.hyperparams.get("optimizer", {}))

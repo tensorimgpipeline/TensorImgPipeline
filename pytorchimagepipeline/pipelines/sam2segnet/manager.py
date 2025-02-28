@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from pytorchimagepipeline.abstractions import AbstractSimpleObserver, ProcessPlanType
+from pytorchimagepipeline.abstractions import AbstractSimpleManager, ProcessPlanType
 from pytorchimagepipeline.core.permanences import Device, ProgressManager
 from pytorchimagepipeline.pipelines.sam2segnet.config import Sam2SegnetConfig
 from pytorchimagepipeline.pipelines.sam2segnet.permanence import (
@@ -17,7 +17,7 @@ from pytorchimagepipeline.pipelines.sam2segnet.processes import PredictMasks, Tr
 
 
 @dataclass
-class Sam2SegnetObserver(AbstractSimpleObserver):
+class Sam2SegnetManager(AbstractSimpleManager):
     def __parse_config__(self, config_file: Path) -> None:
         self.config = Sam2SegnetConfig(config_file=config_file)
 
@@ -52,6 +52,6 @@ class Sam2SegnetObserver(AbstractSimpleObserver):
 
 if __name__ == "__main__":
     config_file = Path("configs/sam2segnet/execute_pipeline.toml")
-    observer = Sam2SegnetObserver(config_file=config_file)
+    manager = Sam2SegnetManager(config_file=config_file)
 
-    observer.run()
+    manager.run()

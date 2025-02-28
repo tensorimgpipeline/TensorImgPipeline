@@ -1,7 +1,7 @@
 """This module defines abstract base classes for the Pytorch image pipeline.
 
 Classes:
-    AbstractObserver: Base class for the Observer class.
+    AbstractManager: Base class for the Manager class.
     Permanence: Base class for objects that persist through the entire pipeline lifecycle.
     PipelineProcess: Abstract base class for pipeline processes.
 
@@ -55,7 +55,7 @@ class Permanence(ABC):
         """Cleans up data from RAM or VRAM.
 
         Since the objects are permanent, it might be necessary to call a cleanup.
-        This will be executed by the observer.
+        This will be executed by the manager.
 
         Returns:
             Optional[Exception]: An exception if an error occurs during cleanup, otherwise None.
@@ -64,8 +64,8 @@ class Permanence(ABC):
 
 
 @dataclass(kw_only=True)
-class AbstractObserver(ABC):
-    """Base class for the Observer class"""
+class AbstractManager(ABC):
+    """Base class for the Manager class"""
 
     config_file: Path
     config: AbstractCombinedConfig = field(init=False)
@@ -82,8 +82,8 @@ class AbstractObserver(ABC):
     def __init_permanences__(self) -> None:
         """Initializes the permanences.
 
-        This method initializes the permanences that are used by the observer.
-        The implementation details depend on the concrete observer class.
+        This method initializes the permanences that are used by the manager.
+        The implementation details depend on the concrete manager class.
 
         Returns:
             None: This method doesn't return any value
@@ -94,8 +94,8 @@ class AbstractObserver(ABC):
     def __init_processes__(self) -> None:
         """Initializes the processes.
 
-        This method initializes the processes that are used by the observer.
-        The implementation details depend on the concrete observer class.
+        This method initializes the processes that are used by the manager.
+        The implementation details depend on the concrete manager class.
 
         Returns:
             None: This method doesn't return any value
@@ -104,10 +104,10 @@ class AbstractObserver(ABC):
 
     @abstractmethod
     def run(self) -> None:
-        """Executes the observer's processes.
+        """Executes the manager's processes.
 
-        This method runs the specific processes defined by the observer implementation.
-        The execution details depend on the concrete observer class. #todo: add different observers
+        This method runs the specific processes defined by the manager implementation.
+        The execution details depend on the concrete manager class. #todo: add different managers
 
         Returns:
             None: This method doesn't return any value
@@ -118,19 +118,19 @@ class AbstractObserver(ABC):
 class PipelineProcess(ABC):
     """Abstract base class for pipeline processes"""
 
-    def __init__(self, observer: AbstractObserver, force: bool) -> None:
+    def __init__(self, manager: AbstractManager, force: bool) -> None:
         """
-        Initializes the instance with the given observer.
+        Initializes the instance with the given manager.
 
-        When overriding this method, make sure to call the super().__init__(observer, force) method.
-        In genereal instead of creating a new instance of the observer, the observer should be passed as an argument.
+        When overriding this method, make sure to call the super().__init__(manager, force) method.
+        In genereal instead of creating a new instance of the manager, the manager should be passed as an argument.
         The same applies to the force parameter.
 
         Args:
-            observer (AbstractObserver): The observer to be assigned to the instance.
+            manager (AbstractManager): The manager to be assigned to the instance.
         """
 
-        self.observer = observer
+        self.manager = manager
         self.force = force
 
     @abstractmethod
@@ -138,7 +138,7 @@ class PipelineProcess(ABC):
         """Executes the process.
 
         Args:
-            observer (AbstractObserver): The observer instance managing the pipeline.
+            manager (AbstractManager): The manager instance managing the pipeline.
 
         Returns:
             Optional[Exception]: An exception if an error occurs during execution, otherwise None.
@@ -207,7 +207,7 @@ ProcessPlanType = dict[str, tuple[type[TProcess], TConfig]]
 
 
 @dataclass(kw_only=True)
-class AbstractSimpleObserver(AbstractObserver):
+class AbstractSimpleManager(AbstractManager):
     process_plan: ProcessPlanType = field(init=False)
 
     def run(self) -> None:
@@ -246,7 +246,7 @@ class AbstractSimpleObserver(AbstractObserver):
 
 
 @dataclass(kw_only=True)
-class AbstractProgressObserver(AbstractObserver):
+class AbstractProgressManager(AbstractManager):
     process_plan: ProcessPlanType = field(init=False)
 
     def run(self) -> None:
