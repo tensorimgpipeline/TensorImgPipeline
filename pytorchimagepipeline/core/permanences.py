@@ -246,6 +246,12 @@ class ProgressManager(Permanence):
         progress = self._get_progress_for_task(task_description)
         return progress.add_task(task_description, total=total, status="")
 
+    def advance(self, progress_name: str, step: float = 1.0):
+        if progress_name not in self.progress_dict:
+            raise ValueError(f"{progress_name=}")
+        progress = self.progress_dict[progress_name]
+        progress.advance(1, step)
+
     def _get_progress_for_task(self, task_description: str) -> Progress:
         for key in self.progress_dict:
             if task_description == key:
