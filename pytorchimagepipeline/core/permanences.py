@@ -253,12 +253,13 @@ class ProgressManager(Permanence):
         visible = not progress._tasks[task_id].finished and progress._tasks[task_id].completed >= 0
         progress.update(task_id, visible=visible)
 
-    def advance(self, progress_name: str, task_id: int, step: float = 1.0):
+    def advance(self, progress_name: str, task_id: int, step: float = 1.0, status=""):
         if progress_name not in self.progress_dict:
             raise ValueError(f"{progress_name=}")
         progress = self.progress_dict[progress_name]
         self._toogle_visability(progress, task_id)
         progress.advance(task_id, step)
+        progress.update(task_id, status=status)
         self._toogle_visability(progress, task_id)
 
     def _get_progress_for_task(self, task_description: str) -> Progress:
