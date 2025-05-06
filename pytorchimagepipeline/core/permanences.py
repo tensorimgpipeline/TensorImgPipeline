@@ -234,10 +234,12 @@ class ProgressManager(Permanence):
     def add_task_to_progress(self, task_description: str, total: int) -> int:
         """
         Add a task to the specified progress object.
+        The string `task_description` will be evaluated by `_get_progress_for_task` to determine a
+            matching progress
 
         Args:
             task_description (str): Description of the task to be added.
-            This must match with a progress object name or a split of a progress object name.
+                This must match with a progress object name or a split of a progress object name.
             total (int): The total number of steps for the task.
 
         Returns:
