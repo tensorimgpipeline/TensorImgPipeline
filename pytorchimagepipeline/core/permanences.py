@@ -231,7 +231,7 @@ class ProgressManager(Permanence):
         group = Group(*self.progress_dict.values())
         self.live = Live(group, console=self.console)
 
-    def add_task_to_progress(self, task_description: str, total: int) -> int:
+    def add_task_to_progress(self, task_description: str, total: int, visible=False) -> int:
         """
         Add a task to the specified progress object.
         The string `task_description` will be evaluated by `_get_progress_for_task` to determine a
@@ -241,12 +241,13 @@ class ProgressManager(Permanence):
             task_description (str): Description of the task to be added.
                 This must match with a progress object name or a split of a progress object name.
             total (int): The total number of steps for the task.
+            visible (bool): Define if the task is visible at creation. DEFAULT: False
 
         Returns:
             int: The task_id of the added task.
         """
         progress = self._get_progress_for_task(task_description)
-        return progress.add_task(task_description, total=total, status="", visible=False)
+        return progress.add_task(task_description, total=total, status="", visible=visible)
 
     def _toogle_visability(self, progress: Progress, task_id: int):
         visible = not progress._tasks[task_id].finished and progress._tasks[task_id].completed >= 0
