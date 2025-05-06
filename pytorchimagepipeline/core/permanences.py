@@ -278,51 +278,6 @@ class ProgressManager(Permanence):
         for task_id in self.progress_dict[progress_name]._tasks:
             progress.reset(task_id)
 
-    def progress_task(self, task_name: str, visible: bool = False) -> Callable[[Any], Any]:
-        """
-        A decorator to add a progress tracking task to a function.
-
-        Args:
-            task_name (str): The name of the task to be tracked.
-            visible (bool, optional): Whether the task should be visible when done. Defaults to False.
-
-        Returns:
-            function: The decorated function with progress tracking.
-
-        The decorated function should have the following signature:
-            func(task_id, total, progress, *args, **kwargs)
-
-        The decorator will:
-            - Create a progress task if it does not already exist.
-            - Add the task to the progress tracker.
-            - Call the decorated function with the task_id, total, progress, and any additional arguments.
-            - Update the task visibility when done.
-        """
-
-        def decorator(func):  # type: ignore  # noqa: PGH003
-            @wraps(func)
-            def wrapper(total: int, *args, **kwargs):  # type: ignore  # noqa: PGH003
-                progress_key = next((key for key in self.progress_dict if task_name.lower() in key), None)
-                if progress_key is None:
-                    raise NotImplementedError(f"Progress for {task_name} not found")
-                progress = self.progress_dict[progress_key]
-                # Add task to progress
-                task_id = progress.add_task(task_name, total=total, status="")
-
-                # Call the function with task_id
-                result = func(task_id, total, progress, *args, **kwargs)
-
-                if not progress.finished:
-                    warning(UserWarning("Progress not completed, Wrong total provided or advance steps to small"))
-
-                # Hide task when done
-                progress.update(task_id, visible=visible)
-                return result
-
-            return wrapper
-
-        return decorator
-
     def cleanup(self) -> None:
         self.init_live()
 
