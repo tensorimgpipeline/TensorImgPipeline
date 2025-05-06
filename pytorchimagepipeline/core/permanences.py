@@ -269,6 +269,13 @@ class ProgressManager(Permanence):
                 continue
         raise RuntimeError(f"{task_description=}")
 
+    def reset(self, progress_name):
+        if progress_name not in self.progress_dict:
+            raise ValueError(f"{progress_name=}")
+        progress = self.progress_dict[progress_name]
+        for task_id in self.progress_dict[progress_name]._tasks:
+            progress.reset(task_id)
+
     def progress_task(self, task_name: str, visible: bool = False) -> Callable[[Any], Any]:
         """
         A decorator to add a progress tracking task to a function.
