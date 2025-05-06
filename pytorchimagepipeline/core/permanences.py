@@ -459,14 +459,13 @@ if __name__ == "__main__":
     # ]
     progress_manager.add_progress("epoch", with_status=True)
     progress_manager.add_progress("train-val-test", with_status=True)
-    task_epoch = TaskID(progress_manager.add_task_to_progress("epoch", 3))
+    task_epoch = TaskID(progress_manager.add_task_to_progress("epoch", total=3, visible=True))
     task_train = TaskID(progress_manager.add_task_to_progress("train", 100))
     task_val = TaskID(progress_manager.add_task_to_progress("val", 50))
     task_test = TaskID(progress_manager.add_task_to_progress("test", 10))
     progress_manager.init_live()
     with progress_manager.live:
         for _ in range(3):
-            progress_manager._toogle_visability(progress_manager.progress_dict["epoch"], task_epoch)
             for _ in range(100):
                 progress_manager.advance("train-val-test", task_train)
                 sleep(0.1)
@@ -477,4 +476,4 @@ if __name__ == "__main__":
                 progress_manager.advance("train-val-test", task_test)
                 sleep(0.1)
             progress_manager.reset("train-val-test")
-            progress_manager.advance("epoch", task_epoch)
+            progress_manager.advance("epoch", task_epoch, status="NEW")
