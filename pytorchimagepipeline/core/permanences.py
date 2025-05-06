@@ -484,6 +484,8 @@ class WandBManager(Permanence):
 
 
 if __name__ == "__main__":
+    from time import sleep
+
     progress_manager = ProgressManager()
     progress_manager.add_progress("test1")
     progress_manager.add_progress("test2")
@@ -498,10 +500,24 @@ if __name__ == "__main__":
     #     "#55ffaa",
     #     "#80ff55",
     # ]
-
+    progress_manager.add_progress("epoch", with_status=True)
     progress_manager.add_progress("train-val-test", with_status=True)
-    task = TaskID(progress_manager.add_task_to_progress("train", 100))
+    task_epoch = TaskID(progress_manager.add_task_to_progress("epoch", 3))
+    task_train = TaskID(progress_manager.add_task_to_progress("train", 100))
+    task_val = TaskID(progress_manager.add_task_to_progress("val", 50))
+    task_test = TaskID(progress_manager.add_task_to_progress("test", 10))
     progress_manager.init_live()
     with progress_manager.live:
-        for _ in range(100):
-            progress_manager.progress_dict["train-val-test"].advance(task)
+        for _ in range(3):
+            progress_manager._toogle_visability(progress_manager.progress_dict["epoch"], task_epoch)
+            for _ in range(100):
+                progress_manager.advance("train-val-test", task_train)
+                sleep(0.1)
+            for _ in range(50):
+                progress_manager.advance("train-val-test", task_val)
+                sleep(0.1)
+            for _ in range(10):
+                progress_manager.advance("train-val-test", task_test)
+                sleep(0.1)
+            progress_manager.reset("train-val-test")
+            progress_manager.advance("epoch", task_epoch)
