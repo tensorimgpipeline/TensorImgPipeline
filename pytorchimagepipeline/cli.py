@@ -40,12 +40,12 @@ def build_pipeline(
         raise error
 
     # Build the pipeline
-    observer, error = builder.build()
+    controller, error = builder.build()
     if error:
         raise error
 
     # Run the pipeline
-    observer.run()
+    controller.run()
 
 
 if __name__ == "__main__":

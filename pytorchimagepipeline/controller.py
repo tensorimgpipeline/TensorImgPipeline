@@ -1,10 +1,10 @@
 # type: ignore
 # ruff: noqa
-"""This module defines an Observer responsible for managing a pipeline of processes and handling
+"""This module defines an PipelineController responsible for managing a pipeline of processes and handling
 potential errors that occur during their execution.
 
 Classes:
-    Observer: Manages a pipeline of processes and handles errors that occur during.
+    PipelineController: Manages a pipeline of processes and handles errors that occur during.
 
 Copyright (C) 2025 Matti Kaupenjohann
 
@@ -25,9 +25,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 from __future__ import annotations
 
 from functools import wraps
-from typing import Any
+from typing import Any, Callable
 
-from pytorchimagepipeline.abstractions import AbstractObserver, Permanence, PipelineProcess
+from pytorchimagepipeline.abstractions import AbstractController, Permanence, PipelineProcess
 from pytorchimagepipeline.errors import (
     BuilderError,
     ErrorCode,
@@ -37,10 +37,10 @@ from pytorchimagepipeline.errors import (
 )
 
 
-class Observer(AbstractObserver):
+class PipelineController(AbstractController):
     def __init__(self, permanences: dict[str, Permanence]):
         """
-        Initializes the Observer with the given permanences.
+        Initializes the PipelineController with the given permanences.
 
         Args:
             permanences (dict[str, Permanence]): A dictionary mapping string keys to Permanence objects.
@@ -68,7 +68,7 @@ class Observer(AbstractObserver):
         else:
             self.run()
 
-    def _get_progress_decorator(self) -> callable:
+    def _get_progress_decorator(self) -> Callable:
         def empty_decorator(func):
             @wraps(func)
             def wrapper(total, *args, **kwargs):

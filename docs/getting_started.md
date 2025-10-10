@@ -21,7 +21,7 @@ UML Diagram sketch of `PytorchImagePipeline`
 ///
 
 In the diagram are the three main components of the PytorchImagePipeline depicted.
-The [`Observer`][{{ observer }}] class is central part of the pipeline, storing and providing all the necessary components of the pipeline.
+The [`PipelineController`][{{ controller }}] class is central part of the pipeline, storing and providing all the necessary components of the pipeline.
 The [`Permanence`][{{ permanence }}] abstract class is used to create new implementations for objects which hold permanent information about the pipeline.
 As example a `Dataset` is a kind of information, which a process needs to access, but could be created without the flow of the pipeline.
 Compared to a script a `Dataset` is mostly an instance which is in the global scope.
@@ -29,11 +29,11 @@ The [`PipelineProcess`][{{ process }}] abstract class is the opposite to a [`Per
 As example a `Visualization` creates a figure, which displays given batch of images as subplots with certain config.
 Of course, we could extract further parts of the `Visualization` as new [`Permanence`][{{ permanence }}] implementations, as example the parameters of the figure.
 
-The [`Observer`][{{ observer }}] is instantiated with a dictionary of zero [`Permanence`][{{ permanence }}] or more.
+The [`PipelineController`][{{ controller }}] is instantiated with a dictionary of zero [`Permanence`][{{ permanence }}] or more.
 This step is displayed as the aggregation[^1].
-Afterwards one [`PipelineProcesse`][{{ process }}] or more are added to the [`Observer`][{{ observer }}].
+Afterwards one [`PipelineProcesse`][{{ process }}] or more are added to the [`PipelineController`][{{ controller }}].
 This step is displayed as the composition[^1].
-The run method of the [`Observer`][{{ observer }}] class iterates over each [`PipelineProcess`][{{ process }}] and calls it [`execute`][{{ process_execute }}] method, which uses (displayed as association[^1]) the observer itself to access the [`Permanence`][{{ permanence }}] if needed.
+The run method of the [`PipelineController`][{{ Controller }}] class iterates over each [`PipelineProcess`][{{ process }}] and calls it [`execute`][{{ process_execute }}] method, which uses (displayed as association[^1]) the controller itself to access the [`Permanence`][{{ permanence }}] if needed.
 
 [^1]: A short explanation between an [aggregation vs. composition vs. association](https://www.visual-paradigm.com/guide/uml-unified-modeling-language/uml-aggregation-vs-composition/).
 
@@ -174,7 +174,7 @@ As the last step or in parallel while developing a new pipeline, documenting the
 +      - new_pipeline: pipelines/new_pipeline.md
    - Modules:
        - builder.py: modules/builder.md
-       - observer.py: modules/observer.md
+       - controller.py: modules/controller.md
 ```
 
 Additional also extending the module section is possible.

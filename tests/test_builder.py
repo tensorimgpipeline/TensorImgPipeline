@@ -18,6 +18,7 @@ except ImportError:
 
 from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
 from pytorchimagepipeline.builder import PipelineBuilder, get_objects_for_pipeline
+from pytorchimagepipeline.controller import PipelineController
 from pytorchimagepipeline.errors import (
     ConfigInvalidTomlError,
     ConfigNotFoundError,
@@ -27,7 +28,6 @@ from pytorchimagepipeline.errors import (
     RegistryError,
     RegistryParamError,
 )
-from pytorchimagepipeline.observer import Observer
 
 
 class MockedPermanence(Permanence):
@@ -37,8 +37,8 @@ class MockedPermanence(Permanence):
 
 
 class MockedPipelineProcess(PipelineProcess):
-    def execute(self, observer):
-        print(f"Running execute with {observer}")
+    def execute(self, controller):
+        print(f"Running execute with {controller}")
         return None
 
 
@@ -142,13 +142,13 @@ class TestPipelineBuilder:
         self.pipeline_builder.register_class("MockedPipelineProcess", MockedPipelineProcess)
         self.pipeline_builder.register_class("MockedPermanence", MockedPermanence)
         self.pipeline_builder._config["processes"] = processes_config
-        observer = Observer({})
+        controller = PipelineController({})
 
-        error = self.pipeline_builder._build_processes(observer)
+        error = self.pipeline_builder._build_processes(controller)
 
         if expected_error is None:
             assert error is None
-            assert len(observer._processes) == len(processes_config)
+            assert len(controller._processes) == len(processes_config)
         else:
             assert isinstance(error, expected_error)
             assert str(error)
@@ -208,13 +208,13 @@ class TestPipelineBuilder:
         self.pipeline_builder.register_class("MockedPipelineProcess", MockedPipelineProcess)
         self.pipeline_builder._config = config
 
-        observer, error = self.pipeline_builder.build()
+        controller, error = self.pipeline_builder.build()
 
         if expected_error is None:
             assert error is None
-            assert observer is not None
-            assert len(observer._permanences) == len(config["permanences"])
-            assert len(observer._processes) == len(config["processes"])
+            assert controller is not None
+            assert len(controller._permanences) == len(config["permanences"])
+            assert len(controller._processes) == len(config["processes"])
         else:
             assert isinstance(error, expected_error)
 

@@ -64,7 +64,7 @@ from pytorchimagepipeline.errors import (
     RegistryError,
     RegistryParamError,
 )
-from pytorchimagepipeline.observer import Observer
+from pytorchimagepipeline.controller import PipelineController
 
 
 @dataclass
@@ -72,10 +72,10 @@ class ProcessWithParams:
     process: PipelineProcess
     params: dict[str, Any]
 
-    def get_instance(self, observer: Observer) -> PipelineProcess:
+    def get_instance(self, controller: PipelineController) -> PipelineProcess:
         if "force" not in self.params:
             self.params["force"] = False
-        return self.process(observer, **self.params)
+        return self.process(controller, **self.params)
 
 
 class PipelineBuilder:
@@ -152,22 +152,22 @@ class PipelineBuilder:
                 return ConfigSectionError(section)
         return None
 
-    def build(self) -> tuple[Observer, None | Exception]:
+    def build(self) -> tuple[PipelineController, None | Exception]:
         """
         Construct the complete pipeline.
 
         Returns:
-            tuple[Observer, Optional[Exception]]: A tuple containing the constructed Observer object
+            tuple[PipelineController, Optional[Exception]]: A tuple containing the constructed PipelineController object
             and an optional Exception if an error occurred during the construction process.
         """
         permanence, error = self._build_permanences()
         if error:
-            return Observer(permanences={}), error
-        observer = Observer(permanences=permanence)
-        error = self._build_processes(observer)
+            return PipelineController(permanences={}), error
+        controller = PipelineController(permanences=permanence)
+        error = self._build_processes(controller)
         if error:
-            return observer, error
-        return observer, None
+            return controller, error
+        return controller, None
 
     def _build_permanences(self) -> tuple[dict[str, Permanence], None | Exception]:
         """
@@ -199,12 +199,12 @@ class PipelineBuilder:
                 objects[name] = instance
         return objects, None
 
-    def _build_processes(self, observer: Observer) -> None | Exception:
+    def _build_processes(self, controller: PipelineController) -> None | Exception:
         """
-        Builds and adds processes to the observer based on the configuration.
+        Builds and adds processes to the controller, based on the configuration.
 
         Args:
-            observer (Observer): The observer to which the processes will be added.
+            controller (PipelineController): The controller to which the processes will be added.
 
         Returns:
             Optional[Exception]: Returns an exception if an error occurs during the
@@ -217,7 +217,7 @@ class PipelineBuilder:
             cls_name, params = type_and_params
             if not issubclass(self._class_registry[cls_name], PipelineProcess):
                 return InstTypeError(cls_name)
-            observer.add_process(ProcessWithParams(self._class_registry[cls_name], params))
+            controller.add_process(ProcessWithParams(self._class_registry[cls_name], params))
         return None
 
     def _get_type_and_param(
@@ -320,9 +320,9 @@ if __name__ == "__main__":
         raise error
 
     # Build the pipeline
-    observer, error = builder.build()
+    controller, error = builder.build()
     if error:
         raise error
 
     # Run the pipeline
-    observer.run_wandb()
+    controller.run_wandb()

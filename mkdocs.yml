@@ -15,7 +15,7 @@ nav:
   - Pipelines: []
   - Modules:
       - builder.py: modules/builder.md
-      - observer.py: modules/observer.md
+      - controller.py: modules/controller.md
       - abstractions.py: modules/abstractions.md
       - errors.py: modules/errors.md
   - Ideas: ideas.md
@@ -59,7 +59,7 @@ extra:
   process: pytorchimagepipeline.abstractions.PipelineProcess
   process_execute: pytorchimagepipeline.abstractions.PipelineProcess.execute
   builder: pytorchimagepipeline.builder.PipelineBuilder
-  observer: pytorchimagepipeline.observer.Observer
+  controller: pytorchimagepipeline.controller.PipelineController
 
 markdown_extensions:
   - toc:

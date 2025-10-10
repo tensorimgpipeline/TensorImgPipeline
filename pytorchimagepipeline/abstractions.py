@@ -26,7 +26,7 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field, fields, is_dataclass
 from pathlib import Path
-from typing import Any, Optional, TypeVar, Union, get_args, get_origin, get_type_hints
+from typing import Any, Callable, Optional, TypeVar, Union, get_args, get_origin, get_type_hints
 
 import tomllib
 
@@ -153,6 +153,14 @@ class PipelineProcess(ABC):
             bool: True if the process should be skipped, False otherwise.
         """
         ...
+
+
+class AbstractController(ABC):
+    @abstractmethod
+    def add_process(self, process: PipelineProcess) -> None: ...
+
+    @abstractmethod
+    def _get_progress_decorator(self) -> Callable: ...
 
 
 @dataclass
