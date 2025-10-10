@@ -143,3 +143,4 @@ data/datasets/*
 data/models/*
 test_reports/*
 wandb/*
+PytorchImagePipeline.code-workspace
