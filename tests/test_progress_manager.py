@@ -1,61 +1,79 @@
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any
+from unittest.mock import MagicMock
 
-from pytorchimagepipeline.abstractions import (
-    AbstractCombinedConfig,
-    AbstractConfig,
-    AbstractProgressManager,
-    PipelineProcess,
-    ProcessPlanType,
-)
-from pytorchimagepipeline.core.permanences import NullProgressManager, ProgressManager
+import pytest
+from rich.console import Console
+
+from pytorchimagepipeline.core.permanences import ProgressManager
+
+# File: pytorchimagepipeline/core/test_permanences.py
 
 
-def test_progress():
-    class TestProcess(PipelineProcess):
-        def __init__(self, manager, total):
-            self.progress_manager = manager.progress or NullProgressManager()
-            self.total = total
 
-        def execute(self):
-            self.progress_manager.add_task_to_progress("result", self.total)
-            for _ in range(self.total):
-                self.progress_manager.advance("result")
+@pytest.fixture
+def mock_console():
+    return MagicMock()
 
-        def skip(self):
-            return False
 
-    @dataclass
-    class TestTotalConfig(AbstractConfig):
-        total: int
+@pytest.fixture
+def progress_manager():
+    console = Console(force_terminal=True, soft_wrap=True, color_system="truecolor")
+    return ProgressManager(console=console)
 
-        def validate(self) -> None:
-            if isinstance(self.total, int):
-                ...
 
-    @dataclass
-    class TestConfig(AbstractCombinedConfig):
-        config_file: Path | str
+def test_init(progress_manager):
+    assert isinstance(progress_manager.progress_dict, dict)
+    assert "overall" in progress_manager.progress_dict
+    assert "cleanup" in progress_manager.progress_dict
+    assert "result" in progress_manager.progress_dict
 
-        config: dict[str, Any] = field(init=False)
 
-        def __post_init__(self) -> None:
-            self.test_config = TestTotalConfig(total=20)
+def test_add_progress(progress_manager):
+    progress_manager.add_progress("test_progress")
+    assert "test_progress" in progress_manager.progress_dict
 
-    @dataclass
-    class TestManager(AbstractProgressManager):
-        def __parse_config__(self, config_file: Path) -> None:
-            self.config = TestConfig(config_file=config_file)
+# TODO: Find a way to get capsys working
+def test_add_task_to_progress(progress_manager, capsys):
+    progress_manager.add_progress("test_progress")
+    task_id = progress_manager.add_task_to_progress("test_progress", total=10)
+    assert isinstance(task_id, int)
+    assert not progress_manager.progress_dict["test_progress"].tasks[task_id].visible
+    task_id = progress_manager.add_task_to_progress("test_progress", total=10, visible=True)
+    assert isinstance(task_id, int)
+    assert progress_manager.progress_dict["test_progress"].tasks[task_id].visible
 
-        def __init_permanences__(self) -> None:
-            # Core Init Permanences
-            self.progress = ProgressManager()
 
-        def __init_processes__(self) -> None:
-            self.process_plan: ProcessPlanType = {
-                "predict_masks": (TestProcess, self.config.test_config),
-            }
+def test_advance(progress_manager):
+    progress_manager.add_progress("test_progress")
+    task_id = progress_manager.add_task_to_progress("test_progress", total=10, visible=True)
+    progress_manager.init_live()
+    with progress_manager.live:
+        progress_manager.advance("test_progress", task_id, step=2)
+    progress = progress_manager.progress_dict["test_progress"]
+    assert progress._tasks[task_id].completed == 2
 
-    manager = TestManager(config_file=Path(""))
-    manager.run()
+
+def test_reset(progress_manager, capsys):
+    # Clear Any Value from stdout
+    capsys.readouterr()
+    progress_manager.add_progress("test_progress")
+    task_id = progress_manager.add_task_to_progress("test_progress", total=10, visible=True)
+    progress_manager.init_live()
+    with progress_manager.live:
+        terminal_result = capsys.readouterr()
+        assert "test_progress" in terminal_result.out
+        progress_manager.advance("test_progress", task_id, step=5)
+        terminal_result = capsys.readouterr()
+        progress_manager.reset("test_progress")
+    progress = progress_manager.progress_dict["test_progress"]
+    assert progress._tasks[task_id].completed == 0
+
+
+def test_get_progress_for_task(progress_manager):
+    progress_manager.add_progress("test_progress")
+    progress = progress_manager._get_progress_for_task("test_progress")
+    assert progress is progress_manager.progress_dict["test_progress"]
+
+
+def test_get_progress_for_task_invalid(progress_manager):
+    with pytest.raises(RuntimeError):
+        progress_manager._get_progress_for_task("invalid_task")
