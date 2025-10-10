@@ -249,16 +249,16 @@ class ProgressManager(Permanence):
         return progress.add_task(task_description, total=total, status="", visible=visible)
 
     def _toogle_visability(self, progress: Progress, task_id: int):
-        visible = not progress._tasks[task_id].finished and progress._tasks[task_id].completed >= 0
-        progress.update(task_id, visible=visible)
+        visible = not progress._tasks[TaskID(task_id)].finished and progress._tasks[TaskID(task_id)].completed >= 0
+        progress.update(TaskID(task_id), visible=visible)
 
     def advance(self, progress_name: str, task_id: int, step: float = 1.0, status=""):
         if progress_name not in self.progress_dict:
             raise ValueError(f"{progress_name=}")
         progress = self.progress_dict[progress_name]
         self._toogle_visability(progress, task_id)
-        progress.advance(task_id, step)
-        progress.update(task_id, status=status)
+        progress.advance(TaskID(task_id), step)
+        progress.update(TaskID(task_id), status=status)
         self._toogle_visability(progress, task_id)
 
     def _get_progress_for_task(self, task_description: str) -> Progress:
@@ -385,7 +385,7 @@ class WandBManager(Permanence):
         name, tags, and notes.
         """
         os.environ["WANDB_SILENT"] = "true"
-        name = f"{self.name}_{wandb.util.generate_id()}"
+        name = f"{self.name}_{wandb.util.generate_id()}"  # type: ignore[attr-defined]
         notes = f"{self.notes} {self.sweep_id}" if self.sweep_id else self.notes
         run_id = wandb.init(
             project=self.project,
@@ -402,7 +402,7 @@ class WandBManager(Permanence):
         api = wandb.Api()
         try:
             sweep = api.sweep(f"{self.entity}/{self.project}/{self.sweep_id}")
-        except wandb.errors.CommError as e:
+        except wandb.errors.CommError as e:  # type: ignore[attr-defined]
             info(f"Error fetching sweep: {e}")
             return False
         else:
