@@ -8,7 +8,6 @@ from pytorchimagepipeline.core.permanences import ProgressManager
 # File: pytorchimagepipeline/core/test_permanences.py
 
 
-
 @pytest.fixture
 def mock_console():
     return MagicMock()
@@ -30,6 +29,7 @@ def test_init(progress_manager):
 def test_add_progress(progress_manager):
     progress_manager.add_progress("test_progress")
     assert "test_progress" in progress_manager.progress_dict
+
 
 # TODO: Find a way to get capsys working
 def test_add_task_to_progress(progress_manager, capsys):
