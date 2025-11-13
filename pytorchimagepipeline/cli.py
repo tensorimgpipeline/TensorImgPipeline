@@ -529,6 +529,80 @@ def remove_subpackage(
         raise typer.Exit(code=1) from err
 
 
+@app.command(name="clean")
+def clean_broken_symlinks(
+    dry_run: bool = typer.Option(False, "--dry-run", "-n", help="Show what would be removed without actually removing"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed information"),
+) -> None:
+    """Check and remove broken symlinks in projects and configs.
+
+    Scans the projects and configs directories for broken symlinks
+    (links pointing to non-existent targets) and removes them.
+
+    Examples:
+        pytorchpipeline clean                    # Remove broken symlinks
+        pytorchpipeline clean --dry-run          # Preview what would be removed
+        pytorchpipeline clean --verbose          # Show details of all symlinks
+    """
+    projects_dir = path_manager.get_projects_dir()
+    configs_dir = path_manager.get_configs_dir()
+
+    broken_links = []
+    valid_links = []
+
+    # Check projects directory
+    if projects_dir.exists():
+        for item in projects_dir.iterdir():
+            if item.is_symlink():
+                target = item.resolve(strict=False)
+                if not target.exists():
+                    broken_links.append(("project", item, target))
+                else:
+                    valid_links.append(("project", item, target))
+
+    # Check configs directory
+    if configs_dir.exists():
+        for item in configs_dir.iterdir():
+            if item.is_symlink():
+                target = item.resolve(strict=False)
+                if not target.exists():
+                    broken_links.append(("config", item, target))
+                else:
+                    valid_links.append(("config", item, target))
+
+    # Display results
+    if verbose and valid_links:
+        console.print("\n[green]Valid symlinks:[/green]")
+        for link_type, link_path, target in valid_links:
+            console.print(f"  [green]✓[/green] {link_type:8} {link_path.name} → {target}")
+
+    if not broken_links:
+        console.print("\n[green]✓[/green] No broken symlinks found!")
+        return
+
+    # Display broken symlinks
+    console.print(f"\n[yellow]Found {len(broken_links)} broken symlink(s):[/yellow]")
+    for link_type, link_path, target in broken_links:
+        console.print(f"  [red]✗[/red] {link_type:8} {link_path.name} → [red]{target}[/red]")
+
+    if dry_run:
+        console.print("\n[cyan]Dry run:[/cyan] No changes made. Run without --dry-run to remove.")
+        return
+
+    # Remove broken symlinks
+    console.print()
+    removed_count = 0
+    for _link_type, link_path, _target in broken_links:
+        try:
+            link_path.unlink()
+            console.print(f"[green]✓[/green] Removed: {link_path.name}")
+            removed_count += 1
+        except Exception as e:
+            console.print(f"[red]✗[/red] Failed to remove {link_path.name}: {e}")
+
+    console.print(f"\n[green]✓[/green] Cleaned up {removed_count}/{len(broken_links)} broken symlink(s)!")
+
+
 @app.command(name="validate")
 def validate_pipeline(
     pipeline_name: str = typer.Argument(help="Name of the pipeline to validate"),
