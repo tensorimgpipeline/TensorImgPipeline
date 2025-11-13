@@ -5,15 +5,15 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 import torch
+import wandb
 from rich.console import Console, Group
 from rich.live import Live
 from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeRemainingColumn
-
-import wandb
-from pytorchimagepipeline.abstractions import Permanence
-from pytorchimagepipeline.errors import SweepNoConfigError
-from pytorchimagepipeline.pipelines.sam2segnet.utils import create_color
 from wandb.wandb_run import Run
+
+from pytorchimagepipeline.abstractions import Permanence
+from pytorchimagepipeline.core.utils import create_color
+from pytorchimagepipeline.errors import SweepNoConfigError
 
 
 class VRAMUsageError(RuntimeError):
