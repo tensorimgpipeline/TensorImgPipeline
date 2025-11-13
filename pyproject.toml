@@ -39,6 +39,9 @@ Homepage = "https://makanu.github.io/PytorchImagePipeline/"
 Repository = "https://github.com/makanu/PytorchImagePipeline"
 Documentation = "https://makanu.github.io/PytorchImagePipeline/"
 
+[project.scripts]
+pytorchpipeline = "pytorchimagepipeline.cli:app"
+
 [dependency-groups]
 dev = [
     "pytest>=7.2.0",
