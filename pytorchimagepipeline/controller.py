@@ -37,137 +37,39 @@ from pytorchimagepipeline.errors import (
 )
 
 
-class PipelineController(AbstractController):
-    def __init__(self, permanences: dict[str, Permanence]):
-        """
-        Initializes the PipelineController with the given permanences.
+class PipelineController:
+    """Coordinates pipeline permanences and processes.
 
-        Args:
-            permanences (dict[str, Permanence]): A dictionary mapping string keys to Permanence objects.
-        """
+    Responsibilities:
+    - Manage permanence lifecycle
+    - Provide permanence access to processes
+    - Instantiate processes with their parameters
+    - Yield processes for execution
+    """
+
+    def __init__(self, permanences: dict[str, Permanence], process_specs: list[ProcessWithParams]):
         self._permanences = permanences
-        self._processes: list[PipelineProcess] = []
-        self._current_process: PipelineProcess | None = None
+        self._process_specs = process_specs
 
-    def add_process(self, process: PipelineProcess) -> None:
-        """Adds a process to the pipeline.
-
-        Args:
-            process (PipelineProcess): The process to add.
-        """
-        self._processes.append(process)
-
-    def run_wandb(self) -> None:
-        wandb_logger = self._permanences.get("wandb_logger", None)
-        if wandb_logger:
-            hyperparams: Permanence | dict[str, Any] = self._permanences.get("hyperparams", {})
-            if not hyperparams:
-                raise SweepNoConfigError()
-            wandb_logger.create_sweep(hyperparams.hyperparams.get("sweep_configuration", {}))
-            wandb_logger.create_sweep_agent(self.run)
-        else:
-            self.run()
-
-    def _get_progress_decorator(self) -> Callable:
-        def empty_decorator(func):
-            @wraps(func)
-            def wrapper(total, *args, **kwargs):
-                return func(0, total, None, *args, **kwargs)
-
-        progress_manager = self._permanences.get("progress_manager", None)
-        progress_decorator = progress_manager.progress_task if progress_manager else empty_decorator
-        return progress_decorator
-
-    def _get_inner_run(self):
-        progress_decorator = self._get_progress_decorator()
-
-        @progress_decorator("overall")
-        def _inner_run(task_id, total, progress) -> None:
-            for idx in range(total):
-                process = self._processes[idx]
-                self._current_process = process
-                process_instance = process.get_instance(self)
-                if not process_instance.skip():
-                    error = process_instance.execute()
-                    if error:
-                        self._handle_error(error)
-                self._current_process = None
-                if progress:
-                    progress.advance(task_id)
-
-        return _inner_run
-
-    def _get_inner_cleanup(self):
-        progress_decorator = self._get_progress_decorator()
-
-        @progress_decorator("cleanup")
-        def _inner_cleanup(task_id, total, progress) -> None:
-            for idx in range(total):
-                progress.advance(task_id)
-                permanence_keys = list(self._permanences.keys())
-                permanence = self._permanences[permanence_keys[idx]]
-                permanence.cleanup()
-
-        return _inner_cleanup
-
-    def run(self) -> None:
-        """
-        Executes each process in the list of processes.
-
-        Iterates over the processes, sets the current process, and executes it.
-        If an error occurs during the execution of a process, it handles the error.
-        Resets the current process to None after each execution.
-
-        Returns:
-            None
-        """
-
-        progress_manager = self._permanences.get("progress_manager", None)
-        wandb_logger = self._permanences.get("wandb_logger", None)
-        if wandb_logger:
-            wandb_logger.init_wandb()
-
-        _inner_run = self._get_inner_run()
-        _inner_cleanup = self._get_inner_cleanup()
-
-        if progress_manager:
-            with self._permanences["progress_manager"].live:
-                _inner_run(len(self._processes))
-                _inner_cleanup(len(self._permanences))
-        else:
-            _inner_run(len(self._processes))
-            _inner_cleanup(len(self._permanences))
-
-    def _handle_error(self, error: Exception) -> None:
-        """
-        Handles errors that occur during the execution of a process.
-
-        Args:
-            error (Exception): The exception that was raised.
-
-        Raises:
-            BuilderError: If the error is an instance of BuilderError.
-            ExecutionError: If the error is not an instance of BuilderError,
-                            raises an ExecutionError with the current process name and the original error.
-        """
-        if isinstance(error, BuilderError):
-            raise error
-
-        process_name = self._current_process.__class__.__name__
-        raise ExecutionError(process_name, error)
-
-    def get_permanence(self, name: str) -> Any:
-        """
-        Retrieve the permanence value associated with the given name.
-
-        Args:
-            name (str): The key name for which to retrieve the permanence value.
-        Returns:
-            Any: The permanence value associated with the given name.
-        Raises:
-            PermanenceKeyError: If the given name is not found in the permanences dictionary.
-        """
-
+    def get_permanence(self, name: str, default=None) -> Any:
+        """Get a permanence by name."""
+        if default is not None:
+            return self._permanences.get(name, default)
         if name not in self._permanences:
             raise PermanenceKeyError(ErrorCode.PERMA_KEY, key=name)
         return self._permanences[name]
+
+    def iterate_processes(self) -> Iterator[tuple[int, PipelineProcess]]:
+        """Yield (index, process_instance) for execution."""
+        for idx, spec in enumerate(self._process_specs):
+            process_instance = spec.get_instance(self)
+            yield idx, process_instance
+
+    def get_process_count(self) -> int:
+        """Get total number of processes."""
+        return len(self._process_specs)
+
+    def cleanup(self) -> None:
+        """Cleanup all permanences."""
+        for permanence in self._permanences.values():
+            permanence.cleanup()
