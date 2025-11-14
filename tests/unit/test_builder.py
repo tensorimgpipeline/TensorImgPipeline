@@ -17,8 +17,8 @@ except ImportError:
         sys.exit("Error: This program requires either tomllib or tomli but neither is available")
 
 from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
-from pytorchimagepipeline.builder import PipelineBuilder, get_objects_for_pipeline
-from pytorchimagepipeline.controller import PipelineController
+from pytorchimagepipeline.core.builder import PipelineBuilder, get_objects_for_pipeline
+from pytorchimagepipeline.core.controller import PipelineController
 from pytorchimagepipeline.errors import (
     ConfigInvalidTomlError,
     ConfigNotFoundError,

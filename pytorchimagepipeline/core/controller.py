@@ -36,6 +36,9 @@ from pytorchimagepipeline.errors import (
     SweepNoConfigError,
 )
 
+# Sentinel value for get_permanence to distinguish between "no default provided" and "default is None"
+_MISSING = object()
+
 
 class PipelineController:
     """Coordinates pipeline permanences and processes.
@@ -51,9 +54,21 @@ class PipelineController:
         self._permanences = permanences
         self._process_specs = process_specs
 
-    def get_permanence(self, name: str, default=None) -> Any:
-        """Get a permanence by name."""
-        if default is not None:
+    def get_permanence(self, name: str, default=_MISSING) -> Any:
+        """Get a permanence by name.
+
+        Args:
+            name: Name of the permanence to retrieve
+            default: Value to return if permanence not found. If not provided,
+                    raises PermanenceKeyError instead. Can be None.
+
+        Returns:
+            The permanence instance or default value
+
+        Raises:
+            PermanenceKeyError: If permanence not found and no default provided
+        """
+        if default is not _MISSING:
             return self._permanences.get(name, default)
         if name not in self._permanences:
             raise PermanenceKeyError(ErrorCode.PERMA_KEY, key=name)

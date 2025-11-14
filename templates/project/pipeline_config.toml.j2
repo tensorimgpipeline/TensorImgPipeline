@@ -2,6 +2,16 @@
 #
 # This file configures the permanences and processes for your pipeline.
 
+[pipeline]
+# Core framework features - enable with simple flags
+enable_progress = false  # Enable progress bars for pipeline execution
+enable_wandb = false     # Enable Weights & Biases logging
+
+# Optional: WandB configuration (only used if enable_wandb = true)
+# [pipeline.wandb]
+# project = "my-project"
+# entity = "my-team"
+
 [permanences]
 {% if with_example %}
 # Configuration permanence - stores pipeline settings

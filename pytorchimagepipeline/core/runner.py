@@ -30,14 +30,22 @@ class PipelineRunner:
             ConfigInvalidTomlError: If TOML parsing fails
             InstTypeError: If permanence/process instantiation fails
         """
-        # Get the classes to register (permanences + processes)
-        objects = get_objects_for_pipeline(self.pipeline_name)
-
         # Create a PipelineBuilder instance
         builder = PipelineBuilder()
 
-        # Register all classes with the builder
-        for class_name, class_type in objects.items():
+        # First, try to load core permanences and processes (if they exist)
+        try:
+            core_objects = get_objects_for_pipeline("core")
+            for class_name, class_type in core_objects.items():
+                builder.register_class(class_name, class_type)
+        except (ModuleNotFoundError, AttributeError):
+            # Core module doesn't exist or doesn't have registries yet - that's okay
+            # TODO this should create a warning or should be handled via cli.
+            pass
+
+        # Then load the pipeline-specific classes
+        pipeline_objects = get_objects_for_pipeline(self.pipeline_name)
+        for class_name, class_type in pipeline_objects.items():
             builder.register_class(class_name, class_type)
 
         # Load the configuration file
