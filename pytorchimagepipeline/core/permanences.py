@@ -1,3 +1,4 @@
+import inspect
 import os
 from dataclasses import dataclass
 from functools import wraps
@@ -284,6 +285,26 @@ class ProgressManager(Permanence):
         """
         Decorator for wrapping functions with progress tracking.
 
+        The decorated function can receive any of these parameters:
+        - total: The value passed when calling the decorated function
+        - task_id: Injected by decorator, use with progress.advance(task_id)
+        - progress: Injected by decorator, the Progress object for manual control
+
+        The decorator inspects the function signature and only passes parameters it accepts.
+
+        Usage examples:
+            # Function that uses total
+            @progress_manager.progress_task("processing")
+            def process_items(total, task_id, progress):
+                for i in range(total):
+                    progress.advance(task_id)
+
+            # Function that doesn't need total
+            @progress_manager.progress_task("cleanup")
+            def cleanup_all(task_id, progress):
+                for item in items:  # Has its own iteration
+                    progress.advance(task_id)
+
         Args:
             task_name: Name of the task/progress bar to use
             visible: Whether task should remain visible after completion
@@ -293,6 +314,10 @@ class ProgressManager(Permanence):
         """
 
         def decorator(func):
+            # Inspect function signature to see what parameters it accepts
+            sig = inspect.signature(func)
+            params = list(sig.parameters.keys())
+
             @wraps(func)
             def wrapper(total, *args, **kwargs):
                 # Find matching progress bar
@@ -304,8 +329,17 @@ class ProgressManager(Permanence):
                 # Add task to progress
                 task_id = progress.add_task(task_name, total=total)
 
-                # Call the function with task_id
-                result = func(task_id, total, progress, *args, **kwargs)
+                # Build kwargs based on what the function accepts
+                func_kwargs = {}
+                if "total" in params:
+                    func_kwargs["total"] = total
+                if "task_id" in params:
+                    func_kwargs["task_id"] = task_id
+                if "progress" in params:
+                    func_kwargs["progress"] = progress
+
+                # Call the function with only the parameters it needs
+                result = func(*args, **func_kwargs, **kwargs)
 
                 # Hide task when done if not visible
                 progress.update(task_id, visible=visible)

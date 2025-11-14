@@ -1,3 +1,4 @@
+import inspect
 from functools import wraps
 from typing import Callable
 
@@ -42,7 +43,7 @@ class PipelineExecutor:
         decorator = self._get_progress_decorator()
 
         @decorator("overall")
-        def _execute(task_id, total, progress):
+        def _execute(task_id, progress):
             for _idx, process in self.controller.iterate_processes():
                 if not process.skip():
                     try:
@@ -52,19 +53,20 @@ class PipelineExecutor:
                 if progress:
                     progress.advance(task_id)
 
-        _execute(self.controller.get_process_count())
+        _execute(self.controller.get_process_count())  # Passed to decorator for progress bar max
 
     def _run_cleanup(self) -> None:
         """Cleanup permanences with progress decoration."""
         decorator = self._get_progress_decorator()
 
         @decorator("cleanup")
-        def _cleanup(task_id, total, progress):
-            self.controller.cleanup()
-            if progress:
-                progress.advance(task_id)
+        def _cleanup(task_id, progress):
+            for permanence in self.controller.iterate_permanences():
+                permanence.cleanup()
+                if progress:
+                    progress.advance(task_id)
 
-        _cleanup(len(self.controller._permanences))
+        _cleanup(self.controller.get_permanence_count())  # Passed to decorator for progress bar max
 
     def _get_progress_decorator(self) -> Callable:
         """Get progress decorator (or no-op if no progress manager)."""
@@ -74,9 +76,22 @@ class PipelineExecutor:
 
             def empty_decorator(name):
                 def wrapper(func):
+                    # Inspect to see what parameters the function accepts
+                    sig = inspect.signature(func)
+                    params = list(sig.parameters.keys())
+
                     @wraps(func)
                     def inner(total, *args, **kwargs):
-                        return func(0, total, None, *args, **kwargs)
+                        # Build kwargs based on what the function accepts
+                        func_kwargs = {}
+                        if "total" in params:
+                            func_kwargs["total"] = total
+                        if "task_id" in params:
+                            func_kwargs["task_id"] = 0
+                        if "progress" in params:
+                            func_kwargs["progress"] = None
+
+                        return func(*args, **func_kwargs, **kwargs)
 
                     return inner
 

@@ -84,6 +84,15 @@ class PipelineController:
         """Get total number of processes."""
         return len(self._process_specs)
 
+    def iterate_permanences(self) -> Iterator[Permanence]:
+        """Yield permanence instances for cleanup or inspection."""
+        for permanence in self._permanences.values():
+            yield permanence
+
+    def get_permanence_count(self) -> int:
+        """Get total number of permanences."""
+        return len(self._permanences)
+
     def cleanup(self) -> None:
         """Cleanup all permanences."""
         for permanence in self._permanences.values():

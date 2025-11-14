@@ -89,7 +89,7 @@ class ResultProcess(PipelineProcess):
 
     def _get_log_train_images(self) -> callable:
         @self.progress_manager.progress_task("result", visible=False)
-        def _inner_log_image(task_id, total, progress):
+        def _inner_log_image(total, task_id, progress):
             image_stack = []
             mask_stack = []
             pred_mask_stack = []
@@ -110,7 +110,7 @@ class ResultProcess(PipelineProcess):
 
     def _get_log_val_images(self) -> callable:
         @self.progress_manager.progress_task("result", visible=False)
-        def _inner_log_image(task_id, total, progress):
+        def _inner_log_image(total, task_id, progress):
             image_stack = []
             mask_stack = []
             pred_mask_stack = []
@@ -131,7 +131,7 @@ class ResultProcess(PipelineProcess):
 
     def _get_log_test_images(self) -> callable:
         @self.progress_manager.progress_task("result", visible=False)
-        def _inner_log_image(task_id, total, progress):
+        def _inner_log_image(total, task_id, progress):
             image_stack = []
             mask_stack = []
             pred_mask_stack = []

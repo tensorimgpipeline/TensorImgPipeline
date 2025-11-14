@@ -5,6 +5,7 @@ import pytest
 import torch
 
 from pytorchimagepipeline.core.permanences import Device, ProgressManager, VRAMUsageError
+from pytorchimagepipeline.errors import ProgressNoMatch
 
 
 @pytest.fixture
@@ -36,7 +37,7 @@ def progress_manager():
 
 def test_progress_manager(progress_manager, capsys):
     @progress_manager.progress_task("overall")
-    def run(task_id, total, progress):
+    def run(total, task_id, progress):
         for _ in range(total):
             progress.advance(task_id)
             time.sleep(0.1)
@@ -52,10 +53,10 @@ def test_progress_manager(progress_manager, capsys):
 
 def test_progress_manager_with_status(progress_manager, capsys):
     progress_manager.progress_dict["overall"] = progress_manager._create_progress(with_status=True)
-    progress_manager._init_live()
+    progress_manager.init_live()
 
     @progress_manager.progress_task("overall")
-    def run(task_id, total, progress):
+    def run(total, task_id, progress):
         for idx in range(total):
             progress.advance(task_id)
             progress.update(task_id, status=f"{idx}/{total}")
@@ -73,13 +74,13 @@ def test_progress_manager_with_status(progress_manager, capsys):
 
 def test_progress_manager_nested(progress_manager, capsys):
     @progress_manager.progress_task("overall")
-    def run(task_id, total, progress):
+    def run(total, task_id, progress):
         for _ in range(total):
             progress.advance(task_id)
             time.sleep(0.1)
 
     @progress_manager.progress_task("overall")
-    def run_nested(task_id, total, progress):
+    def run_nested(total, task_id, progress):
         for _ in range(total):
             run(5)
             progress.advance(task_id)
@@ -96,7 +97,7 @@ def test_progress_manager_nested(progress_manager, capsys):
 
 def test_progress_manager_wrong_total(progress_manager, capsys):
     @progress_manager.progress_task("overall")
-    def run(task_id, total, progress):
+    def run(total, task_id, progress):
         for _ in range(total):
             progress.update(task_id, advance=0.5)
             time.sleep(0.1)
@@ -111,10 +112,10 @@ def test_progress_manager_wrong_total(progress_manager, capsys):
 
 def test_progress_manager_not_provided(progress_manager):
     @progress_manager.progress_task("not_provided")
-    def run(task_id, total, progress):
+    def run(total, task_id, progress):
         for _ in range(total):
             progress.update(task_id, advance=0.5)
             time.sleep(0.1)
 
-    with progress_manager.live, pytest.raises(NotImplementedError):
+    with progress_manager.live, pytest.raises(ProgressNoMatch):
         run(5)
