@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from pytorchimagepipeline.controller import PipelineController
+from pytorchimagepipeline.core.controller import PipelineController
 from pytorchimagepipeline.core.executor import PipelineExecutor
 
 

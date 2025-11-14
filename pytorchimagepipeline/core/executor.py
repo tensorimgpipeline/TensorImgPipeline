@@ -2,7 +2,7 @@ from functools import wraps
 from typing import Callable
 
 from pytorchimagepipeline.abstractions import PipelineProcess
-from pytorchimagepipeline.controller import PipelineController
+from pytorchimagepipeline.core.controller import PipelineController
 from pytorchimagepipeline.errors import BuilderError, ExecutionError
 
 

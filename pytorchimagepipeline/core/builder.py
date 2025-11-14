@@ -64,7 +64,7 @@ from pytorchimagepipeline.errors import (
     RegistryError,
     RegistryParamError,
 )
-from pytorchimagepipeline.controller import PipelineController
+from pytorchimagepipeline.core.controller import PipelineController
 
 
 @dataclass
@@ -96,6 +96,18 @@ class PipelineBuilder:
             return permanences, [], error
 
         return permanences, processes, None
+
+    def register_class(self, name, class_type) -> tuple[None, Exception]:
+        return None, NotImplemented
+
+    def load_config(path) -> tuple[None, Exception]:
+        return None, NotImplemented
+
+    def _build_permanences(self) -> tuple[None, Exception]:
+        return None, NotImplemented
+
+    def _build_processes(self) -> tuple[None, Exception]:
+        return None, NotImplemented
 
 
 def get_objects_for_pipeline(pipeline_name: str) -> tuple[dict[str, type], None | Exception]:
