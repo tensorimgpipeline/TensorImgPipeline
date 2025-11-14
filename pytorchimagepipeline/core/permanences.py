@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from functools import wraps
 from logging import info
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -13,7 +14,7 @@ from wandb.wandb_run import Run
 
 from pytorchimagepipeline.abstractions import Permanence
 from pytorchimagepipeline.core.utils import create_color
-from pytorchimagepipeline.errors import SweepNoConfigError
+from pytorchimagepipeline.errors import ProgressNoMatch, SweepNoConfigError
 
 
 class VRAMUsageError(RuntimeError):
@@ -278,6 +279,41 @@ class ProgressManager(Permanence):
         progress = self.progress_dict[progress_name]
         for task_id in self.progress_dict[progress_name]._tasks:
             progress.reset(task_id)
+
+    def progress_task(self, task_name: str, visible: bool = True):
+        """
+        Decorator for wrapping functions with progress tracking.
+
+        Args:
+            task_name: Name of the task/progress bar to use
+            visible: Whether task should remain visible after completion
+
+        Returns:
+            Decorator function that wraps the target function with progress tracking
+        """
+
+        def decorator(func):
+            @wraps(func)
+            def wrapper(total, *args, **kwargs):
+                # Find matching progress bar
+                progress_key = next((key for key in self.progress_dict if task_name.lower() in key.lower()), None)
+                if not progress_key:
+                    raise ProgressNoMatch(task_name)
+                progress = self.progress_dict[progress_key]
+
+                # Add task to progress
+                task_id = progress.add_task(task_name, total=total)
+
+                # Call the function with task_id
+                result = func(task_id, total, progress, *args, **kwargs)
+
+                # Hide task when done if not visible
+                progress.update(task_id, visible=visible)
+                return result
+
+            return wrapper
+
+        return decorator
 
     def cleanup(self) -> None:
         self.init_live()
