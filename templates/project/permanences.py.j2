@@ -1,0 +1,105 @@
+"""Permanences for {{ project_name }}.
+
+Permanences are objects that persist throughout the pipeline lifecycle.
+They store state, data, models, or any resources needed by multiple processes.
+"""
+
+from pathlib import Path
+from typing import Any, Optional
+
+from pytorchimagepipeline.abstractions import Permanence
+
+{% if with_example %}
+
+class ConfigPermanence(Permanence):
+    """Stores configuration parameters for the pipeline."""
+
+    def __init__(self, config_path: Path | str):
+        """Initialize configuration permanence.
+
+        Args:
+            config_path: Path to configuration file
+        """
+        self.config_path = Path(config_path) if isinstance(config_path, str) else config_path
+        self.settings: dict[str, Any] = {}
+        self._load_config()
+
+    def _load_config(self) -> None:
+        """Load configuration from file."""
+        # Simple example - could load from TOML, YAML, JSON, etc.
+        self.settings = {
+            "batch_size": 32,
+            "learning_rate": 0.001,
+            "epochs": 10,
+        }
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get configuration value."""
+        return self.settings.get(key, default)
+
+    def cleanup(self) -> Optional[Exception]:
+        """Clean up resources."""
+        self.settings.clear()
+        return None
+
+
+class DataPermanence(Permanence):
+    """Stores data loaded during the pipeline."""
+
+    def __init__(self, data_dir: Path | str):
+        """Initialize data permanence.
+
+        Args:
+            data_dir: Directory containing data files
+        """
+        self.data_dir = Path(data_dir) if isinstance(data_dir, str) else data_dir
+        self.data: dict[str, Any] = {}
+        self.processed_data: dict[str, Any] = {}
+
+    def set_data(self, key: str, value: Any) -> None:
+        """Store data."""
+        self.data[key] = value
+
+    def get_data(self, key: str) -> Any:
+        """Retrieve data."""
+        return self.data.get(key)
+
+    def set_processed(self, key: str, value: Any) -> None:
+        """Store processed data."""
+        self.processed_data[key] = value
+
+    def get_processed(self, key: str) -> Any:
+        """Retrieve processed data."""
+        return self.processed_data.get(key)
+
+    def cleanup(self) -> Optional[Exception]:
+        """Clean up resources."""
+        self.data.clear()
+        self.processed_data.clear()
+        return None
+
+{% else %}
+
+# Example permanence template
+class MyPermanence(Permanence):
+    """A custom permanence for your pipeline."""
+
+    def __init__(self, param: str):
+        """Initialize the permanence.
+
+        Args:
+            param: Configuration parameter
+        """
+        self.param = param
+        # Initialize your resources here
+
+    def cleanup(self) -> Optional[Exception]:
+        """Clean up resources.
+
+        Returns:
+            Exception if cleanup fails, None otherwise
+        """
+        # Clean up any resources (close files, release memory, etc.)
+        return None
+
+{% endif %}

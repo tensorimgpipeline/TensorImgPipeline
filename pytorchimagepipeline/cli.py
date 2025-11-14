@@ -23,6 +23,7 @@ from rich.tree import Tree
 from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
 from pytorchimagepipeline.core.runner import PipelineRunner
 from pytorchimagepipeline.paths import get_path_manager
+from pytorchimagepipeline.template_manager import template_manager
 
 
 def _exit_with_error(message: str, code: int = 1) -> None:
@@ -60,8 +61,11 @@ def run_pipeline(
         pytorchpipeline run sam2segnet
         pytorchpipeline run my_pipeline --config custom.toml
     """
+
+    default_config = path_manager.get_config_path(pipeline_name)
+
     try:
-        config_path = Path(config) if config else None
+        config_path = Path(config) if config else default_config
         runner = PipelineRunner(pipeline_name, config_path)
         runner.run()
     except Exception as err:
@@ -229,17 +233,25 @@ def create_project(
     location: Optional[str] = typer.Option(
         None, "--location", "-l", help="Location to create project (default: current directory)"
     ),
-    with_example: bool = typer.Option(False, "--example", "-e", help="Include example process and permanence"),
+    with_example: bool = typer.Option(False, "--example", "-e", help="Include working example process and permanence"),
+    description: Optional[str] = typer.Option(None, "--description", "-d", help="Project description"),
 ) -> None:
     """Create a new pipeline project with scaffolding.
 
     Creates a complete project structure for a new pipeline that can later
     be added to the main pipeline system.
 
+    The --example flag creates a working pipeline with:
+    - ConfigPermanence: For storing pipeline settings
+    - DataPermanence: For storing data throughout pipeline
+    - LoadDataProcess: Example process that loads data
+    - ProcessDataProcess: Example process that processes data
+
     Examples:
         pytorchpipeline create my_pipeline
         pytorchpipeline create my_pipeline --location ./projects
         pytorchpipeline create my_pipeline --example
+        pytorchpipeline create my_pipeline --example --description "My ML pipeline"
     """
     # Determine project location
     base_dir = Path(location) / project_name if location else Path.cwd() / project_name
@@ -249,33 +261,18 @@ def create_project(
         raise typer.Exit(code=1)
 
     try:
-        # Create project structure
-        base_dir.mkdir(parents=True)
-        src_dir = base_dir / project_name
-        src_dir.mkdir()
-        config_dir = base_dir / "configs"
-        config_dir.mkdir()
-
-        # Create package files
-        (src_dir / "__init__.py").write_text(_generate_project_init(project_name, with_example))
-        (src_dir / "permanences.py").write_text(_generate_permanence_file(project_name, with_example))
-        (src_dir / "processes.py").write_text(_generate_processes_file(project_name, with_example))
-
-        # Create config file
-        (config_dir / "pipeline_config.toml").write_text(_generate_config_file(project_name, with_example))
-
-        # Create README
-        (base_dir / "README.md").write_text(_generate_readme(project_name))
-
-        # Create pyproject.toml
-        (base_dir / "pyproject.toml").write_text(_generate_pyproject(project_name))
-
-        # Create .gitignore
-        (base_dir / ".gitignore").write_text(_generate_gitignore())
+        # Use template manager to create project
+        template_manager.create_project(
+            project_name=project_name,
+            base_dir=base_dir,
+            with_example=with_example,
+            description=description,
+        )
 
         # Success message
+        example_note = " with working example" if with_example else ""
         panel = Panel(
-            f"[green]✓[/green] Pipeline project '{project_name}' created successfully!\n\n"
+            f"[green]✓[/green] Pipeline project '{project_name}' created successfully{example_note}!\n\n"
             f"Created at: {base_dir}\n\n"
             f"Structure:\n"
             f"  {project_name}/\n"
@@ -290,9 +287,15 @@ def create_project(
             f"  └── .gitignore\n\n"
             f"Next steps:\n"
             f"  1. cd {base_dir}\n"
-            f"  2. Edit {project_name}/permanences.py and processes.py\n"
-            f"  3. Update configs/pipeline_config.toml\n"
-            f"  4. Link to main pipeline: pytorchpipeline add {base_dir}",
+            + (
+                f"  2. Review the example code in {project_name}/\n"
+                f"  3. Link to main pipeline: pytorchpipeline add {base_dir}\n"
+                f"  4. Run the pipeline: pytorchpipeline run {project_name}"
+                if with_example
+                else f"  2. Edit {project_name}/permanences.py and processes.py\n"
+                f"  3. Update configs/pipeline_config.toml\n"
+                f"  4. Link to main pipeline: pytorchpipeline add {base_dir}"
+            ),
             title="Project Created",
             border_style="green",
         )

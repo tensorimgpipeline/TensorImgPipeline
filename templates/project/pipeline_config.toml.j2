@@ -1,0 +1,39 @@
+# {{ project_name }} Pipeline Configuration
+#
+# This file configures the permanences and processes for your pipeline.
+
+[permanences]
+{% if with_example %}
+# Configuration permanence - stores pipeline settings
+[permanences.config]
+type = "ConfigPermanence"
+config_path = "./configs/pipeline_config.toml"
+
+# Data permanence - stores data throughout the pipeline
+[permanences.data]
+type = "DataPermanence"
+data_dir = "./data"
+{% else %}
+# Define your permanences here
+# [permanences.my_permanence]
+# type = "MyPermanence"
+# param = "value"
+{% endif %}
+
+[processes]
+{% if with_example %}
+# Load data process - loads data from disk
+[processes.load_data]
+type = "LoadDataProcess"
+force = false
+
+# Process data process - processes the loaded data
+[processes.process_data]
+type = "ProcessDataProcess"
+force = false
+{% else %}
+# Define your processes here
+# [processes.my_process]
+# type = "MyProcess"
+# force = false
+{% endif %}

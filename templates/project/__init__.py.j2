@@ -1,0 +1,46 @@
+"""{{ project_name }} - A PytorchImagePipeline project.
+
+This module registers permanences and processes for the {{ project_name }} pipeline.
+"""
+
+from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
+
+from {{ project_name }}.permanences import (
+{% if with_example %}
+    ConfigPermanence,
+    DataPermanence,
+{% endif %}
+)
+from {{ project_name }}.processes import (
+{% if with_example %}
+    LoadDataProcess,
+    ProcessDataProcess,
+{% endif %}
+)
+
+# Register permanences that will be available throughout the pipeline
+permanences_to_register: dict[str, type[Permanence]] = {
+{% if with_example %}
+    "config": ConfigPermanence,
+    "data": DataPermanence,
+{% else %}
+    # Add your permanences here
+    # "my_permanence": MyPermanence,
+{% endif %}
+}
+
+# Register processes that define the pipeline steps
+processes_to_register: dict[str, type[PipelineProcess]] = {
+{% if with_example %}
+    "load_data": LoadDataProcess,
+    "process_data": ProcessDataProcess,
+{% else %}
+    # Add your processes here
+    # "my_process": MyProcess,
+{% endif %}
+}
+
+__all__ = [
+    "permanences_to_register",
+    "processes_to_register",
+]
