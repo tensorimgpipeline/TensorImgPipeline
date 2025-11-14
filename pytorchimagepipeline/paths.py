@@ -162,7 +162,7 @@ class PathManager:
             return project_path
         return None
 
-    def get_config_path(self, project_name: str, config_name: str = "execute_pipeline.toml") -> Path:
+    def get_config_path(self, project_name: str, config_name: str = "pipeline_config.toml") -> Path:
         """Get path to a project's config file.
 
         Args:

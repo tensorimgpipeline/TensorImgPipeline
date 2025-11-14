@@ -213,7 +213,7 @@ def inspect_pipeline(
         console.print(tree)
 
         # Show config location
-        config_path = path_manager.get_config_path(pipeline_name, "execute_pipeline.toml")
+        config_path = path_manager.get_config_path(pipeline_name, "pipeline_config.toml")
         if config_path and config_path.exists():
             console.print(f"\n[green]✓[/green] Config: {config_path}")
         else:
@@ -649,7 +649,7 @@ def validate_pipeline(
         issues.append(f"✗ Error loading pipeline module: {e}")
 
     # Check config file
-    config_path = path_manager.get_config_path(pipeline_name, "execute_pipeline.toml")
+    config_path = path_manager.get_config_path(pipeline_name, "pipeline_config.toml")
     if not config_path.exists():
         issues.append(f"✗ Config file not found: {config_path}")
     else:

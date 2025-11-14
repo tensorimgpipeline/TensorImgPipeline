@@ -15,7 +15,7 @@ class PipelineRunner:
 
     def __init__(self, pipeline_name: str, config_path: Path | None = None):
         self.pipeline_name = pipeline_name
-        self.config_path = config_path or Path(f"{pipeline_name}/execute_pipeline.toml")
+        self.config_path = config_path or Path(f"{pipeline_name}/pipeline_config.toml")
 
     def build(self) -> PipelineController:
         """Build the pipeline components.

@@ -169,7 +169,7 @@ if __name__ == "__main__":
         builder.register_class(key, objects[key])
 
     # Load the configuration file
-    builder.load_config(Path("sam2segnet/execute_pipeline.toml"))
+    builder.load_config(Path("sam2segnet/pipeline_config.toml"))
 
     # Build the pipeline
     permanences, process_specs = builder.build()
