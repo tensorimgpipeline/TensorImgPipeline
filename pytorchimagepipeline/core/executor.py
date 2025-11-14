@@ -45,8 +45,9 @@ class PipelineExecutor:
         def _execute(task_id, total, progress):
             for _idx, process in self.controller.iterate_processes():
                 if not process.skip():
-                    error = process.execute()
-                    if error:
+                    try:
+                        process.execute()
+                    except Exception as error:
                         self._handle_error(process, error)
                 if progress:
                     progress.advance(task_id)

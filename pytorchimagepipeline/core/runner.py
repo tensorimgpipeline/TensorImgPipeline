@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from pytorchimagepipeline.core.builder import PipelineBuilder, get_objects_for_pipeline
 from pytorchimagepipeline.core.controller import PipelineController
@@ -18,36 +17,47 @@ class PipelineRunner:
         self.pipeline_name = pipeline_name
         self.config_path = config_path or Path(f"{pipeline_name}/execute_pipeline.toml")
 
-    def build(self) -> tuple[Optional[PipelineController], Optional[Exception]]:
-        """Build the pipeline components."""
-        objects, error = get_objects_for_pipeline(self.pipeline_name)
-        if error:
-            return None, error
+    def build(self) -> PipelineController:
+        """Build the pipeline components.
 
+        Returns:
+            PipelineController: Configured controller ready to execute
+
+        Raises:
+            ModuleNotFoundError: If pipeline module not found
+            RegistryError: If class registration fails
+            ConfigNotFoundError: If config file doesn't exist
+            ConfigInvalidTomlError: If TOML parsing fails
+            InstTypeError: If permanence/process instantiation fails
+        """
+        # Get the classes to register (permanences + processes)
+        objects = get_objects_for_pipeline(self.pipeline_name)
+
+        # Create a PipelineBuilder instance
         builder = PipelineBuilder()
 
+        # Register all classes with the builder
         for class_name, class_type in objects.items():
-            error = builder.register_class(class_name, class_type)
-            if error:
-                return None, error
+            builder.register_class(class_name, class_type)
 
-        error = builder.load_config(self.config_path)
-        if error:
-            return None, error
+        # Load the configuration file
+        builder.load_config(self.config_path)
 
-        permanences, process_specs, error = builder.build()
-        if error:
-            return None, error
+        # Build permanences and processes
+        permanences, process_specs = builder.build()
 
+        # Create the controller with permanences and process specs
         controller = PipelineController(permanences, process_specs)
 
-        return controller, None
+        return controller
 
     def run(self) -> None:
-        """Execute the pipeline."""
-        controller, error = self.build()
-        if error and not controller:
-            raise error
+        """Execute the pipeline.
+
+        Raises:
+            Various exceptions from build() or execution
+        """
+        controller = self.build()
 
         # Check for WandB sweep
         wandb_logger = controller.get_permanence("wandb_logger", {})

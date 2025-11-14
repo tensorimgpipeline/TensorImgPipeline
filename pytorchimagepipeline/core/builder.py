@@ -81,36 +81,55 @@ class ProcessWithParams:
 class PipelineBuilder:
     """Builds pipeline components from configuration."""
 
-    def build(self) -> tuple[dict[str, Permanence], list[ProcessWithParams], Optional[Exception]]:
+    def build(self) -> tuple[dict[str, Permanence], list[ProcessWithParams]]:
         """Construct permanences and process specifications.
 
         Returns:
-            Tuple of (permanences_dict, process_specs_list, error)
+            Tuple of (permanences_dict, process_specs_list)
+
+        Raises:
+            Various exceptions from _build_permanences and _build_processes
         """
-        permanences, error = self._build_permanences()
-        if error:
-            return {}, [], error
+        permanences = self._build_permanences()
+        processes = self._build_processes()
+        return permanences, processes
 
-        processes, error = self._build_processes()
-        if error:
-            return permanences, [], error
+    def register_class(self, name: str, class_type: type) -> None:
+        """Register a permanence or process class.
 
-        return permanences, processes, None
+        Raises:
+            RegistryError: If registration fails
+        """
+        raise NotImplementedError
 
-    def register_class(self, name, class_type) -> tuple[None, Exception]:
-        return None, NotImplemented
+    def load_config(self, path: Path) -> None:
+        """Load configuration from file.
 
-    def load_config(path) -> tuple[None, Exception]:
-        return None, NotImplemented
+        Raises:
+            ConfigNotFoundError: If config file doesn't exist
+            ConfigInvalidTomlError: If TOML parsing fails
+            ConfigPermissionError: If file can't be read
+        """
+        raise NotImplementedError
 
-    def _build_permanences(self) -> tuple[None, Exception]:
-        return None, NotImplemented
+    def _build_permanences(self) -> dict[str, Permanence]:
+        """Build permanence instances from config.
 
-    def _build_processes(self) -> tuple[None, Exception]:
-        return None, NotImplemented
+        Raises:
+            InstTypeError: If permanence instantiation fails
+        """
+        raise NotImplementedError
+
+    def _build_processes(self) -> list[ProcessWithParams]:
+        """Build process specifications from config.
+
+        Raises:
+            InstTypeError: If process instantiation fails
+        """
+        raise NotImplementedError
 
 
-def get_objects_for_pipeline(pipeline_name: str) -> tuple[dict[str, type], None | Exception]:
+def get_objects_for_pipeline(pipeline_name: str) -> dict[str, type]:
     """
     Retrieves and combines objects to be registered for a given pipeline.
 
@@ -121,15 +140,15 @@ def get_objects_for_pipeline(pipeline_name: str) -> tuple[dict[str, type], None 
         dict[str, type]: A dictionary containing the combined objects from
                          `permanences_to_register` and `processes_to_register`
                          of the specified pipeline module.
+
+    Raises:
+        ModuleNotFoundError: If the pipeline module cannot be found.
     """
     full_module_name = "pytorchimagepipeline.pipelines." + pipeline_name
     if pipeline_name == "core":
         full_module_name = "pytorchimagepipeline." + pipeline_name
-    try:
-        module = importlib.import_module(full_module_name)
-    except ModuleNotFoundError as e:
-        return {}, e
-    return module.permanences_to_register | module.processes_to_register, None
+    module = importlib.import_module(full_module_name)
+    return module.permanences_to_register | module.processes_to_register
 
 
 # Usage Example
@@ -137,12 +156,8 @@ if __name__ == "__main__":
     # Example usage of the PipelineBuilder
 
     # Retrieve objects to be registered for the pipeline
-    core_objects, error = get_objects_for_pipeline("core")
-    if error:
-        raise error
-    pipeline_objects, error = get_objects_for_pipeline("sam2segnet")
-    if error:
-        raise error
+    core_objects = get_objects_for_pipeline("core")
+    pipeline_objects = get_objects_for_pipeline("sam2segnet")
 
     objects = core_objects | pipeline_objects
 
@@ -151,19 +166,16 @@ if __name__ == "__main__":
 
     # Register each class in the builder
     for key in objects:
-        error = builder.register_class(key, objects[key])
-        if error:
-            raise error
+        builder.register_class(key, objects[key])
 
     # Load the configuration file
-    error = builder.load_config(Path("sam2segnet/execute_pipeline.toml"))
-    if error:
-        raise error
+    builder.load_config(Path("sam2segnet/execute_pipeline.toml"))
 
     # Build the pipeline
-    controller, error = builder.build()
-    if error:
-        raise error
+    permanences, process_specs = builder.build()
+
+    # Create controller
+    controller = PipelineController(permanences, process_specs)
 
     # Run the pipeline
     controller.run_wandb()

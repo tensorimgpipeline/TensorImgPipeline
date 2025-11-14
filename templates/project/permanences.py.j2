@@ -5,7 +5,7 @@ They store state, data, models, or any resources needed by multiple processes.
 """
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from pytorchimagepipeline.abstractions import Permanence
 
@@ -37,10 +37,9 @@ class ConfigPermanence(Permanence):
         """Get configuration value."""
         return self.settings.get(key, default)
 
-    def cleanup(self) -> Optional[Exception]:
+    def cleanup(self) -> None:
         """Clean up resources."""
         self.settings.clear()
-        return None
 
 
 class DataPermanence(Permanence):
@@ -72,11 +71,10 @@ class DataPermanence(Permanence):
         """Retrieve processed data."""
         return self.processed_data.get(key)
 
-    def cleanup(self) -> Optional[Exception]:
+    def cleanup(self) -> None:
         """Clean up resources."""
         self.data.clear()
         self.processed_data.clear()
-        return None
 
 {% else %}
 
@@ -93,13 +91,12 @@ class MyPermanence(Permanence):
         self.param = param
         # Initialize your resources here
 
-    def cleanup(self) -> Optional[Exception]:
+    def cleanup(self) -> None:
         """Clean up resources.
 
-        Returns:
-            Exception if cleanup fails, None otherwise
+        Raise an exception if cleanup fails.
         """
         # Clean up any resources (close files, release memory, etc.)
-        return None
+        pass
 
 {% endif %}
