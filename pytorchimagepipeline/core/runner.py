@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
+from pytorchimagepipeline.core.builder import PipelineBuilder, get_objects_for_pipeline
 from pytorchimagepipeline.core.controller import PipelineController
 from pytorchimagepipeline.core.executor import PipelineExecutor
 
@@ -17,20 +18,35 @@ class PipelineRunner:
         self.pipeline_name = pipeline_name
         self.config_path = config_path or Path(f"{pipeline_name}/execute_pipeline.toml")
 
-    def build(self) -> tuple[PipelineController, Optional[Exception]]:
+    def build(self) -> tuple[Optional[PipelineController], Optional[Exception]]:
         """Build the pipeline components."""
-        # Get objects for pipeline
-        # Create builder
-        # Register classes
-        # Load config
-        # Build permanences & processes
-        # Create controller
-        # Return controller
+        objects, error = get_objects_for_pipeline(self.pipeline_name)
+        if error:
+            return None, error
+
+        builder = PipelineBuilder()
+
+        for class_name, class_type in objects.items():
+            error = builder.register_class(class_name, class_type)
+            if error:
+                return None, error
+
+        error = builder.load_config(self.config_path)
+        if error:
+            return None, error
+
+        permanences, process_specs, error = builder.build()
+        if error:
+            return None, error
+
+        controller = PipelineController(permanences, process_specs)
+
+        return controller, None
 
     def run(self) -> None:
         """Execute the pipeline."""
         controller, error = self.build()
-        if error:
+        if error and not controller:
             raise error
 
         # Check for WandB sweep
