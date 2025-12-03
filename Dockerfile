@@ -9,6 +9,9 @@ WORKDIR /app
 ADD uv.lock /app/uv.lock
 ADD pyproject.toml /app/pyproject.toml
 
+# Copy Submodules
+COPY ./submodules /app/submodules
+
 # Install dependencies
 RUN uv sync --frozen --no-install-project
 

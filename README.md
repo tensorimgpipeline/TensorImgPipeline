@@ -11,6 +11,32 @@ This is a repository for creating and running Pytorch Image Pipelines.
 - **Github repository**: <https://github.com/makanu/PytorchImagePipeline/>
 - **Documentation** <https://makanu.github.io/PytorchImagePipeline/>
 
+## Development
+
+To contribute to this project it is strongly recommended to use the devcontainer for local testing.
+Since some tests involve creating demo projects, which could lead to tampering with your local environment outside of the project.
+
+If your contribution does not involve in certain actions, you might also execute run tests on a local test environment.
+For Example: Your tests includes only backend actions, which do not interact with the app config or create new scaffolding projects.
+
+If you change files, which may interact with certain files, please execute all tests inside devcontainer and extend tests if necessary.
+
+> To run all tests local execute the test like this (WARNING: this interacts with files outside this project):
+
+```bash
+IS_IN_CONTAINER=true uv run pytest
+```
+
+### Setup devcontainer
+
+- Ensure docker or podman (recommended) are installed and configured correctly.
+- Install VScode Extensions for Remote Development
+
+This project already provides the necessary configurations to run this project inside devcontainer:
+
+- Open Command Pallete.
+- Execute `Dev Containers: Reopen in Container`
+
 ## Getting started with your project
 
 ### 1. Create a New Repository
