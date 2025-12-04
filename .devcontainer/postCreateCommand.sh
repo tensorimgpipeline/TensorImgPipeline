@@ -3,7 +3,7 @@
 # Provide Signing Key if Available
 # Make Sure the the signing key was added last
 GPG_FORMAT=$(git config --get gpg.format)
-if [ "$GPG_FORMAT" == "ssh"]; then
+if [ "$GPG_FORMAT" == "ssh" ]; then
     mkdir -p ~/.ssh && ssh-add -L | head -1 > ~/.ssh/signing_key.pub
     git config user.signingkey ~/.ssh/signing_key.pub
 fi
