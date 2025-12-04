@@ -39,7 +39,7 @@ class ProjectSetup(BaseModel):
 
     name: str
     base_dir: Path
-    example: str
+    example: ALLOWED_EXAMPLE_NAMES
     description: Optional[str] = None
     # Literal handles the validation automatically
     license_type: ALLOWED_LICENSES = "MIT"
