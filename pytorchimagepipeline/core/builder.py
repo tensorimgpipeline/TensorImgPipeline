@@ -334,17 +334,25 @@ def get_objects_for_pipeline(pipeline_name: str) -> dict[str, type]:
     if pipeline_name == "core":
         full_module_name = "pytorchimagepipeline." + pipeline_name
 
+    module = None
+
+    # Attempt 1: Try built-in pipelines
     try:
         module = importlib.import_module(full_module_name)
     except ModuleNotFoundError:
-        # Try loading from user projects directory (symlinked projects)
+        pass
+
+    # Attempt 2: Try loading from user projects directory (symlinked projects)
+    if module is None:
         path_manager = get_path_manager()
         module = path_manager.import_project_module(pipeline_name)
-        if module is None:
-            raise ModuleNotFoundError(
-                f"Pipeline '{pipeline_name}' not found. "
-                f"Tried built-in module '{full_module_name}' and user projects directory."
-            ) from None
+
+    # If all attempts failed, raise an error
+    if module is None:
+        raise ModuleNotFoundError(
+            f"Pipeline '{pipeline_name}' not found. "
+            f"Tried built-in module '{full_module_name}' and user projects directory."
+        )
 
     # Get the registries
     if not hasattr(module, "permanences_to_register") or not hasattr(module, "processes_to_register"):
