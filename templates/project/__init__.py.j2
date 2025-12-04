@@ -6,13 +6,13 @@ This module registers permanences and processes for the {{ project_name }} pipel
 from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
 
 from {{ project_name }}.permanences import (
-{% if with_example %}
+{% if example == "full" %}
     ConfigPermanence,
     DataPermanence,
 {% endif %}
 )
 from {{ project_name }}.processes import (
-{% if with_example %}
+{% if example == "full" %}
     LoadDataProcess,
     ProcessDataProcess,
 {% endif %}
@@ -20,10 +20,10 @@ from {{ project_name }}.processes import (
 
 # Register permanences that will be available throughout the pipeline
 permanences_to_register: dict[str, type[Permanence]] = {
-{% if with_example %}
+{% if example == "full" %}
     "config": ConfigPermanence,
     "data": DataPermanence,
-{% else %}
+{% elif example == "basic" %}
     # Add your permanences here
     # "my_permanence": MyPermanence,
 {% endif %}
@@ -31,10 +31,10 @@ permanences_to_register: dict[str, type[Permanence]] = {
 
 # Register processes that define the pipeline steps
 processes_to_register: dict[str, type[PipelineProcess]] = {
-{% if with_example %}
+{% if example == "full" %}
     "load_data": LoadDataProcess,
     "process_data": ProcessDataProcess,
-{% else %}
+{% elif example == "basic" %}
     # Add your processes here
     # "my_process": MyProcess,
 {% endif %}

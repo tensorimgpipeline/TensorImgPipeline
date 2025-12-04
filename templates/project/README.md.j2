@@ -46,19 +46,19 @@ pytorchpipeline inspect {{ project_name }}
 
 ## Permanences
 
-{% if with_example %}
+{% if example == "full" %}
 - **ConfigPermanence**: Stores configuration parameters
 - **DataPermanence**: Stores data throughout the pipeline
-{% else %}
+{% elif example == "basic" %}
 Define your permanences in `{{ project_name }}/permanences.py`.
 {% endif %}
 
 ## Processes
 
-{% if with_example %}
+{% if example == "full" %}
 - **LoadDataProcess**: Loads data from the data directory
 - **ProcessDataProcess**: Processes the loaded data
-{% else %}
+{% elif example == "basic" %}
 Define your processes in `{{ project_name }}/processes.py`.
 {% endif %}
 

@@ -1,0 +1,64 @@
+class ConfigPermanence(Permanence):
+    """Stores configuration parameters for the pipeline."""
+
+    def __init__(self, config_path: Path | str):
+        """Initialize configuration permanence.
+
+        Args:
+            config_path: Path to configuration file
+        """
+        self.config_path = Path(config_path) if isinstance(config_path, str) else config_path
+        self.settings: dict[str, Any] = {}
+        self._load_config()
+
+    def _load_config(self) -> None:
+        """Load configuration from file."""
+        # Simple example - could load from TOML, YAML, JSON, etc.
+        self.settings = {
+            "batch_size": 32,
+            "learning_rate": 0.001,
+            "epochs": 10,
+        }
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get configuration value."""
+        return self.settings.get(key, default)
+
+    def cleanup(self) -> None:
+        """Clean up resources."""
+        self.settings.clear()
+
+
+class DataPermanence(Permanence):
+    """Stores data loaded during the pipeline."""
+
+    def __init__(self, data_dir: Path | str):
+        """Initialize data permanence.
+
+        Args:
+            data_dir: Directory containing data files
+        """
+        self.data_dir = Path(data_dir) if isinstance(data_dir, str) else data_dir
+        self.data: dict[str, Any] = {}
+        self.processed_data: dict[str, Any] = {}
+
+    def set_data(self, key: str, value: Any) -> None:
+        """Store data."""
+        self.data[key] = value
+
+    def get_data(self, key: str) -> Any:
+        """Retrieve data."""
+        return self.data.get(key)
+
+    def set_processed(self, key: str, value: Any) -> None:
+        """Store processed data."""
+        self.processed_data[key] = value
+
+    def get_processed(self, key: str) -> Any:
+        """Retrieve processed data."""
+        return self.processed_data.get(key)
+
+    def cleanup(self) -> None:
+        """Clean up resources."""
+        self.data.clear()
+        self.processed_data.clear()
