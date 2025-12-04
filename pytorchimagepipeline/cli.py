@@ -23,7 +23,7 @@ from rich.tree import Tree
 from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
 from pytorchimagepipeline.core.runner import PipelineRunner
 from pytorchimagepipeline.paths import get_path_manager
-from pytorchimagepipeline.template_manager import template_manager
+from pytorchimagepipeline.template_manager import ProjectSetup, template_manager
 
 
 def _exit_with_error(message: str, code: int = 1) -> None:
@@ -233,7 +233,9 @@ def create_project(
     location: Optional[str] = typer.Option(
         None, "--location", "-l", help="Location to create project (default: current directory)"
     ),
-    with_example: bool = typer.Option(False, "--example", "-e", help="Include working example process and permanence"),
+    example: Optional[str] = typer.Option(
+        "basic", "--example", "-e", help="Include working example process and permanence"
+    ),
     description: Optional[str] = typer.Option(None, "--description", "-d", help="Project description"),
 ) -> None:
     """Create a new pipeline project with scaffolding.
@@ -262,48 +264,44 @@ def create_project(
 
     try:
         # Use template manager to create project
-        template_manager.create_project(
-            project_name=project_name,
-            base_dir=base_dir,
-            with_example=with_example,
-            description=description,
-        )
+        project_data = ProjectSetup(name=project_name, base_dir=base_dir, example=example, description=description)
 
-        # Success message
-        example_note = " with working example" if with_example else ""
-        panel = Panel(
-            f"[green]✓[/green] Pipeline project '{project_name}' created successfully{example_note}!\n\n"
-            f"Created at: {base_dir}\n\n"
-            f"Structure:\n"
-            f"  {project_name}/\n"
-            f"  ├── {project_name}/\n"
-            f"  │   ├── __init__.py\n"
-            f"  │   ├── permanences.py\n"
-            f"  │   └── processes.py\n"
-            f"  ├── configs/\n"
-            f"  │   └── pipeline_config.toml\n"
-            f"  ├── pyproject.toml\n"
-            f"  ├── README.md\n"
-            f"  └── .gitignore\n\n"
-            f"Next steps:\n"
-            f"  1. cd {base_dir}\n"
-            + (
-                f"  2. Review the example code in {project_name}/\n"
-                f"  3. Link to main pipeline: pytorchpipeline add {base_dir}\n"
-                f"  4. Run the pipeline: pytorchpipeline run {project_name}"
-                if with_example
-                else f"  2. Edit {project_name}/permanences.py and processes.py\n"
-                f"  3. Update configs/pipeline_config.toml\n"
-                f"  4. Link to main pipeline: pytorchpipeline add {base_dir}"
-            ),
-            title="Project Created",
-            border_style="green",
-        )
-        console.print(panel)
-
+        template_manager.create_project(project_data=project_data)
     except Exception as err:
         rprint(f"[bold red]Error:[/bold red] Failed to create project: {err}")
         raise typer.Exit(code=1) from err
+
+    # Success message
+    example_note = " with working example" if example != "basic" else ""
+    panel = Panel(
+        f"[green]✓[/green] Pipeline project '{project_name}' created successfully{example_note}!\n\n"
+        f"Created at: {base_dir}\n\n"
+        f"Structure:\n"
+        f"  {project_name}/\n"
+        f"  ├── {project_name}/\n"
+        f"  │   ├── __init__.py\n"
+        f"  │   ├── permanences.py\n"
+        f"  │   └── processes.py\n"
+        f"  ├── configs/\n"
+        f"  │   └── pipeline_config.toml\n"
+        f"  ├── pyproject.toml\n"
+        f"  ├── README.md\n"
+        f"  └── .gitignore\n\n"
+        f"Next steps:\n"
+        f"  1. cd {base_dir}\n"
+        + (
+            f"  2. Review the example code in {project_name}/\n"
+            f"  3. Link to main pipeline: pytorchpipeline add {base_dir}\n"
+            f"  4. Run the pipeline: pytorchpipeline run {project_name}"
+            if example != "basic"
+            else f"  2. Edit {project_name}/permanences.py and processes.py\n"
+            f"  3. Update configs/pipeline_config.toml\n"
+            f"  4. Link to main pipeline: pytorchpipeline add {base_dir}"
+        ),
+        title="Project Created",
+        border_style="green",
+    )
+    console.print(panel)
 
 
 @app.command(name="add")

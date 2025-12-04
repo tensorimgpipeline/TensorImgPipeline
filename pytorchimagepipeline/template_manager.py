@@ -5,9 +5,55 @@ creating new pipeline projects.
 """
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, Optional
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from pydantic import BaseModel, field_validator
+
+# Define the allowed values as constants
+# Using Literal for license_type can be more efficient and clear for Pydantic
+ALLOWED_LICENSES = Literal["MIT", "GPLv3", "Apache-2.0"]
+ALLOWED_EXAMPLE_NAMES = Literal["basic", "full", "pause"]
+
+
+# based on https://www.datacamp.com/tutorial/python-user-input
+class ProjectSetup(BaseModel):
+    """
+    Model to validate inputs for project setup function.
+
+    Args:
+        name: Name of the project
+        base_dir: Base directory where project will be created
+        example: Name of the example.
+            allowed examples:
+                - MIT
+                - GPLv3
+                - Apache-2.0
+        description: Project description
+        license_type: License type
+            allowed license types:
+                - basic
+                - full
+                - pause
+    """
+
+    name: str
+    base_dir: Path
+    example: str
+    description: Optional[str] = None
+    # Literal handles the validation automatically
+    license_type: ALLOWED_LICENSES = "MIT"
+
+    # Validate 'base_dir' existence
+    @field_validator("base_dir")
+    @classmethod
+    def check_base_dir_exists(cls, v: Path) -> Path:
+        """Ensures the base_dir Path exists on the filesystem."""
+        if not v.parent.is_dir():
+            # In V2, the error message often doesn't need to include 'v'
+            # as Pydantic handles context better, but it's safe to keep.
+            raise ValueError(f"Parent of base directory does not exist or is not a directory: {v}")  # noqa: TRY003
+        return v
 
 
 class TemplateManager:
@@ -36,37 +82,27 @@ class TemplateManager:
         template = self.env.get_template(template_name)
         return template.render(**context)
 
-    def create_project(
-        self,
-        project_name: str,
-        base_dir: Path,
-        with_example: bool = False,
-        description: str | None = None,
-        license_type: str = "MIT",
-    ) -> None:
+    def create_project(self, project_data: ProjectSetup) -> None:
         """Create a complete project from templates.
 
         Args:
-            project_name: Name of the project
-            base_dir: Base directory where project will be created
-            with_example: Whether to include example code
-            description: Project description
-            license_type: License type (e.g., "MIT", "Apache-2.0")
+            project_data (ProjectSetup): Data Container for project creation.
+                If the Datacontainer is used input validation is performed.
         """
-        if description is None:
-            description = f"A PytorchImagePipeline project for {project_name}"
+        if project_data.description is None:
+            project_data.description = f"A PytorchImagePipeline project for {project_data.name}"
 
         context = {
-            "project_name": project_name,
-            "with_example": with_example,
-            "description": description,
-            "license": license_type,
+            "project_name": project_data.name,
+            "example": project_data.example,
+            "description": project_data.description,
+            "license": project_data.license_type,
         }
 
         # Create project structure
-        src_dir = base_dir / project_name
+        src_dir = project_data.base_dir / project_data.name
         src_dir.mkdir(parents=True, exist_ok=True)
-        config_dir = base_dir / "configs"
+        config_dir = project_data.base_dir / "configs"
         config_dir.mkdir(parents=True, exist_ok=True)
 
         # Render and write files
@@ -74,9 +110,9 @@ class TemplateManager:
         self._write_file(src_dir / "permanences.py", "project/permanences.py.j2", context)
         self._write_file(src_dir / "processes.py", "project/processes.py.j2", context)
         self._write_file(config_dir / "pipeline_config.toml", "project/pipeline_config.toml.j2", context)
-        self._write_file(base_dir / "README.md", "project/README.md.j2", context)
-        self._write_file(base_dir / "pyproject.toml", "project/pyproject.toml.j2", context)
-        self._write_file(base_dir / ".gitignore", "project/gitignore.j2", context)
+        self._write_file(project_data.base_dir / "README.md", "project/README.md.j2", context)
+        self._write_file(project_data.base_dir / "pyproject.toml", "project/pyproject.toml.j2", context)
+        self._write_file(project_data.base_dir / ".gitignore", "project/gitignore.j2", context)
 
     def _write_file(self, file_path: Path, template_name: str, context: dict[str, Any]) -> None:
         """Write a rendered template to a file.
