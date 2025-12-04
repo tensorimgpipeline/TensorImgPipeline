@@ -7,6 +7,62 @@ import pytest
 from PIL import Image
 
 
+@pytest.fixture
+def isolated_path_manager(tmp_path, monkeypatch):
+    """Fixture that isolates PathManager to use temporary directories.
+
+    This fixture:
+    - Sets environment variables to redirect all paths to tmp_path
+    - Resets the global PathManager instance before the test
+    - Restores the original PathManager after the test
+
+    Usage:
+        def test_something(isolated_path_manager):
+            path_mgr, dirs = isolated_path_manager
+            # dirs.projects, dirs.configs, dirs.cache are the temp directories
+            # path_mgr is the isolated PathManager instance
+    """
+    from pytorchimagepipeline import paths
+
+    # Store original path manager
+    original_path_manager = paths._path_manager
+
+    # Create isolated directory structure
+    projects_dir = tmp_path / "projects"
+    configs_dir = tmp_path / "configs"
+    cache_dir = tmp_path / "cache"
+
+    projects_dir.mkdir()
+    configs_dir.mkdir()
+    cache_dir.mkdir()
+
+    # Set environment variables to use temp directories
+    monkeypatch.setenv("PYTORCHPIPELINE_PROJECTS_DIR", str(projects_dir))
+    monkeypatch.setenv("PYTORCHPIPELINE_CONFIG_DIR", str(configs_dir))
+    monkeypatch.setenv("PYTORCHPIPELINE_CACHE_DIR", str(cache_dir))
+
+    # Reset global path manager to pick up new env vars
+    paths._path_manager = None
+
+    # Create a simple namespace to hold directory paths
+    class Dirs:
+        pass
+
+    dirs = Dirs()
+    dirs.root = tmp_path
+    dirs.projects = projects_dir
+    dirs.configs = configs_dir
+    dirs.cache = cache_dir
+
+    # Get the new isolated path manager
+    path_mgr = paths.get_path_manager()
+
+    yield path_mgr, dirs
+
+    # Teardown: restore original path manager
+    paths._path_manager = original_path_manager
+
+
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
