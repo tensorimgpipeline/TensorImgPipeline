@@ -78,7 +78,8 @@ class TestE2EList:
 class TestE2ECreate:
     """End-to-end tests for create command with fake filesystem."""
 
-    def test_create_new_pipeline(self, fs: FakeFilesystem, cli_runner, mock_home_dir):
+    @pytest.mark.usefixtures("mock_home_dir")
+    def test_create_new_pipeline(self, fs: FakeFilesystem, cli_runner):
         """Test creating a new pipeline project."""
 
         workspace = Path("/fake_workspace")
@@ -96,7 +97,8 @@ class TestE2ECreate:
             # so we just check it doesn't crash
             assert result.exit_code in [0, 1]  # May fail due to fs mocking limitations
 
-    def test_create_validates_name(self, fs: FakeFilesystem, cli_runner, mock_home_dir):
+    @pytest.mark.usefixtures("mock_home_dir")
+    def test_create_validates_name(self, fs: FakeFilesystem, cli_runner):
         """Test that create handles various pipeline names."""
 
         workspace = Path("/fake_workspace")
@@ -222,8 +224,8 @@ class TestE2EInspect:
 class TestE2EWorkflow:
     """End-to-end workflow tests combining multiple commands."""
 
-    @pytest.mark.usefixtures("fs")
-    def test_full_pipeline_lifecycle(self, cli_runner, mock_home_dir, setup_fake_pipeline):
+    @pytest.mark.usefixtures("fs", "mock_home_dir")
+    def test_full_pipeline_lifecycle(self, cli_runner, setup_fake_pipeline):
         """Test complete pipeline lifecycle: add -> list -> remove."""
 
         # mock_home_dir fixture already creates directories
