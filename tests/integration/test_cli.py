@@ -3,8 +3,6 @@
 Tests all CLI commands and their interactions with the PathManager.
 """
 
-from unittest.mock import patch
-
 import pytest
 from typer.testing import CliRunner
 
@@ -12,34 +10,6 @@ from pytorchimagepipeline.cli import app
 
 # Create CLI runner
 runner = CliRunner()
-
-
-@pytest.fixture
-def mock_path_manager(tmp_path):
-    """Create a mock PathManager with temporary directories."""
-    projects_dir = tmp_path / "projects"
-    configs_dir = tmp_path / "configs"
-    cache_dir = tmp_path / "cache"
-
-    projects_dir.mkdir()
-    configs_dir.mkdir()
-    cache_dir.mkdir()
-
-    with patch("pytorchimagepipeline.cli.path_manager") as mock_pm:
-        mock_pm.get_projects_dir.return_value = projects_dir
-        mock_pm.get_configs_dir.return_value = configs_dir
-        mock_pm.get_cache_dir.return_value = cache_dir
-        mock_pm.get_config_path.return_value = configs_dir / "test" / "execute_pipeline.toml"
-        mock_pm.import_project_module.return_value = None
-        mock_pm.is_dev_mode.return_value = True
-        mock_pm.get_info.return_value = {
-            "mode": "development",
-            "projects_dir": str(projects_dir),
-            "configs_dir": str(configs_dir),
-            "cache_dir": str(cache_dir),
-            "user_config_dir": str(tmp_path / ".config"),
-        }
-        yield mock_pm
 
 
 class TestCLIBasics:
