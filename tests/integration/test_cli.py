@@ -7,6 +7,10 @@ import pytest
 from typer.testing import CliRunner
 
 from pytorchimagepipeline.cli import app
+from tests.conftest import skip_outside_container
+
+# Apply skip_outside_container to all tests in this module
+pytestmark = skip_outside_container
 
 # Create CLI runner
 runner = CliRunner()
