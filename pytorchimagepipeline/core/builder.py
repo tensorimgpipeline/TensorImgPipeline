@@ -227,11 +227,11 @@ class PipelineBuilder:
 
         permanences_config = self._config.get("permanences", {})
         if not isinstance(permanences_config, dict):
-            raise ConfigSectionError("'permanences' section must be a table")
+            raise ConfigSectionError("'permanences' section must be a dict")
 
         for name, perm_config in permanences_config.items():
             if not isinstance(perm_config, dict):
-                raise ConfigSectionError(f"Permanence '{name}' configuration must be a table")
+                raise ConfigSectionError(f"Permanence '{name}' configuration must be a dict")
 
             if "type" not in perm_config:
                 raise ConfigSectionError(f"Permanence '{name}' missing required 'type' field")
@@ -361,16 +361,14 @@ def get_objects_for_pipeline(pipeline_name: str) -> dict[str, type]:
         )
 
     # Combine the registries and also register by class name
-    combined = {}
+    combined: set[type[Permanence] | type[PipelineProcess]] = {}
 
     # Add permanences with both instance names and class names
-    for name, cls in module.permanences_to_register.items():
-        combined[name] = cls  # Instance name (e.g., 'config')
+    for cls in module.permanences_to_register:
         combined[cls.__name__] = cls  # Class name (e.g., 'ConfigPermanence')
 
     # Add processes with both instance names and class names
-    for name, cls in module.processes_to_register.items():
-        combined[name] = cls  # Instance name (e.g., 'load_data')
+    for cls in module.processes_to_register:
         combined[cls.__name__] = cls  # Class name (e.g., 'LoadDataProcess')
 
     return combined
