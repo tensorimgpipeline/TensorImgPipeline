@@ -9,34 +9,38 @@ from {{ project_name }}.permanences import (
 {% if example == "full" %}
     ConfigPermanence,
     DataPermanence,
+{% elif example == "basic" %}
+    MyPermanence
 {% endif %}
 )
 from {{ project_name }}.processes import (
 {% if example == "full" %}
     LoadDataProcess,
     ProcessDataProcess,
+{% elif example == "basic" %}
+    MyProcess
 {% endif %}
 )
 
 # Register permanences that will be available throughout the pipeline
-permanences_to_register: dict[str, type[Permanence]] = {
+permanences_to_register: set[type[Permanence]] = {
 {% if example == "full" %}
-    "config": ConfigPermanence,
-    "data": DataPermanence,
+    ConfigPermanence,
+    DataPermanence,
 {% elif example == "basic" %}
     # Add your permanences here
-    # "my_permanence": MyPermanence,
+    MyPermanence,
 {% endif %}
 }
 
 # Register processes that define the pipeline steps
-processes_to_register: dict[str, type[PipelineProcess]] = {
+processes_to_register: set[type[PipelineProcess]] = {
 {% if example == "full" %}
-    "load_data": LoadDataProcess,
-    "process_data": ProcessDataProcess,
+    LoadDataProcess,
+    ProcessDataProcess,
 {% elif example == "basic" %}
     # Add your processes here
-    # "my_process": MyProcess,
+    MyProcess,
 {% endif %}
 }
 
