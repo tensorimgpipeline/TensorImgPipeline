@@ -1,11 +1,14 @@
 import base64
 import io
 import os
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from PIL import Image
+
+from pytorchimagepipeline import paths
 
 
 def is_running_in_container() -> bool:
@@ -50,6 +53,7 @@ def isolated_path_manager(tmp_path, monkeypatch):
     This fixture:
     - Sets environment variables to redirect all paths to tmp_path
     - Resets the global PathManager instance before the test
+    - Cleans up sys.path and sys.modules after the test
     - Restores the original PathManager after the test
 
     Usage:
@@ -58,10 +62,11 @@ def isolated_path_manager(tmp_path, monkeypatch):
             # dirs.projects, dirs.configs, dirs.cache are the temp directories
             # path_mgr is the isolated PathManager instance
     """
-    from pytorchimagepipeline import paths
 
-    # Store original path manager
+    # Store original state
     original_path_manager = paths._path_manager
+    original_sys_path = sys.path.copy()
+    original_sys_modules = set(sys.modules.keys())
 
     # Create isolated directory structure
     projects_dir = tmp_path / "projects"
@@ -95,7 +100,20 @@ def isolated_path_manager(tmp_path, monkeypatch):
 
     yield path_mgr, dirs
 
-    # Teardown: restore original path manager
+    # Teardown: restore original state
+
+    # Remove any modules that were imported during the test
+    new_modules = set(sys.modules.keys()) - original_sys_modules
+    for module_name in list(new_modules):
+        # Remove all newly imported modules to prevent state pollution
+        # This includes test pipeline modules that were dynamically loaded
+        if module_name in sys.modules:
+            del sys.modules[module_name]
+
+    # Restore sys.path
+    sys.path[:] = original_sys_path
+
+    # Restore original path manager
     paths._path_manager = original_path_manager
 
 
