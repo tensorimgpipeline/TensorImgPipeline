@@ -282,6 +282,7 @@ class TestCleanCommand:
         assert result.exit_code == 0
         assert "No broken symlinks found" in result.stdout
 
+    @pytest.mark.usefixtures("mock_path_manager")
     def test_clean_with_broken_link(self, mock_path_manager):
         """Test clean command removes broken symlinks."""
         projects_dir = mock_path_manager.get_projects_dir()
@@ -291,7 +292,7 @@ class TestCleanCommand:
         non_existent_target = projects_dir / "non_existent_target"
         broken_link.symlink_to(non_existent_target)
 
-        assert broken_link.exists(follow_symlinks=False)  # Link exists
+        assert broken_link.is_symlink()  # Link exists
         assert not broken_link.exists()  # But target doesn't
 
         # Run clean with dry-run first
@@ -300,7 +301,7 @@ class TestCleanCommand:
         assert "Found 1 broken symlink" in result.stdout
         assert "broken_pipeline" in result.stdout
         assert "Dry run" in result.stdout
-        assert broken_link.exists(follow_symlinks=False)  # Link still exists
+        assert broken_link.is_symlink()  # Link still exists
 
         # Run clean to actually remove
         result = runner.invoke(app, ["clean"])
@@ -308,7 +309,7 @@ class TestCleanCommand:
         assert "Found 1 broken symlink" in result.stdout
         assert "Removed: broken_pipeline" in result.stdout
         assert "Cleaned up 1/1 broken symlink" in result.stdout
-        assert not broken_link.exists(follow_symlinks=False)  # Link removed
+        assert not broken_link.is_symlink()  # Link removed
 
     def test_clean_verbose(self, mock_path_manager, tmp_path):
         """Test clean command with verbose flag shows valid symlinks."""
