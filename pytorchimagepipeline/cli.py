@@ -490,7 +490,7 @@ def remove_subpackage(
 
     try:
         # Get the source path before unlinking
-        source_path = link_path.resolve()
+        source_path = link_path.resolve().parent
 
         # Remove project symlink
         link_path.unlink()
@@ -507,6 +507,8 @@ def remove_subpackage(
         if delete_source:
             # Check if source is in cache/ (safe to delete)
             cache_dir = path_manager.get_cache_dir().resolve()
+            # checking for relative position to cache is fine,
+            # since only git repo will be stored in cache.
             if source_path.is_relative_to(cache_dir):
                 confirm = typer.confirm(f"Are you sure you want to delete {source_path}?", default=False)
                 if confirm:
