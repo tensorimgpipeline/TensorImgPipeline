@@ -1,306 +1,431 @@
 """End-to-end tests for PytorchImagePipeline using fake filesystem."""
 
-import sys
-from pathlib import Path
+import re
 from unittest.mock import patch
 
 import pytest
-from pyfakefs.fake_filesystem import FakeFilesystem
+from git import Repo
 
 from pytorchimagepipeline.cli import app
-from tests.conftest import skip_outside_container
+from tests.conftest import skip_no_network, skip_outside_container
 
 # Apply skip_outside_container to all tests in this module
 pytestmark = skip_outside_container
 
 
-class TestE2EInfo:
-    """End-to-end tests for info command with fake filesystem."""
-
-    @pytest.mark.usefixtures("fs", "mock_home_dir")
-    def test_info_command_clean_state(self, cli_runner):
-        """Test info command with no configuration."""
-
-        result = cli_runner.invoke(app, ["info"])
-
-        assert result.exit_code == 0
-        assert "PytorchImagePipeline Configuration" in result.stdout
-        # Check for key information (may be formatted differently)
-        assert "development" in result.stdout or "production" in result.stdout
-        assert "Projects Dir" in result.stdout or "projects" in result.stdout.lower()
-        assert "/fake_home/testuser" in result.stdout  # Should use fake home
-
-    @pytest.mark.usefixtures("fs", "mock_home_dir")
-    def test_info_shows_correct_paths(self, cli_runner):
-        """Test that info shows paths in fake home directory."""
-
-        result = cli_runner.invoke(app, ["info"])
-
-        assert result.exit_code == 0
-        # Should show fake home paths since we set environment overrides
-        assert "/fake_home/testuser" in result.stdout
-
-
-class TestE2EList:
-    """End-to-end tests for list command with fake filesystem."""
-
-    @pytest.mark.usefixtures("fs", "mock_home_dir")
-    def test_list_empty_projects(self, cli_runner):
-        """Test list command with no projects."""
-
-        result = cli_runner.invoke(app, ["list"])
-
-        # May succeed or fail depending on path resolution, just check it doesn't crash
-        assert result.exit_code in [0, 1]
-        if result.exit_code == 0:
-            assert "Available Pipelines" in result.stdout or "pipelines" in result.stdout.lower()
-
-    def test_list_with_project(self, fs: FakeFilesystem, cli_runner, mock_home_dir, setup_fake_pipeline):
-        """Test list command after adding a project."""
-
-        # Create symlinks to demo pipeline in the fake home config
-        projects_dir = mock_home_dir / ".config/pytorchimagepipeline/projects"
-        configs_dir = mock_home_dir / ".config/pytorchimagepipeline/configs"
-
-        demo_package = setup_fake_pipeline / "demo_pipeline"
-        demo_configs = setup_fake_pipeline / "configs"
-
-        fs.create_symlink(projects_dir / "demo_pipeline", demo_package)
-        fs.create_symlink(configs_dir / "demo_pipeline", demo_configs)
-
-        result = cli_runner.invoke(app, ["list"])
-
-        # Should list pipelines if path resolution works
-        if result.exit_code == 0:
-            assert "demo_pipeline" in result.stdout
-
-
 class TestE2ECreate:
     """End-to-end tests for create command with fake filesystem."""
 
-    @pytest.mark.usefixtures("mock_home_dir")
-    def test_create_new_pipeline(self, fs: FakeFilesystem, cli_runner):
+    @pytest.mark.order(1)
+    @pytest.mark.usefixtures("isolated_path_manager")
+    @pytest.mark.parametrize(
+        argnames=("project_name", "cliargs", "expected"),
+        argvalues=[
+            # Expected Values
+            #   (ExitCode, Output Message, # Lines Output)
+            ("DemoPipeline", ["--example", "basic"], (0, "Project Created", 30)),
+            ("Demo Pipeline", ["--example", "basic"], (0, "Project Created", 30)),
+            ("DemoPipeline", ["--example", "full"], (0, "Project Created", 30)),
+        ],
+        ids=("simple_basic", "simple_w_spaces", "simple_full"),
+    )
+    def test_create_new_pipeline(self, tmp_path, cli_runner, project_name, cliargs, expected):
         """Test creating a new pipeline project."""
 
-        workspace = Path("/fake_workspace")
-        fs.create_dir(workspace)
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
 
         # Create in workspace
-        with cli_runner.isolated_filesystem(temp_dir=workspace):
-            result = cli_runner.invoke(
-                app,
-                ["create", "test_pipeline", "--example"],
-                input="y\n",  # Confirm creation
-            )
+        cmd = ["create", project_name, "-l", str(workspace)]
+        cmd.extend(cliargs)
+        result = cli_runner.invoke(app, cmd)
 
-            # Note: create command may have issues with fake filesystem
-            # so we just check it doesn't crash
-            assert result.exit_code in [0, 1]  # May fail due to fs mocking limitations
+        assert result.exit_code == expected[0]
+        assert expected[1] in result.output
+        assert len(result.output.split("\n")) == expected[2]
 
-    @pytest.mark.usefixtures("mock_home_dir")
-    def test_create_validates_name(self, fs: FakeFilesystem, cli_runner):
-        """Test that create handles various pipeline names."""
-
-        workspace = Path("/fake_workspace")
-        fs.create_dir(workspace)
-
-        with cli_runner.isolated_filesystem(temp_dir=workspace):
-            # Try to create with name containing spaces
-            # Note: Currently the CLI may accept this - update if validation is added
-            result = cli_runner.invoke(app, ["create", "test_with_underscore", "--example"])
-
-            # Should succeed
-            assert result.exit_code == 0
-            assert "created successfully" in result.stdout.lower()
+        # Analyes created project
+        project, *rest = workspace.glob("*")
+        assert len(rest) == 0
+        assert project.name == project_name
 
 
 class TestE2EAdd:
     """End-to-end tests for add command with fake filesystem."""
 
-    def test_add_pipeline(self, cli_runner, mock_home_dir, setup_fake_pipeline):
+    @pytest.mark.order(2)
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_add_pipeline(self, tmp_path, cli_runner):
         """Test adding a pipeline to configuration."""
+        # Use real filesystem for this test since inspect needs to import modules
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
 
-        result = cli_runner.invoke(app, ["add", str(setup_fake_pipeline)])
+        # Create a project with the full example template
+        create_result = cli_runner.invoke(app, ["create", "DemoProject", "-l", str(workspace), "-e", "full"])
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
+
+        result = cli_runner.invoke(app, ["add", str(workspace / "DemoProject")])
 
         assert result.exit_code == 0
-        assert "linked successfully" in result.stdout.lower() or "added" in result.stdout.lower()
+        assert result.stderr == ""
+        assert len(result.stdout.split("\n")) == 16
+        assert "DemoProject" in result.stdout
 
         # Verify symlinks were created (should be in fake home due to env overrides)
-        projects_dir = mock_home_dir / ".config/pytorchimagepipeline/projects"
-        assert (projects_dir / "demo_pipeline").exists()
+        assert (tmp_path / "projects/DemoProject").exists()
+        assert (tmp_path / "projects/DemoProject").is_symlink()
 
-    def test_add_pipeline_with_configs(self, cli_runner, mock_home_dir, setup_fake_pipeline):
-        """Test that add command links both code and configs."""
+    @pytest.mark.parametrize(
+        argnames=("cliargs", "expected"),
+        argvalues=(
+            # Expected format: ProjectName, Location, BranchName
+            ([], ["DemoPipeline", "cache/projects/DemoPipeline", "main"]),
+            (["-l"], ["DemoPipeline", "workspace/DemoPipeline", "main"]),
+            (["-b", "develop"], ["DemoPipeline", "cache/projects/DemoPipeline", "develop"]),
+        ),
+        ids=("NoArgs", "Location", "Branch"),
+    )
+    @pytest.mark.order(3)
+    @skip_no_network
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_add_pipeline_remote(self, tmp_path, cli_runner, cliargs, expected):
+        """Test adding a pipeline to configuration."""
+        # Use real filesystem for this test since inspect needs to import modules
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
 
-        result = cli_runner.invoke(app, ["add", str(setup_fake_pipeline)])
+        project_url = "https://github.com/MaKaNu-s-Things/DemoPipeline.git"
+        cmd = ["add", project_url]
+        if "-l" in cliargs:
+            cliargs.append(str(workspace))
+        cmd.extend(cliargs)
+        result = cli_runner.invoke(app, cmd)
 
         assert result.exit_code == 0
+        assert result.stderr == ""
+        assert len(result.stdout.split("\n")) == 23
+        assert expected[0] in result.stdout
 
-        # Verify both symlinks exist in fake home
-        projects_dir = mock_home_dir / ".config/pytorchimagepipeline/projects"
-        configs_dir = mock_home_dir / ".config/pytorchimagepipeline/configs"
-        assert (projects_dir / "demo_pipeline").exists()
-        assert (configs_dir / "demo_pipeline").exists()
+        # Verify symlinks were created (should be in fake home due to env overrides)
+        assert (tmp_path / "projects/DemoPipeline").exists()
+        assert (tmp_path / "projects/DemoPipeline").is_symlink()
+        assert (tmp_path / expected[1]).is_dir()
+        assert Repo(path=tmp_path / expected[1]).active_branch.name == expected[2]
 
-    @pytest.mark.usefixtures("fs", "mock_home_dir")
-    def test_add_nonexistent_path(self, cli_runner):
-        """Test adding a non-existent path."""
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_add_pipeline_failing(self, tmp_path, cli_runner):
+        """Test that add command links both code and configs."""
+        # Use real filesystem for this test since inspect needs to import modules
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
 
-        result = cli_runner.invoke(app, ["add", "/fake_workspace/nonexistent"])
+        # Create a project with the full example template
+        create_result = cli_runner.invoke(app, ["create", "DemoProject", "-l", str(workspace), "-e", "full"])
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
 
-        assert result.exit_code != 0
-        # Error message should indicate problem
-        assert (
-            "error" in result.stdout.lower()
-            or "not found" in result.stdout.lower()
-            or "does not exist" in result.stdout.lower()
-        )
+        result = cli_runner.invoke(app, ["add", "DemoProject"])
+
+        assert result.exit_code == 1
+
+
+class TestE2EInfo:
+    """End-to-end tests for info command."""
+
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_info_command_real_filesystem(self, cli_runner, tmp_path):
+        """Test info command with real filesystem."""
+
+        result = cli_runner.invoke(app, ["info"])
+
+        assert result.exit_code == 0
+        assert "PytorchImagePipeline Configuration" in result.stdout
+
+        # Check paths use isolated temp directory
+        assert str(tmp_path) in result.stdout
+
+        # Check directory status indicators (all should exist due to isolated_path_manager)
+        assert "✓" in result.stdout
+
+        # Check table structure
+        assert "Setting" in result.stdout
+        assert "Value" in result.stdout
+        assert "Directory Status" in result.stdout
+
+
+class TestE2EList:
+    """End-to-end tests for list command with fake filesystem."""
+
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_list_empty_projects(self, cli_runner):
+        """Test list command with no projects."""
+
+        result = cli_runner.invoke(app, ["list"])
+
+        assert result.exit_code == 0
+        assert "No pipelines found" in result.stdout
+
+    @pytest.mark.parametrize(
+        argnames=("cliargs", "exp_stdout"),
+        argvalues=(
+            (([], ["Source", "/tmp/pytest"])),
+            ((["-v"], ["Permanenc", "Processes", "Source", "2", "2", "/tmp/pyte"])),
+            ((["--no-links"], [])),
+        ),
+        ids=("simple", "simple-v", "simple--no-links"),
+    )
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_list_with_project(self, tmp_path, cli_runner, cliargs, exp_stdout):
+        """Test list command after adding a project."""
+
+        default_expected_stdout = ["Pipeline", "Type", "Config", "Status", "DemoProject", "Linked", "✓", "Ready"]
+
+        default_expected_stdout.extend(exp_stdout)
+
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
+
+        # Create a project with the full example template
+        create_result = cli_runner.invoke(app, ["create", "DemoProject", "-l", str(workspace), "-e", "full"])
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
+
+        # Add the project
+        add_result = cli_runner.invoke(app, ["add", str(workspace / "DemoProject")])
+        assert add_result.exit_code == 0, f"Add failed: {add_result.output}"
+
+        cmd = ["list"]
+        cmd.extend(cliargs)
+        result = cli_runner.invoke(app, cmd)
+
+        # Should list pipelines if path resolution works
+        assert result.exit_code == 0
+        for value in default_expected_stdout:
+            assert value in result.stdout
 
 
 class TestE2ERemove:
     """End-to-end tests for remove command with fake filesystem."""
 
-    def test_remove_pipeline(self, fs: FakeFilesystem, cli_runner, mock_home_dir, setup_fake_pipeline):
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_remove_pipeline(self, tmp_path, cli_runner):
         """Test removing a pipeline."""
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
 
-        # Create symlinks in fake home
-        projects_dir = mock_home_dir / ".config/pytorchimagepipeline/projects"
-        configs_dir = mock_home_dir / ".config/pytorchimagepipeline/configs"
+        # Create a project with the full example template
+        create_result = cli_runner.invoke(app, ["create", "DemoProject", "-l", str(workspace), "-e", "full"])
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
 
-        demo_package = setup_fake_pipeline / "demo_pipeline"
-        demo_configs = setup_fake_pipeline / "configs"
-        fs.create_symlink(projects_dir / "demo_pipeline", demo_package)
-        fs.create_symlink(configs_dir / "demo_pipeline", demo_configs)
+        # Add the project
+        add_result = cli_runner.invoke(app, ["add", str(workspace / "DemoProject")])
+        assert add_result.exit_code == 0, f"Add failed: {add_result.output}"
+
+        project_path = tmp_path / "projects/DemoProject"
+        config_path = tmp_path / "configs/DemoProject"
+
+        # Verify symlinks exists before removing
+        assert project_path.exists()
+        assert config_path.exists()
 
         # Now remove it
-        result = cli_runner.invoke(app, ["remove", "demo_pipeline"], input="y\n")
+        result = cli_runner.invoke(app, ["remove", "DemoProject"])
 
         # Check result
-        if result.exit_code == 0:
-            assert "removed" in result.stdout.lower() or "unlinked" in result.stdout.lower()
-            # Verify symlinks were removed
-            assert not (projects_dir / "demo_pipeline").exists()
-            assert not (configs_dir / "demo_pipeline").exists()
+        assert result.exit_code == 0
+        assert "✓ Removed link" in result.stdout
+        assert "✓ Removed config link" in result.stdout
+        assert "✓ Pipeline 'DemoProject' removed successfully!" in result.stdout
 
-    @pytest.mark.usefixtures("fs", "mock_home_dir")
+        # Verify symlinks were removed
+        assert not project_path.exists()
+        assert not config_path.exists()
+
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_remove_pipeline_remote_source(self, tmp_path, cli_runner):
+        """Test removing pipeline which has remote backup"""
+        # Add Pipeline via remote url
+        project_url = "https://github.com/MaKaNu-s-Things/DemoPipeline.git"
+        cmd = ["add", project_url]
+        create_result = cli_runner.invoke(app, cmd)
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
+
+        project_path = tmp_path / "projects/DemoPipeline"
+        config_path = tmp_path / "configs/DemoPipeline"
+        cached_project = tmp_path / "cache/projects/DemoPipeline"
+
+        # Verify symlinks exists before removing
+        assert project_path.exists()
+        assert config_path.exists()
+        assert cached_project.exists()
+
+        # Now remove it
+        result = cli_runner.invoke(app, ["remove", "DemoPipeline", "--delete-source"], input="y\n")
+
+        # Check result
+        assert result.exit_code == 0
+        assert "✓ Removed link" in result.stdout
+        assert "✓ Removed config link" in result.stdout
+        assert "✓ Deleted source" in result.stdout
+        assert "✓ Pipeline 'DemoPipeline' removed successfully!" in result.stdout
+
+        # Verify symlinks were removed
+        assert not project_path.exists()
+        assert not config_path.exists()
+        assert not cached_project.exists()
+
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_remove_pipeline_source(self, tmp_path, cli_runner):
+        """Test removing a pipeline."""
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
+
+        # Create a project with the full example template
+        create_result = cli_runner.invoke(app, ["create", "DemoProject", "-l", str(workspace), "-e", "full"])
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
+
+        # Add the project
+        add_result = cli_runner.invoke(app, ["add", str(workspace / "DemoProject")])
+        assert add_result.exit_code == 0, f"Add failed: {add_result.output}"
+
+        project_path = tmp_path / "projects/DemoProject"
+        config_path = tmp_path / "configs/DemoProject"
+
+        # Verify symlinks exists before removing
+        assert project_path.exists()
+        assert config_path.exists()
+
+        # Now remove it
+        result = cli_runner.invoke(app, ["remove", "DemoProject", "--delete-source"], input="y\n")
+
+        # Check result
+        assert result.exit_code == 0
+        assert "✓ Removed link" in result.stdout
+        assert "✓ Removed config link" in result.stdout
+        assert "✓ Pipeline 'DemoProject' removed successfully!" in result.stdout
+        assert "Warning: Source is outside cache/, not deleting for safety." in result.stdout
+
+        # Verify symlinks were removed
+        assert not project_path.exists()
+        assert not config_path.exists()
+
+    @pytest.mark.usefixtures("isolated_path_manager")
     def test_remove_nonexistent_pipeline(self, cli_runner):
         """Test removing a pipeline that doesn't exist."""
 
-        # mock_home_dir fixture already creates directories
         result = cli_runner.invoke(app, ["remove", "nonexistent"])
 
         assert result.exit_code != 0
 
 
 class TestE2EInspect:
-    """End-to-end tests for inspect command with fake filesystem."""
+    """End-to-end tests for inspect command.
 
-    def test_inspect_pipeline(self, fs: FakeFilesystem, cli_runner, mock_home_dir, setup_fake_pipeline):
-        """Test inspecting a pipeline."""
+    Note: These tests use real filesystem (tmp_path) instead of fakefs because
+    the inspect command needs to import Python modules, which requires real files
+    that importlib can access.
+    """
 
-        # mock_home_dir fixture already creates directories
-        projects_dir = mock_home_dir / ".config/pytorchimagepipeline/projects"
-        configs_dir = mock_home_dir / ".config/pytorchimagepipeline/configs"
+    @pytest.mark.parametrize(
+        argnames=("cmd", "expected"),
+        argvalues=(
+            # expected structure: (ErrorCode, # Lines in Output, Regex with expected matches)
+            (["inspect", "DemoProject"], (0, 12, {})),
+            (["inspect", "DemoProject", "-d"], (0, 16, {4: r":\n^[│\s](\s{3}│\s{5})|(\s{9,11})"})),
+            (["inspect", "DemoProject", "--docs"], (0, 16, {4: r":\n^[│\s](\s{3}│\s{5})|(\s{9,11})"})),
+        ),
+        ids=("simple", "simple-d", "simple--docs"),
+    )
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_inspect_pipeline(self, cli_runner, tmp_path, cmd, expected):
+        """Test inspecting a pipeline shows permanences and processes."""
+        # Use real filesystem for this test since inspect needs to import modules
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
 
-        # Create symlinks
-        demo_package = setup_fake_pipeline / "demo_pipeline"
-        demo_configs = setup_fake_pipeline / "configs"
-        fs.create_symlink(projects_dir / "demo_pipeline", demo_package)
-        fs.create_symlink(configs_dir / "demo_pipeline", demo_configs)
+        # Create a project with the full example template
+        create_result = cli_runner.invoke(app, ["create", "DemoProject", "-l", str(workspace), "-e", "full"])
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
 
-        # Add the demo_pipeline module to sys.path for import
-        sys.path.insert(0, str(projects_dir))
+        # Add the project
+        add_result = cli_runner.invoke(app, ["add", str(workspace / "DemoProject")])
+        assert add_result.exit_code == 0, f"Add failed: {add_result.output}"
 
-        try:
-            result = cli_runner.invoke(app, ["inspect", "demo_pipeline"])
+        # Inspect the project
+        result = cli_runner.invoke(app, cmd)
 
-            # inspect may fail due to import issues with fake fs
-            # Just check it doesn't crash horribly
-            assert result.exit_code in [0, 1]
-        finally:
-            sys.path.remove(str(projects_dir))
+        assert result.exit_code == expected[0], f"Inspect failed: {result.output}"
+        assert len(result.output.split("\n")) == expected[1]
+        assert cmd[1] in result.output
+        if expected[2]:
+            for num_exp, pattern in expected[2].items():
+                matches = re.finditer(pattern, result.output, re.MULTILINE)
+                assert len(list(matches)) == num_exp
+        # Full example should have permanences and processes defined
+        assert "DataPermanence" in result.output
+        assert "ConfigPermanence" in result.output
+        assert "ProcessDataProcess" in result.output
+        assert "LoadDataProcess" in result.output
+
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_inspect_nonexistent_pipeline(self, cli_runner):
+        """Test inspecting a pipeline that doesn't exist."""
+        result = cli_runner.invoke(app, ["inspect", "NonExistentProject"])
+
+        assert result.exit_code == 1
+        assert "Error: Pipeline 'NonExistentProject' not found." in result.stderr
 
 
 class TestE2EWorkflow:
     """End-to-end workflow tests combining multiple commands."""
 
-    @pytest.mark.usefixtures("fs", "mock_home_dir")
-    def test_full_pipeline_lifecycle(self, cli_runner, setup_fake_pipeline):
-        """Test complete pipeline lifecycle: add -> list -> remove."""
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_full_pipeline_lifecycle(self, cli_runner, tmp_path):
+        """Test complete pipeline lifecycle: create -> add -> list -> remove -> add -> run."""
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
 
-        # mock_home_dir fixture already creates directories
+        # 1. Create Demo Pipeline as full example
+        create_result = cli_runner.invoke(app, ["create", "demo_pipeline", "-l", str(workspace), "-e", "full"])
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
 
-        # 1. Add pipeline
-        add_result = cli_runner.invoke(app, ["add", str(setup_fake_pipeline)])
-        assert add_result.exit_code == 0
+        demo_path = workspace / "demo_pipeline"
+        assert demo_path.exists(), "Demo pipeline directory was not created"
 
-        # 2. List pipelines (should show demo_pipeline)
+        # 2. Add pipeline
+        add_result = cli_runner.invoke(app, ["add", str(demo_path)])
+        assert add_result.exit_code == 0, f"Add failed: {add_result.output}"
+
+        # 3. List pipelines (should show demo_pipeline)
         list_result = cli_runner.invoke(app, ["list"])
-        assert list_result.exit_code == 0
+        assert list_result.exit_code == 0, f"List failed: {list_result.output}"
         assert "demo_pipeline" in list_result.stdout
 
-        # 3. Remove pipeline
+        # 4. Remove pipeline
         remove_result = cli_runner.invoke(app, ["remove", "demo_pipeline"], input="y\n")
-        # Remove may have issues with fake fs, so just check it runs
+        assert remove_result.exit_code == 0, f"Remove failed: {remove_result.output}"
 
-        # 4. List again (should not show demo_pipeline if remove worked)
+        # 5. List again (should not show demo_pipeline)
         list_result2 = cli_runner.invoke(app, ["list"])
-        if list_result2.exit_code == 0 and remove_result.exit_code == 0:
-            # If both commands succeeded, pipeline should be gone
-            pass  # Just verify no crash
+        assert list_result2.exit_code == 0, f"List failed: {list_result2.output}"
+        assert "demo_pipeline" not in list_result2.stdout, "Pipeline should be removed"
 
-    def test_environment_isolation(self, fs: FakeFilesystem, cli_runner, setup_fake_pipeline):
-        """Test that different fake home directories are isolated."""
+        # 6. Add pipeline again
+        add_result2 = cli_runner.invoke(app, ["add", str(demo_path)])
+        assert add_result2.exit_code == 0, f"Re-add failed: {add_result2.output}"
 
-        # Setup first environment
-        home1 = Path("/fake_home/user1")
-        fs.create_dir(home1)
-        config1 = home1 / ".config/pytorchimagepipeline"
-        fs.create_dir(config1 / "projects")
-        fs.create_dir(config1 / "configs")
-
-        # Setup second environment
-        home2 = Path("/fake_home/user2")
-        fs.create_dir(home2)
-        config2 = home2 / ".config/pytorchimagepipeline"
-        fs.create_dir(config2 / "projects")
-        fs.create_dir(config2 / "configs")
-
-        # Add pipeline to user1 with environment overrides
-        with patch.dict(
-            "os.environ",
-            {
-                "HOME": str(home1),
-                "PYTORCHPIPELINE_PROJECTS_DIR": str(config1 / "projects"),
-                "PYTORCHPIPELINE_CONFIG_DIR": str(config1 / "configs"),
-            },
-            clear=False,
-        ):
-            result1 = cli_runner.invoke(app, ["add", str(setup_fake_pipeline)])
-            assert result1.exit_code == 0
-            assert (config1 / "projects" / "demo_pipeline").exists()
-
-        # Verify user2 doesn't see it
-        with patch.dict(
-            "os.environ",
-            {
-                "HOME": str(home2),
-                "PYTORCHPIPELINE_PROJECTS_DIR": str(config2 / "projects"),
-                "PYTORCHPIPELINE_CONFIG_DIR": str(config2 / "configs"),
-            },
-            clear=False,
-        ):
-            assert not (config2 / "projects" / "demo_pipeline").exists()
+        # 7. Run pipeline
+        run_result = cli_runner.invoke(app, ["run", "demo_pipeline"])
+        assert run_result.exit_code == 0, f"Run crashed: {run_result.output}"
 
 
 class TestE2EEnvironmentOverrides:
     """Test environment variable overrides with fake filesystem."""
 
-    @pytest.mark.usefixtures("fs", "mock_home_dir")
-    def test_custom_projects_dir(self, cli_runner):
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_custom_projects_dir(self, tmp_path, cli_runner):
         """Test PYTORCHPIPELINE_PROJECTS_DIR override."""
 
-        custom_projects = Path("/custom/projects")
+        custom_projects = tmp_path / "custom/projects"
 
         with patch.dict("os.environ", {"PYTORCHPIPELINE_PROJECTS_DIR": str(custom_projects)}):
             result = cli_runner.invoke(app, ["info"])
@@ -308,11 +433,11 @@ class TestE2EEnvironmentOverrides:
             assert result.exit_code == 0
             assert str(custom_projects) in result.stdout
 
-    @pytest.mark.usefixtures("fs", "mock_home_dir")
-    def test_custom_config_dir(self, cli_runner):
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_custom_config_dir(self, tmp_path, cli_runner):
         """Test PYTORCHPIPELINE_CONFIG_DIR override."""
 
-        custom_config = Path("/custom/configs")
+        custom_config = tmp_path / "custom/configs"
 
         with patch.dict("os.environ", {"PYTORCHPIPELINE_CONFIG_DIR": str(custom_config)}):
             result = cli_runner.invoke(app, ["info"])
@@ -320,11 +445,11 @@ class TestE2EEnvironmentOverrides:
             assert result.exit_code == 0
             assert str(custom_config) in result.stdout
 
-    @pytest.mark.usefixtures("fs", "mock_home_dir")
-    def test_custom_cache_dir(self, cli_runner):
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_custom_cache_dir(self, tmp_path, cli_runner):
         """Test PYTORCHPIPELINE_CACHE_DIR override."""
 
-        custom_cache = Path("/custom/cache")
+        custom_cache = tmp_path / "custom/cache"
 
         with patch.dict("os.environ", {"PYTORCHPIPELINE_CACHE_DIR": str(custom_cache)}):
             result = cli_runner.invoke(app, ["info"])
