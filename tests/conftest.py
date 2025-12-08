@@ -1,6 +1,7 @@
 import base64
 import io
 import os
+import socket
 import sys
 
 import matplotlib.pyplot as plt
@@ -36,6 +37,21 @@ skip_outside_container = pytest.mark.skipif(
     not is_running_in_container(),
     reason="Test only runs in container/CI environment (set IS_IN_CONTAINER=true to run locally)",
 )
+
+
+def is_connected_to_github() -> bool:
+    """
+    Checks if github.com is reachable and provides a valid ip.
+    """
+    try:
+        socket.gethostbyname("www.github.com")
+    except socket.gaierror:
+        return False
+    else:
+        return True
+
+
+skip_no_network = pytest.mark.skipif(not is_connected_to_github(), reason="Github.com is not reachable.")
 
 
 def pytest_configure(config):
