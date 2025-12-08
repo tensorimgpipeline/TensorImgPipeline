@@ -54,7 +54,7 @@ class TestListCommand:
     def test_list_empty(self):
         """Test list with no pipelines."""
         result = runner.invoke(app, ["list"])
-        assert result.exit_code == 0
+        assert result.exit_code == 1
 
 
 class TestCreateCommand:

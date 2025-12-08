@@ -36,7 +36,7 @@ def _exit_with_error(message: str, code: int = 1, err: Optional[Exception] = Non
         message: Error message to display
         code: Exit code (default: 1)
     """
-    message = f"[bold red]Error:[/bold red][red] {message}[/bold red]"
+    message = f"[bold red]Error:[/bold red][red] {message}[red]"
     rprint(message, file=sys.stderr)
     if err:
         raise typer.Exit(code=code) from err
