@@ -1,69 +1,28 @@
 # Path Management and Deployment
 
-This document explains how PytorchImagePipeline manages paths for different deployment scenarios and how the PathManager enables seamless transitions from development to production.
+This document explains how PytorchImagePipeline manages paths and how the PathManager enables flexible project organization.
 
 ## Overview
 
-PytorchImagePipeline automatically adapts its behavior based on how it's installed:
+PytorchImagePipeline uses a centralized path management system that:
 
-- **Development Mode**: When installed as editable (`pip install -e .` or `uv pip install -e .`)
-- **Production Mode**: When installed from PyPI (`pip install pytorchimagepipeline` or `uvx pytorchimagepipeline`)
-
-This dual-mode system allows:
-
-1. Developers to work directly in the repository
-2. Users to install from PyPI and sideload custom pipelines
-3. Zero configuration changes when transitioning between modes
+1. Stores all pipelines in user-configurable directories
+2. Follows XDG Base Directory standards on Linux/Unix
+3. Supports environment variable overrides for testing and custom setups
 
 ## PathManager
 
-The `PathManager` class (in `pytorchimagepipeline/paths.py`) automatically detects the installation mode and provides appropriate paths for:
+The `PathManager` class (in `pytorchimagepipeline/paths.py`) provides appropriate paths for:
 
 - **Projects directory**: Where pipeline packages are loaded from
 - **Configs directory**: Where TOML configuration files are stored
 - **Cache directory**: Where cloned git repositories are stored
 
-### Mode Detection
-
-The PathManager detects development mode by:
-
-1. Checking for `pyproject.toml` in the parent directory of the installed package
-2. Checking the `PYTORCHPIPELINE_DEV_MODE` environment variable (for testing)
-
-If neither condition is met, it assumes production mode.
-
 ## Directory Structure
 
-### Development Mode
-
-When working in the repository (editable install):
+### Default Paths
 
 ```
-PytorchPipeline/
-├── pytorchimagepipeline/
-│   ├── pipelines/              # ← Projects loaded from here
-│   │   ├── sam2segnet/
-│   │   └── my_custom_pipeline/ # symlink or built-in
-│   └── ...
-├── configs/                    # ← Configs loaded from here
-│   ├── sam2segnet/
-│   │   └── execute_pipeline.toml
-│   └── my_custom_pipeline/
-│       └── execute_pipeline.toml
-├── submodules/                 # ← Git clones stored here
-│   └── external_pipeline/
-└── pyproject.toml
-```
-
-### Production Mode
-
-When installed from PyPI:
-
-```
-# System installation
-/usr/local/lib/python3.x/site-packages/
-└── pytorchimagepipeline/       # Read-only package
-
 # User's home directory
 ~/.config/pytorchimagepipeline/
 ├── projects/                   # ← Projects loaded from here
@@ -71,12 +30,13 @@ When installed from PyPI:
 │   └── cloned_pipeline/       # symlink to cache
 ├── configs/                    # ← Configs loaded from here
 │   ├── my_pipeline/
-│   │   └── execute_pipeline.toml
+│   │   └── pipeline_config.toml
 │   └── cloned_pipeline/
-│       └── execute_pipeline.toml
+│       └── pipeline_config.toml
 
 ~/.cache/pytorchimagepipeline/  # ← Git clones stored here
-└── cloned_pipeline/
+└── projects/
+    └── cloned_pipeline/
 ```
 
 ## XDG Base Directory Specification
@@ -98,26 +58,23 @@ pytorchpipeline info
 
 This shows:
 
-- Current mode (development or production)
 - All directory paths
 - Directory existence status
 
-### Development Workflow
+### Getting Started
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/yourusername/PytorchPipeline.git
-cd PytorchPipeline
+# 1. Install the package
+pip install pytorchimagepipeline
 
-# 2. Install in editable mode
-pip install -e .
-
-# 3. Check mode (should show "development")
+# 2. Check configuration
 pytorchpipeline info
 
-# 4. Work directly in the repository
-# - Add pipelines to pytorchimagepipeline/pipelines/
-# - Add configs to configs/
+# 3. Create a new pipeline
+pytorchpipeline create my_pipeline
+
+# 4. Link it
+pytorchpipeline add ./my_pipeline
 # - Or use 'pytorchpipeline add' to link external projects
 ```
 
@@ -189,32 +146,17 @@ export PYTORCHPIPELINE_CACHE_DIR=/custom/path/cache
 pytorchpipeline add https://github.com/user/repo.git
 ```
 
-### Force Development Mode
-
-```bash
-# Force development mode (mainly for testing)
-export PYTORCHPIPELINE_DEV_MODE=true
-pytorchpipeline info
-```
-
-**Note:** Environment variables take precedence over automatic detection.
+**Note:** Environment variables are useful for testing and creating isolated environments.
 
 ## Module Import System
 
-The PathManager also handles dynamic module imports:
+The PathManager handles dynamic module imports by:
 
-### Development Mode
-
-```python
-# Imports from ./pytorchimagepipeline/pipelines/
-module = path_manager.import_project_module("my_pipeline")
-# Uses standard Python import system
-```
-
-### Production Mode
+1. Adding the projects directory to `sys.path`
+2. Using standard Python import mechanisms
 
 ```python
-# Dynamically adds ~/.config/pytorchimagepipeline/projects/ to sys.path
+# Dynamically adds projects directory to sys.path
 # Then imports my_pipeline
 module = path_manager.import_project_module("my_pipeline")
 # Module is now available just like any installed package
@@ -226,21 +168,26 @@ This allows seamless imports regardless of where pipelines are located.
 
 ### For Pipeline Developers
 
-1. **Development**: Always use editable install
+1. **Create standalone projects** that can be added via `pytorchpipeline add`
 
    ```bash
-   git clone <repo>
-   cd <repo>
-   pip install -e .
+   pytorchpipeline create my_pipeline
+   cd my_pipeline
+   # Edit your pipeline code
    ```
 
-2. **Testing Production Behavior**: Use environment variable
+2. **Link your project** for testing
 
    ```bash
-   PYTORCHPIPELINE_DEV_MODE=false pytorchpipeline info
+   pytorchpipeline add ./my_pipeline
+   pytorchpipeline validate my_pipeline
    ```
 
-3. **Portable Pipelines**: Create standalone projects that can be added via `pytorchpipeline add`
+3. **Use environment overrides** for isolated testing
+
+   ```bash
+   PYTORCHPIPELINE_PROJECTS_DIR=/tmp/test_projects pytorchpipeline list
+   ```
 
 ### For End Users
 
@@ -279,24 +226,18 @@ This allows seamless imports regardless of where pipelines are located.
 
 ## Migration Guide
 
-### From Development to Production
+### Packaging Your Pipeline for Distribution
 
 When you're ready to distribute your pipeline:
 
-1. **Test in production mode**:
-
-   ```bash
-   PYTORCHPIPELINE_DEV_MODE=false pytorchpipeline run my_pipeline
-   ```
-
-2. **Package your pipeline** as a standalone project:
+1. **Package your pipeline** as a standalone project:
 
    ```bash
    pytorchpipeline create my_pipeline_standalone
    # Copy your code to the new project
    ```
 
-3. **Publish to git**:
+2. **Publish to git**:
 
    ```bash
    cd my_pipeline_standalone
@@ -307,7 +248,7 @@ When you're ready to distribute your pipeline:
    git push
    ```
 
-4. **Users can now add it**:
+3. **Users can now add it**:
    ```bash
    pytorchpipeline add https://github.com/you/my_pipeline_standalone.git
    ```
@@ -353,14 +294,13 @@ If you have an existing Python package:
 ### Pipeline Not Found
 
 ```bash
-# Check what mode you're in
+# Check configuration
 pytorchpipeline info
 
 # List available pipelines
 pytorchpipeline list
 
-# Development mode: Check ./pytorchimagepipeline/pipelines/
-# Production mode: Check ~/.config/pytorchimagepipeline/projects/
+# Check ~/.config/pytorchimagepipeline/projects/
 ```
 
 ### Config Not Found
@@ -372,8 +312,7 @@ pytorchpipeline info
 # Inspect specific pipeline
 pytorchpipeline inspect my_pipeline
 
-# Development mode: Create in ./configs/my_pipeline/
-# Production mode: Create in ~/.config/pytorchimagepipeline/configs/my_pipeline/
+# Create config in ~/.config/pytorchimagepipeline/configs/my_pipeline/
 ```
 
 ### Import Errors
@@ -420,17 +359,13 @@ from pytorchimagepipeline.paths import get_path_manager
 # Get the global PathManager instance
 pm = get_path_manager()
 
-# Check mode
-is_dev = pm.is_dev_mode()
-print(f"Running in {'development' if is_dev else 'production'} mode")
-
 # Get directories
 projects_dir = pm.get_projects_dir()
 configs_dir = pm.get_configs_dir()
 cache_dir = pm.get_cache_dir()
 
 # Get config path for specific pipeline
-config_path = pm.get_config_path("my_pipeline", "execute_pipeline.toml")
+config_path = pm.get_config_path("my_pipeline", "pipeline_config.toml")
 
 # Import a project module
 module = pm.import_project_module("my_pipeline")
@@ -441,7 +376,7 @@ for key, value in info.items():
     print(f"{key}: {value}")
 
 # Setup Python path (automatically called by import_project_module)
-pm.setup_python_path()
+pm.setup_python_path("my_pipeline")
 ```
 
 ## See Also

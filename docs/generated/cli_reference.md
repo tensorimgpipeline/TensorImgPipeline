@@ -291,31 +291,22 @@ pytorchpipeline info
 
 **Output:**
 
-- Current mode (development or production)
 - Projects directory path (where pipelines are loaded from)
 - Configs directory path (where configuration files are stored)
 - Cache directory path (for cloned repositories)
 - User config directory (~/.config/pytorchimagepipeline)
 - Directory existence status
 
-**Modes:**
+**Default Paths:**
 
-- **Development mode**: Detected when installed as editable (pip install -e .)
-
-  - Projects: `./pytorchimagepipeline/pipelines/`
-  - Configs: `./configs/`
-  - Cache: `./submodules/`
-
-- **Production mode**: Detected when installed from PyPI (pip install pytorchimagepipeline)
-  - Projects: `~/.config/pytorchimagepipeline/projects/`
-  - Configs: `~/.config/pytorchimagepipeline/configs/`
-  - Cache: `~/.cache/pytorchimagepipeline/`
+- Projects: `~/.config/pytorchimagepipeline/projects/`
+- Configs: `~/.config/pytorchimagepipeline/configs/`
+- Cache: `~/.cache/pytorchimagepipeline/`
 
 **Use Cases:**
 
 - Debugging path issues
 - Understanding where to place pipeline projects
-- Verifying installation mode
 - Checking directory structure before adding pipelines
 
 ---
@@ -327,6 +318,7 @@ pytorchpipeline info
 ```bash
 # 1. Create a new pipeline project
 pytorchpipeline create my_ml_pipeline --example
+
 
 # 2. Navigate to the project
 cd my_ml_pipeline
@@ -433,12 +425,11 @@ type = "ValidationProcess"
 
 ## Environment Variables
 
-- `PYTORCHPIPELINE_CONFIG_DIR` - Override configs directory (overrides automatic detection)
-- `PYTORCHPIPELINE_PROJECTS_DIR` - Override projects directory (overrides automatic detection)
-- `PYTORCHPIPELINE_CACHE_DIR` - Override cache directory (overrides automatic detection)
-- `PYTORCHPIPELINE_DEV_MODE` - Force development mode (true/false, overrides automatic detection)
+- `PYTORCHPIPELINE_CONFIG_DIR` - Override configs directory
+- `PYTORCHPIPELINE_PROJECTS_DIR` - Override projects directory
+- `PYTORCHPIPELINE_CACHE_DIR` - Override cache directory
 
-**Note:** The PathManager automatically detects development vs production mode. Environment variables are primarily for testing and debugging.
+**Note:** Environment variables are primarily for testing and creating isolated test scenarios.
 
 ---
 
@@ -484,16 +475,14 @@ done
 ### "Pipeline not found"
 
 - Check `pytorchpipeline list` to see available pipelines
-- Use `pytorchpipeline info` to verify your current mode and paths
-- Ensure you're in the correct directory (development mode)
-- For production mode, check that pipelines are in `~/.config/pytorchimagepipeline/projects/`
+- Use `pytorchpipeline info` to verify your paths
+- Check that pipelines are in `~/.config/pytorchimagepipeline/projects/`
 - For linked packages, verify the symlink exists in the projects directory
 
 ### "Missing config"
 
-- Create or update configs in the appropriate directory (use `pytorchpipeline info` to see path)
-- Development mode: `configs/<pipeline_name>/execute_pipeline.toml`
-- Production mode: `~/.config/pytorchimagepipeline/configs/<pipeline_name>/execute_pipeline.toml`
+- Create or update configs in the configs directory (use `pytorchpipeline info` to see path)
+- Default location: `~/.config/pytorchimagepipeline/configs/<pipeline_name>/pipeline_config.toml`
 - Check the config file path with `pytorchpipeline inspect <pipeline>`
 
 ### "Invalid TOML"

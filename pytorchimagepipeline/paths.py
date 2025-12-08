@@ -23,50 +23,17 @@ from typing import Optional
 class PathManager:
     """Manages paths for both development and production environments.
 
-    In development mode (editable install):
-        - Uses project directory structure
-        - pipelines: ./pytorchimagepipeline/pipelines
-        - configs: ./configs
-
-    In production mode (PyPI install):
-        - Uses XDG Base Directory structure
+    All pipelines are sideloaded from user directories:
         - pipelines: ~/.config/pytorchimagepipeline/projects
         - configs: ~/.config/pytorchimagepipeline/configs
+        - cache: ~/.cache/pytorchimagepipeline
+
+    Environment variables can override these defaults.
     """
 
     def __init__(self):
-        self._is_dev_mode = self._detect_dev_mode()
         self._user_config_dir = self._get_user_config_dir()
         self._ensure_user_directories()
-
-    def _detect_dev_mode(self) -> bool:
-        """Detect if running in development mode (editable install).
-
-        Returns:
-            bool: True if in development mode, False if installed from PyPI.
-        """
-        # Check if we're running from source directory
-        try:
-            import pytorchimagepipeline
-
-            package_path = Path(pytorchimagepipeline.__file__).parent
-
-            # If there's a pyproject.toml in parent directory, it's dev mode
-            project_root = package_path.parent
-            if (project_root / "pyproject.toml").exists():
-                # Verify it's the PytorchImagePipeline project
-                import tomllib
-
-                with open(project_root / "pyproject.toml", "rb") as f:
-                    config = tomllib.load(f)
-                    if config.get("project", {}).get("name") == "PytorchImagePipeline":
-                        return True
-        except Exception:  # noqa: S110
-            # Silently ignore if pyproject.toml doesn't exist or is invalid
-            pass
-
-        # Check environment variable override
-        return os.environ.get("PYTORCHPIPELINE_DEV_MODE", "").lower() in ("1", "true", "yes")
 
     def _get_user_config_dir(self) -> Path:
         """Get user configuration directory following XDG Base Directory spec.
@@ -90,17 +57,6 @@ class PathManager:
         self.get_projects_dir().mkdir(parents=True, exist_ok=True)
         self.get_configs_dir().mkdir(parents=True, exist_ok=True)
         self.get_cache_dir().mkdir(parents=True, exist_ok=True)
-
-    def is_dev_mode(self) -> bool:
-        """Check if running in development mode.
-
-        Development mode only affects the CLI tool itself,
-        not where pipelines are loaded from.
-
-        Returns:
-            bool: True if development mode.
-        """
-        return self._is_dev_mode
 
     def get_projects_dir(self) -> Path:
         """Get directory for pipeline projects.
@@ -237,7 +193,6 @@ class PathManager:
             Dictionary with path information.
         """
         return {
-            "mode": "development" if self._is_dev_mode else "production",
             "projects_dir": str(self.get_projects_dir()),
             "configs_dir": str(self.get_configs_dir()),
             "cache_dir": str(self.get_cache_dir()),
@@ -275,8 +230,3 @@ def get_configs_dir() -> Path:
 def get_cache_dir() -> Path:
     """Get cache directory."""
     return get_path_manager().get_cache_dir()
-
-
-def is_dev_mode() -> bool:
-    """Check if running in development mode."""
-    return get_path_manager().is_dev_mode()

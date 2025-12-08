@@ -21,9 +21,7 @@ def mock_path_manager(tmp_path):
         mock_pm.get_cache_dir.return_value = cache_dir
         mock_pm.get_config_path.return_value = configs_dir / "test" / "execute_pipeline.toml"
         mock_pm.import_project_module.return_value = None
-        mock_pm.is_dev_mode.return_value = True
         mock_pm.get_info.return_value = {
-            "mode": "development",
             "projects_dir": str(projects_dir),
             "configs_dir": str(configs_dir),
             "cache_dir": str(cache_dir),
@@ -55,9 +53,7 @@ def fs_mock_path_manager(fs):
         mock_pm.get_cache_dir.return_value = cache_dir
         mock_pm.get_config_path.return_value = configs_dir / "test" / "execute_pipeline.toml"
         mock_pm.import_project_module.return_value = None
-        mock_pm.is_dev_mode.return_value = True
         mock_pm.get_info.return_value = {
-            "mode": "development",
             "projects_dir": str(projects_dir),
             "configs_dir": str(configs_dir),
             "cache_dir": str(cache_dir),
