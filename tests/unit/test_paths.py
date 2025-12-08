@@ -7,6 +7,8 @@ import os
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from pytorchimagepipeline.paths import PathManager, get_path_manager
 
 
@@ -157,10 +159,10 @@ class TestPathManagerModuleImport:
     """Test module import functionality."""
 
     def test_import_project_module_not_found(self):
-        """Test importing non-existent module returns None."""
+        """Test importing non-existent module raises ImportError."""
         pm = PathManager()
-        module = pm.import_project_module("nonexistent_module")
-        assert module is None
+        with pytest.raises(ImportError):
+            pm.import_project_module("nonexistent_module")
 
     def test_import_project_module_development(self, tmp_path):
         """Test importing module in development mode."""
