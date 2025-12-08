@@ -41,7 +41,8 @@ Repository = "https://github.com/makanu/PytorchImagePipeline"
 Documentation = "https://makanu.github.io/PytorchImagePipeline/"
 
 [project.scripts]
-pytorchpipeline = "pytorchimagepipeline.cli:app"
+tensorimgpipeline = "pytorchimagepipeline.cli:app"
+tipi = "pytorchimagepipeline.cli:app"
 
 [dependency-groups]
 dev = [
