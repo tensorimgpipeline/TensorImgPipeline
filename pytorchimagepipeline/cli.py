@@ -10,6 +10,9 @@ the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 """
 
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -26,14 +29,17 @@ from pytorchimagepipeline.paths import get_path_manager
 from pytorchimagepipeline.template_manager import ProjectSetup, template_manager
 
 
-def _exit_with_error(message: str, code: int = 1) -> None:
+def _exit_with_error(message: str, code: int = 1, err: Optional[Exception] = None) -> None:
     """Print error message and exit.
 
     Args:
         message: Error message to display
         code: Exit code (default: 1)
     """
-    rprint(message)
+    message = f"[bold red]Error:[/bold red][red] {message}[/bold red]"
+    rprint(message, file=sys.stderr)
+    if err:
+        raise typer.Exit(code=code) from err
     raise typer.Exit(code=code)
 
 
@@ -69,8 +75,7 @@ def run_pipeline(
         runner = PipelineRunner(pipeline_name, config_path)
         runner.run()
     except Exception as err:
-        rprint(f"[bold red]Error:[/bold red] {err}")
-        raise typer.Exit(code=1) from err
+        _exit_with_error(err)
 
 
 @app.command(name="list")
@@ -90,17 +95,17 @@ def list_pipelines(
     pipelines_dir = path_manager.get_projects_dir()
 
     if not pipelines_dir.exists():
-        rprint(f"[yellow]No pipelines directory found at {pipelines_dir}[/yellow]")
-        rprint(f"\nMode: {path_manager.get_info()['mode']}")
-        rprint("Create a pipeline with: [cyan]pytorchpipeline create my_pipeline[/cyan]")
-        raise typer.Exit(code=1)
+        _exit_with_error(
+            f"[yellow]No pipelines directory found at {pipelines_dir}[/yellow]\n"
+            f"Mode: {path_manager.get_info()['mode']}\n"
+            "Create a pipeline with: [cyan]pytorchpipeline create my_pipeline[/cyan]"
+        )
 
     # Find all pipeline directories
     pipeline_dirs = [d for d in pipelines_dir.iterdir() if d.is_dir() and not d.name.startswith("_")]
 
     if not pipeline_dirs:
-        rprint("[yellow]No pipelines found.[/yellow]")
-        raise typer.Exit()
+        _exit_with_error("No pipelines found.")
 
     # Create table
     table = Table(title="Available Pipelines")
@@ -176,8 +181,7 @@ def inspect_pipeline(
         # Use path manager to import module
         module = path_manager.import_project_module(pipeline_name)
     except ImportError as err:
-        rprint(f"[bold red]Error:[/bold red] Pipeline '{pipeline_name}' not found.")
-        raise typer.Exit(code=1) from err
+        _exit_with_error(f"Pipeline '{pipeline_name}' not found.\n" f"Caused by Error: {err}")
 
     try:
         permanences = getattr(module, "permanences_to_register", {})
@@ -220,11 +224,10 @@ def inspect_pipeline(
             console.print(f"\n[red]✗[/red] Config not found: {config_path if config_path else 'N/A'}")
 
     except ModuleNotFoundError as err:
-        rprint(f"[bold red]Error:[/bold red] Pipeline '{pipeline_name}' not found.")
-        raise typer.Exit(code=1) from err
+        _exit_with_error(f"Pipeline '{pipeline_name}' not found.", err=err)
+
     except Exception as err:
-        rprint(f"[bold red]Error:[/bold red] {err}")
-        raise typer.Exit(code=1) from err
+        _exit_with_error("", err=err)
 
 
 @app.command(name="create")
@@ -259,8 +262,7 @@ def create_project(
     base_dir = Path(location) / project_name if location else Path.cwd() / project_name
 
     if base_dir.exists():
-        rprint(f"[bold red]Error:[/bold red] Directory '{base_dir}' already exists.")
-        raise typer.Exit(code=1)
+        _exit_with_error(f"Directory '{base_dir}' already exists.")
 
     try:
         # Use template manager to create project
@@ -268,8 +270,7 @@ def create_project(
 
         template_manager.create_project(project_data=project_data)
     except Exception as err:
-        rprint(f"[bold red]Error:[/bold red] Failed to create project: {err}")
-        raise typer.Exit(code=1) from err
+        _exit_with_error("Failed to create projec", err=err)
 
     # Success message
     example_note = " with working example" if example != "basic" else ""
@@ -331,7 +332,6 @@ def add_subpackage(
         pytorchpipeline add git@github.com:user/pipeline.git --location ./external
         pytorchpipeline add https://github.com/user/repo.git --branch dev
     """
-    import subprocess
 
     try:
         # Check if source is a git URL
@@ -349,7 +349,7 @@ def add_subpackage(
             target_dir = clone_location / name
 
             if target_dir.exists():
-                _exit_with_error(f"[bold red]Error:[/bold red] Target directory '{target_dir}' already exists.")
+                _exit_with_error(f"Target directory '{target_dir}' already exists.")
 
             console.print("[cyan]Cloning repository...[/cyan]")
 
@@ -362,7 +362,7 @@ def add_subpackage(
             result = subprocess.run(cmd, capture_output=True, text=True)
 
             if result.returncode != 0:
-                _exit_with_error(f"[bold red]Error:[/bold red] Git clone failed:\n{result.stderr}")
+                _exit_with_error(f"Git clone failed:\n{result.stderr}")
 
             console.print(f"[green]✓[/green] Repository cloned to {target_dir}")
             project_path = target_dir
@@ -372,10 +372,10 @@ def add_subpackage(
             project_path = Path(source).resolve()
 
             if not project_path.exists():
-                _exit_with_error(f"[bold red]Error:[/bold red] Path '{source}' does not exist.")
+                _exit_with_error(f"Path '{source}' does not exist.")
 
             if not project_path.is_dir():
-                _exit_with_error(f"[bold red]Error:[/bold red] Path '{source}' is not a directory.")
+                _exit_with_error(f"Path '{source}' is not a directory.")
 
             if not name:
                 name = project_path.name
@@ -394,7 +394,7 @@ def add_subpackage(
 
         init_file = package_dir / "__init__.py"
         if not init_file.exists():
-            _exit_with_error("[bold red]Error:[/bold red] Not a valid Python package (missing __init__.py)")
+            _exit_with_error("Not a valid Python package (missing __init__.py)")
 
         # Create symlink in projects directory
         projects_dir = path_manager.get_projects_dir()
@@ -411,7 +411,7 @@ def add_subpackage(
                 else:
                     _exit_with_error("", code=0)
             else:
-                _exit_with_error(f"[bold red]Error:[/bold red] A directory/file already exists at {link_path}")
+                _exit_with_error(f"A directory/file already exists at {link_path}")
 
         # Create symlink
         link_path.symlink_to(package_dir.resolve(), target_is_directory=True)
@@ -456,11 +456,9 @@ def add_subpackage(
         console.print(panel)
 
     except subprocess.CalledProcessError as err:
-        rprint(f"[bold red]Error:[/bold red] Command failed: {err}")
-        raise typer.Exit(code=1) from err
+        _exit_with_error("Command failed.", err=err)
     except Exception as err:
-        rprint(f"[bold red]Error:[/bold red] {err}")
-        raise typer.Exit(code=1) from err
+        _exit_with_error("", err=err)
 
 
 @app.command(name="remove")
@@ -483,13 +481,12 @@ def remove_subpackage(
     link_path = projects_dir / name
 
     if not link_path.exists():
-        rprint(f"[bold red]Error:[/bold red] Pipeline '{name}' not found.")
-        raise typer.Exit(code=1)
+        _exit_with_error(f"Pipeline '{name}' not found.")
 
     if not link_path.is_symlink():
-        rprint(f"[bold red]Error:[/bold red] '{name}' is not a linked package (it's built-in).")
-        rprint("Built-in pipelines cannot be removed this way.")
-        raise typer.Exit(code=1)
+        _exit_with_error(
+            f"'{name}' is not a linked package (it's built-in).\n" "Built-in pipelines cannot be removed this way."
+        )
 
     try:
         # Get the source path before unlinking
@@ -511,8 +508,6 @@ def remove_subpackage(
             # Check if source is in cache/ (safe to delete)
             cache_dir = path_manager.get_cache_dir().resolve()
             if source_path.is_relative_to(cache_dir):
-                import shutil
-
                 confirm = typer.confirm(f"Are you sure you want to delete {source_path}?", default=False)
                 if confirm:
                     shutil.rmtree(source_path)
@@ -526,8 +521,7 @@ def remove_subpackage(
         console.print(f"\n[green]✓[/green] Pipeline '{name}' removed successfully!")
 
     except Exception as err:
-        rprint(f"[bold red]Error:[/bold red] Failed to remove pipeline: {err}")
-        raise typer.Exit(code=1) from err
+        _exit_with_error("Failed to remove pipeline.", err=err)
 
 
 @app.command(name="clean")
