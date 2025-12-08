@@ -5,14 +5,14 @@ from pytorchimagepipeline.core.permanences import (
     WandBManager,
 )
 
-permanences_to_register: dict[str, type[Permanence]] = {
-    "device": Device,
-    "progress_manager": ProgressManager,
-    "wandb_logger": WandBManager,
+permanences_to_register: set[type[Permanence]] = {
+    Device,
+    ProgressManager,
+    WandBManager,
 }
 
-processes_to_register: dict[str, type[PipelineProcess]] = {
-    # "result": ResultProcess,
+processes_to_register: set[type[PipelineProcess]] = {
+    # ResultProcess,
 }
 
 __all__ = [
