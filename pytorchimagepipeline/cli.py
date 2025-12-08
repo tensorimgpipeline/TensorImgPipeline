@@ -193,10 +193,10 @@ def inspect_pipeline(
         # Add permanences
         if permanences:
             perm_branch = tree.add("[bold green]Permanences[/bold green]")
-            for name, cls in permanences.items():
-                cls_info = f"[cyan]{name}[/cyan]: {cls.__name__}"
-                if show_docs and cls.__doc__:
-                    doc = cls.__doc__.strip().split("\n")[0]
+            for permanece in permanences:
+                cls_info = f"[cyan]{permanece.__name__}[/cyan]:"
+                if show_docs and permanece.__doc__:
+                    doc = permanece.__doc__.strip().split("\n")[0]
                     cls_info += f"\n  [dim]{doc}[/dim]"
                 perm_branch.add(cls_info)
         else:
@@ -205,10 +205,10 @@ def inspect_pipeline(
         # Add processes
         if processes:
             proc_branch = tree.add("[bold magenta]Processes[/bold magenta]")
-            for name, cls in processes.items():
-                cls_info = f"[magenta]{name}[/magenta]: {cls.__name__}"
-                if show_docs and cls.__doc__:
-                    doc = cls.__doc__.strip().split("\n")[0]
+            for process in processes:
+                cls_info = f"[magenta]{process.__name__}[/magenta]:"
+                if show_docs and process.__doc__:
+                    doc = process.__doc__.strip().split("\n")[0]
                     cls_info += f"\n  [dim]{doc}[/dim]"
                 proc_branch.add(cls_info)
         else:
