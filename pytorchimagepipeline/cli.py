@@ -312,7 +312,7 @@ def add_subpackage(
         None, "--name", "-n", help="Name for the linked pipeline (defaults to directory name)"
     ),
     location: Optional[str] = typer.Option(
-        None, "--location", "-l", help="Location to clone git repos (default: ./submodules)"
+        None, "--location", "-l", help="Location to clone git repos (default: cache_dir/submodules)"
     ),
     branch: Optional[str] = typer.Option(None, "--branch", "-b", help="Git branch to checkout (if cloning)"),
 ) -> None:
@@ -338,8 +338,8 @@ def add_subpackage(
         is_git_url = source.startswith(("https://", "http://", "git@", "git://"))
 
         if is_git_url:
-            # Clone from git
-            clone_location = Path(location) if location else Path("submodules")
+            # Clone from git - use cache directory for isolation
+            clone_location = Path(location) if location else path_manager.get_cache_dir() / "projects"
             clone_location.mkdir(parents=True, exist_ok=True)
 
             # Extract repo name from URL if name not provided
