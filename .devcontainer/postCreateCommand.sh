@@ -1,5 +1,10 @@
 #! /usr/bin/env bash
 
+export UV_PROJECT_ENVIRONMENT=".venv-container"
+
+echo 'export UV_PROJECT_ENVIRONMENT=".venv-container"' >> /home/vscode/.bashrc
+echo 'export VIRTUAL_ENV=".venv-container"' >> /home/vscode/.bashrc
+
 # Provide Signing Key if Available
 # Make Sure the the signing key was added last
 GPG_FORMAT=$(git config --get gpg.format)
