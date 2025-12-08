@@ -13,6 +13,7 @@ the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 """
 
+import importlib
 import os
 import sys
 from pathlib import Path
@@ -205,15 +206,10 @@ class PathManager:
         """
         # Ensure project is on path
         if not self.setup_python_path(project_name):
-            return None
+            raise ImportError(project_name)
 
-        # Try to import (always from user location)
-        try:
-            import importlib
-
-            return importlib.import_module(project_name)
-        except ImportError:
-            return None
+        # import the module, which might fail.
+        return importlib.import_module(project_name)
 
     def list_projects(self) -> list[str]:
         """List all available projects.
