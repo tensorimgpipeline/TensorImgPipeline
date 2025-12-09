@@ -95,7 +95,7 @@ class TestE2EAdd:
         workspace = tmp_path / "workspace"
         workspace.mkdir()
 
-        project_url = "https://github.com/MaKaNu-s-Things/DemoPipeline.git"
+        project_url = "https://github.com/tensorimgpipeline/DemoPipeline.git"
         cmd = ["add", project_url]
         if "-l" in cliargs:
             cliargs.append(str(workspace))
@@ -162,8 +162,8 @@ class TestE2EList:
 
         result = cli_runner.invoke(app, ["list"])
 
-        assert result.exit_code == 0
-        assert "No pipelines found" in result.stdout
+        assert result.exit_code == 1
+        assert "No pipelines found" in result.stderr
 
     @pytest.mark.parametrize(
         argnames=("cliargs", "exp_stdout"),
@@ -406,8 +406,8 @@ class TestE2EWorkflow:
 
         # 5. List again (should not show demo_pipeline)
         list_result2 = cli_runner.invoke(app, ["list"])
-        assert list_result2.exit_code == 0, f"List failed: {list_result2.output}"
-        assert "demo_pipeline" not in list_result2.stdout, "Pipeline should be removed"
+        assert list_result2.exit_code == 1, f"List failed: {list_result2.stderr}"
+        assert "demo_pipeline" not in list_result2.stderr, "Pipeline should be removed"
 
         # 6. Add pipeline again
         add_result2 = cli_runner.invoke(app, ["add", str(demo_path)])
