@@ -56,7 +56,7 @@ path_manager = get_path_manager()
 
 @app.command(name="run")
 def run_pipeline(
-    pipeline_name: str = typer.Argument(help="The name of the pipeline to run (e.g., 'sam2segnet')"),
+    pipeline_name: str = typer.Argument(help="The name of the pipeline to run (e.g., 'DemoFull')"),
     config: Optional[str] = typer.Option(
         None, "--config", "-c", help="Path to custom config file (relative to configs/)"
     ),
@@ -64,8 +64,8 @@ def run_pipeline(
     """Run a pipeline by name.
 
     Examples:
-        pytorchpipeline run sam2segnet
-        pytorchpipeline run my_pipeline --config custom.toml
+        pytorchpipeline run DemoFull
+        pytorchpipeline run DemoFull --config custom.toml
     """
 
     default_config = path_manager.get_config_path(pipeline_name)
@@ -174,14 +174,14 @@ def inspect_pipeline(
     Shows all permanences and processes registered for a pipeline.
 
     Examples:
-        pytorchpipeline inspect sam2segnet
-        pytorchpipeline inspect sam2segnet --docs
+        pytorchpipeline inspect DemoFull
+        pytorchpipeline inspect DemoFull --docs
     """
     try:
         # Use path manager to import module
         module = path_manager.import_project_module(pipeline_name)
     except ImportError as err:
-        _exit_with_error(f"Pipeline '{pipeline_name}' not found.\n" f"Caused by Error: {err}")
+        _exit_with_error(f"Pipeline '{pipeline_name}' not found.\nCaused by Error: {err}")
 
     try:
         permanences = getattr(module, "permanences_to_register", {})
@@ -485,7 +485,7 @@ def remove_subpackage(
 
     if not link_path.is_symlink():
         _exit_with_error(
-            f"'{name}' is not a linked package (it's built-in).\n" "Built-in pipelines cannot be removed this way."
+            f"'{name}' is not a linked package (it's built-in).\nBuilt-in pipelines cannot be removed this way."
         )
 
     try:
@@ -613,7 +613,7 @@ def validate_pipeline(
     - Required sections are present
 
     Examples:
-        pytorchpipeline validate sam2segnet
+        pytorchpipeline validate DemoFull
     """
     issues = []
 

@@ -406,8 +406,8 @@ class WandBManager(Permanence):
             [permanences.wandb_logger]
             type = "WandBLogger"
             params = {
-                project = "Sam2Segnet",
-                entity = "lit-rvc",
+                project = "DemoFull",
+                entity = "demos",
                 name = "<run title>",
                 tags = ["tag1", "tag2"],
                 notes = "<describe the run>"

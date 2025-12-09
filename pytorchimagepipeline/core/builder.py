@@ -374,13 +374,13 @@ def get_objects_for_pipeline(pipeline_name: str) -> dict[str, type]:
     return combined
 
 
-# Usage Example
+# Usage Example # TODO Might be broken. Later. Not important!
 if __name__ == "__main__":
     # Example usage of the PipelineBuilder
 
     # Retrieve objects to be registered for the pipeline
     core_objects = get_objects_for_pipeline("core")
-    pipeline_objects = get_objects_for_pipeline("sam2segnet")
+    pipeline_objects = get_objects_for_pipeline("DemoFull")
 
     objects = core_objects | pipeline_objects
 
@@ -392,7 +392,7 @@ if __name__ == "__main__":
         builder.register_class(key, objects[key])
 
     # Load the configuration file
-    builder.load_config(Path("sam2segnet/pipeline_config.toml"))
+    builder.load_config(Path("DemoFull/pipeline_config.toml"))
 
     # Build the pipeline
     permanences, process_specs = builder.build()
