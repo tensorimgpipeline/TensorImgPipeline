@@ -29,7 +29,15 @@
                 "python.testing.unittestEnabled": false,
                 "python.testing.pytestEnabled": true,
                 "python.defaultInterpreterPath": "/workspaces/PytorchPipeline/.venv-container/bin/python",
-                "python.testing.pytestPath": "/workspaces/PytorchPipeline/.venv-container/bin/pytest"
+                "python.testing.pytestPath": "/workspaces/PytorchPipeline/.venv-container/bin/pytest",
+                "editor.formatOnSave": true,
+                "editor.defaultFormatter": "charliermarsh.ruff",
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports": "explicit"
+                    }
+                }
             }
         }
     }
