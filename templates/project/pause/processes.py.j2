@@ -1,3 +1,5 @@
+import time
+
 # Example process template
 class MyProcess(PipelineProcess):
     """A custom process for your pipeline."""
@@ -29,4 +31,4 @@ class MyProcess(PipelineProcess):
         This is where you implement the main work of the process.
         """
         # Implement your process logic here
-        print("Executing MyProcess")
+        time.sleep(1)

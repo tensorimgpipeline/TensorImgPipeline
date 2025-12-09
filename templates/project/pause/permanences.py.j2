@@ -1,3 +1,5 @@
+import time
+
 # Example permanence template
 class MyPermanence(Permanence):
     """A custom permanence for your pipeline."""
@@ -17,4 +19,4 @@ class MyPermanence(Permanence):
         Raise an exception if cleanup fails.
         """
         # Clean up any resources (close files, release memory, etc.)
-        pass
+        time.sleep(1)

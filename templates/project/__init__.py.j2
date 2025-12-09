@@ -11,6 +11,8 @@ from {{ project_name }}.permanences import (
     DataPermanence,
 {% elif example == "basic" %}
     MyPermanence
+{% elif example == "pause" %}
+    MyPermanence
 {% endif %}
 )
 from {{ project_name }}.processes import (
@@ -18,6 +20,8 @@ from {{ project_name }}.processes import (
     LoadDataProcess,
     ProcessDataProcess,
 {% elif example == "basic" %}
+    MyProcess
+{% elif example == "pause" %}
     MyProcess
 {% endif %}
 )
@@ -30,6 +34,8 @@ permanences_to_register: set[type[Permanence]] = {
 {% elif example == "basic" %}
     # Add your permanences here
     MyPermanence,
+{% elif example == "pause" %}
+    MyPermanence,
 {% endif %}
 }
 
@@ -40,6 +46,8 @@ processes_to_register: set[type[PipelineProcess]] = {
     ProcessDataProcess,
 {% elif example == "basic" %}
     # Add your processes here
+    MyProcess,
+{% elif example == "pause" %}
     MyProcess,
 {% endif %}
 }

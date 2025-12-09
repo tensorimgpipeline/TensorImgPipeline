@@ -4,7 +4,11 @@
 
 [pipeline]
 # Core framework features - enable with simple flags
+{% if example == "pause" %}
+enable_progress = true
+{% else %}
 enable_progress = false  # Enable progress bars for pipeline execution
+{% endif %}
 enable_wandb = false     # Enable Weights & Biases logging
 
 # Optional: WandB configuration (only used if enable_wandb = true)
