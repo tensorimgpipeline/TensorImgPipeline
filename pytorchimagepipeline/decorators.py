@@ -22,8 +22,9 @@ the Free Software Foundation, either version 3 of the License, or
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, Protocol, cast
+from typing import Any, Protocol, cast
 
 from pytorchimagepipeline.abstractions import PipelineProcess
 

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 from functools import wraps
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from pytorchimagepipeline.abstractions import PipelineProcess
 from pytorchimagepipeline.errors import BuilderError, ExecutionError

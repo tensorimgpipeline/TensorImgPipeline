@@ -18,7 +18,6 @@ import os
 import sys
 import types
 from pathlib import Path
-from typing import Optional
 
 
 class PathManager:
@@ -106,7 +105,7 @@ class PathManager:
 
         return base_dir / "pytorchimagepipeline"
 
-    def get_project_path(self, project_name: str) -> Optional[Path]:
+    def get_project_path(self, project_name: str) -> Path | None:
         """Get path to a specific project.
 
         Args:
@@ -202,7 +201,7 @@ class PathManager:
 
 
 # Global instance
-_path_manager: Optional[PathManager] = None
+_path_manager: PathManager | None = None
 
 
 def get_path_manager() -> PathManager:

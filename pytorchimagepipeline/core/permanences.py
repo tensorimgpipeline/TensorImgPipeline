@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import inspect
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
 from logging import info
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import torch
 import wandb

@@ -5,7 +5,7 @@ creating new pipeline projects.
 """
 
 from pathlib import Path
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import BaseModel, field_validator
@@ -40,7 +40,7 @@ class ProjectSetup(BaseModel):
     name: str
     base_dir: Path
     example: ALLOWED_EXAMPLE_NAMES
-    description: Optional[str] = None
+    description: str | None = None
     # Literal handles the validation automatically
     license_type: ALLOWED_LICENSES = "MIT"
 

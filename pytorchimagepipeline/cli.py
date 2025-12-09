@@ -14,7 +14,6 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich import print as rprint
@@ -29,7 +28,7 @@ from pytorchimagepipeline.paths import get_path_manager
 from pytorchimagepipeline.template_manager import ProjectSetup, template_manager
 
 
-def _exit_with_error(message: str, code: int = 1, err: Optional[Exception] = None) -> None:
+def _exit_with_error(message: str, code: int = 1, err: Exception | None = None) -> None:
     """Print error message and exit.
 
     Args:
@@ -57,9 +56,7 @@ path_manager = get_path_manager()
 @app.command(name="run")
 def run_pipeline(
     pipeline_name: str = typer.Argument(help="The name of the pipeline to run (e.g., 'DemoFull')"),
-    config: Optional[str] = typer.Option(
-        None, "--config", "-c", help="Path to custom config file (relative to configs/)"
-    ),
+    config: str | None = typer.Option(None, "--config", "-c", help="Path to custom config file (relative to configs/)"),
 ) -> None:
     """Run a pipeline by name.
 
@@ -233,11 +230,11 @@ def inspect_pipeline(
 @app.command(name="create")
 def create_project(
     project_name: str = typer.Argument(help="Name of the new pipeline project"),
-    location: Optional[str] = typer.Option(
+    location: str | None = typer.Option(
         None, "--location", "-l", help="Location to create project (default: current directory)"
     ),
     example: str = typer.Option("basic", "--example", "-e", help="Include working example process and permanence"),
-    description: Optional[str] = typer.Option(None, "--description", "-d", help="Project description"),
+    description: str | None = typer.Option(None, "--description", "-d", help="Project description"),
 ) -> None:
     """Create a new pipeline project with scaffolding.
 
@@ -316,13 +313,13 @@ def create_project(
 @app.command(name="add")
 def add_subpackage(
     source: str = typer.Argument(help="Local path to project or Git repository URL"),
-    name: Optional[str] = typer.Option(
+    name: str | None = typer.Option(
         None, "--name", "-n", help="Name for the linked pipeline (defaults to directory name)"
     ),
-    location: Optional[str] = typer.Option(
+    location: str | None = typer.Option(
         None, "--location", "-l", help="Location to clone git repos (default: cache_dir/submodules)"
     ),
-    branch: Optional[str] = typer.Option(None, "--branch", "-b", help="Git branch to checkout (if cloning)"),
+    branch: str | None = typer.Option(None, "--branch", "-b", help="Git branch to checkout (if cloning)"),
 ) -> None:
     """Link an existing project or clone from git as a subpackage.
 
