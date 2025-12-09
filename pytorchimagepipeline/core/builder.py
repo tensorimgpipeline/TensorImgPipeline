@@ -95,7 +95,9 @@ class PipelineBuilder:
             Tuple of (permanences_dict, process_specs_list)
 
         Raises:
-            Various exceptions from _build_permanences and _build_processes
+            ConfigSectionError: If config sections are invalid
+            InstTypeError: If permanence/process instantiation fails
+            RegistryError: If class not found in registry
         """
         # First, create core permanences from pipeline flags
         permanences = self._build_core_permanences()

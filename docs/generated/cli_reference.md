@@ -510,4 +510,4 @@ done
 
 - [Progressive Enhancement Guide](progressive_enhancement.md) - From scripts to pipelines
 - [Architecture Diagram](architecture_diagram.md) - System architecture
-- [Getting Started](getting_started.md) - First steps with the pipeline
+- [Getting Started](../getting_started.md) - First steps with the pipeline

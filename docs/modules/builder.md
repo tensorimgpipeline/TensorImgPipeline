@@ -1,1 +1,1 @@
-::: pytorchimagepipeline.builder
+::: pytorchimagepipeline.core.builder

@@ -33,7 +33,7 @@ The [`PipelineController`][{{ controller }}] is instantiated with a dictionary o
 This step is displayed as the aggregation[^1].
 Afterwards one [`PipelineProcesse`][{{ process }}] or more are added to the [`PipelineController`][{{ controller }}].
 This step is displayed as the composition[^1].
-The run method of the [`PipelineController`][{{ Controller }}] class iterates over each [`PipelineProcess`][{{ process }}] and calls it [`execute`][{{ process_execute }}] method, which uses (displayed as association[^1]) the controller itself to access the [`Permanence`][{{ permanence }}] if needed.
+The run method of the [`PipelineController`][{{ controller }}] class iterates over each [`PipelineProcess`][{{ process }}] and calls it [`execute`][{{ process_execute }}] method, which uses (displayed as association[^1]) the controller itself to access the [`Permanence`][{{ permanence }}] if needed.
 
 [^1]: A short explanation between an [aggregation vs. composition vs. association](https://www.visual-paradigm.com/guide/uml-unified-modeling-language/uml-aggregation-vs-composition/).
 

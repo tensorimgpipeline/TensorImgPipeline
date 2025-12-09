@@ -54,7 +54,7 @@ class PipelineController:
         self._permanences = permanences
         self._process_specs = process_specs
 
-    def get_permanence(self, name: str, default=_MISSING) -> Any:
+    def get_permanence(self, name: str, default: Any = _MISSING) -> Any:
         """Get a permanence by name.
 
         Args:

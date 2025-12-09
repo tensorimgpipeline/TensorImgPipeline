@@ -1,1 +1,1 @@
-::: pytorchimagepipeline.controller
+::: pytorchimagepipeline.core.controller

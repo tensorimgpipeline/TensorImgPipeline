@@ -382,5 +382,5 @@ pm.setup_python_path("my_pipeline")
 ## See Also
 
 - [CLI Reference](cli_reference.md) - Complete CLI command documentation
-- [Installation Guide](installation.md) - Installation instructions
-- [Getting Started](getting_started.md) - First steps with pipelines
+- [Installation Guide](../installation.md) - Installation instructions
+- [Getting Started](../getting_started.md) - First steps with pipelines
