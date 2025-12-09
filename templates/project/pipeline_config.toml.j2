@@ -1,0 +1,23 @@
+# {{ project_name }} Pipeline Configuration
+#
+# This file configures the permanences and processes for your pipeline.
+
+[pipeline]
+# Core framework features - enable with simple flags
+{% if example == "pause" %}
+enable_progress = true
+{% else %}
+enable_progress = false  # Enable progress bars for pipeline execution
+{% endif %}
+enable_wandb = false     # Enable Weights & Biases logging
+
+# Optional: WandB configuration (only used if enable_wandb = true)
+# [pipeline.wandb]
+# project = "my-project"
+# entity = "my-team"
+
+[permanences]
+{% include "project/" + example + "/permanence_config.toml.j2" %}
+
+[processes]
+{% include "project/" + example + "/process_config.toml.j2" %}

@@ -60,7 +60,7 @@ A core Wandb process which based on config creates different visualizations and 
 ## PreRun Validation
 
 Since we create mostly everything dynamic from the config and only checking that the general structure of the config is correct, also validating the actual run before executing, would be beneficial.
-Since most Processes will access Permanences of the Observer, we could before the final execution check that every call of observer.used_permanence of every process doesn't result in a `NameError` (if `Permanence` is not defined), `AttributeError` (if `Permanence` does not have given Attribute) or `TypeError` (if `Permanece` method got not the correct Attributes).
+Since most Processes will access Permanences of the PipelineController, we could before the final execution check that every call of controller.used_permanence of every process doesn't result in a `NameError` (if `Permanence` is not defined), `AttributeError` (if `Permanence` does not have given Attribute) or `TypeError` (if `Permanece` method got not the correct Attributes).
 
 The Pipeline can still crash caused by internal other errors, but we ensure, that the Process will not fail caused by issue in the config.
 

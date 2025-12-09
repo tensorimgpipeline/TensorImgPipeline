@@ -34,7 +34,9 @@ class ErrorCode(Enum):
     INSTANTIATION_FAILURE = ("INS001", "Object instantiation failed")
     PROCESS_EXECUTION = ("PROC001", "")
     PARAM_VALIDATION = ("PARAM001", "Invalid parameter configuration")
-    PERMA_KEY = ("PERMA001", "Invalid Permanence object")
+    PERMA_KEY = ("PERMA002", "Invalid Permanence object")
+    SWEEP_NO_CONFIG = ("SWEEP001", "Hyper parameters are required for wandb logging.")
+    PROGRESS_NO_MATCH = ("PROGRESS001", "No progress found matching task_name=")
 
     def __init__(self, code: str, message: str):
         self.code = code
@@ -81,6 +83,14 @@ class ConfigSectionError(BuilderError):
         super().__post_init__(ErrorCode.CONFIG_SECTION)
 
 
+class InvalidConfigError(Exception):
+    def __init__(self, context: str, value: str) -> None:
+        self.context = context
+        self.value = value
+        msg = f"Config entry with value {self.value} does failed with context: {self.context}"
+        super().__init__(msg)
+
+
 class RegistryError(BuilderError):
     """Raised for class registration issues"""
 
@@ -125,3 +135,29 @@ class PermanenceKeyError(PermanenceError):
 
     def __str__(self) -> str:
         return f"[{self.error_code.code}]: {self.error_code.message} -> {self.key}"
+
+
+class SweepNoConfigError(PermanenceError):
+    def __init__(self) -> None:
+        error_code = ErrorCode.SWEEP_NO_CONFIG
+        super().__init__(error_code)
+
+    def __str__(self) -> str:
+        return f"[{self.error_code.code}]: {self.error_code.message}"
+
+
+# Progress Manager
+class ProgressError(RuntimeError):
+    def __init__(self, error_code: ErrorCode):
+        self.error_code = error_code
+        super().__init__(f"[{error_code.code}]: raised without further context")
+
+
+class ProgressNoMatch(ProgressError):
+    def __init__(self, task_name: str):
+        self.task_name = task_name
+        error_code = ErrorCode.PROGRESS_NO_MATCH
+        super().__init__(error_code)
+
+    def __str__(self) -> str:
+        return f"No progress found matching task_name='{self.task_name}'"

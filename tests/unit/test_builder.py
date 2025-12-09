@@ -3,7 +3,6 @@ from __future__ import annotations
 import ast
 import sys
 from pathlib import Path
-from typing import Any, Literal
 from unittest.mock import mock_open, patch
 
 import pytest
@@ -17,7 +16,7 @@ except ImportError:
         sys.exit("Error: This program requires either tomllib or tomli but neither is available")
 
 from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
-from pytorchimagepipeline.builder import PipelineBuilder, get_objects_for_pipeline
+from pytorchimagepipeline.core.builder import PipelineBuilder, get_objects_for_pipeline
 from pytorchimagepipeline.errors import (
     ConfigInvalidTomlError,
     ConfigNotFoundError,
@@ -25,9 +24,7 @@ from pytorchimagepipeline.errors import (
     ConfigSectionError,
     InstTypeError,
     RegistryError,
-    RegistryParamError,
 )
-from pytorchimagepipeline.observer import Observer
 
 
 class MockedPermanence(Permanence):
@@ -37,8 +34,8 @@ class MockedPermanence(Permanence):
 
 
 class MockedPipelineProcess(PipelineProcess):
-    def execute(self, observer):
-        print(f"Running execute with {observer}")
+    def execute(self, controller):
+        print(f"Running execute with {controller}")
         return None
 
 
@@ -62,41 +59,14 @@ class TestPipelineBuilder:
         ids=("ValidPermance", "ValidPipelineProcess", "InvalidDict", "InvalidStr"),
     )
     def test_register_class(self, name: str, cls: type, expected_error: None | type[Exception]):
-        error = self.pipeline_builder.register_class(name, cls)
-
         if expected_error is None:
-            assert error is None
-            assert name in self.pipeline_builder._class_registry
-            assert self.pipeline_builder._class_registry[name] is cls
+            self.pipeline_builder.register_class(name, cls)
+            assert name in self.pipeline_builder._registry
+            assert self.pipeline_builder._registry[name] is cls
         else:
-            assert isinstance(error, expected_error)
-            assert str(error)
-            assert name not in self.pipeline_builder._class_registry
-
-    @pytest.mark.parametrize(
-        "input_config, expected_error_section",
-        [
-            #
-            ({"permanences": {}, "processes": {}}, None),
-            ({"permanences": {}}, "processes"),
-            ({"processes": {}}, "permanences"),
-            ({}, "permanences"),
-        ],
-        ids=("Valid", "MissingProcess", "MissingPermanent", "MissingBoth"),
-    )
-    def test_validate_config_sections(
-        self,
-        input_config: dict[str, dict[Any, Any]],
-        expected_error_section: None | Literal["processes"] | Literal["permanences"],
-    ):
-        self.pipeline_builder._config = input_config
-        error = self.pipeline_builder._validate_config_sections()
-
-        if expected_error_section is None:
-            assert not error
-        else:
-            assert isinstance(error, ConfigSectionError)
-            assert str(error)
+            with pytest.raises(expected_error):
+                self.pipeline_builder.register_class(name, cls)
+            assert name not in self.pipeline_builder._registry
 
     @pytest.mark.parametrize(
         "config_path, file_exists, readable, file_content, expected_error",
@@ -116,90 +86,57 @@ class TestPipelineBuilder:
             patch("os.access", return_value=readable),
             patch("builtins.open", mock_open(read_data=file_content) if file_content else None),
             patch(
-                "pytorchimagepipeline.builder.toml_load",
+                "pytorchimagepipeline.core.builder.toml_load",
                 side_effect=TOMLDecodeError if file_content == "invalid_toml" else lambda f: ast.literal_eval(f.read()),
             ),
         ):
-            error = self.pipeline_builder.load_config(Path(config_path))
-
             if expected_error is None:
-                assert error is None
+                self.pipeline_builder.load_config(Path(config_path))
                 assert self.pipeline_builder._config is not None
             else:
-                assert isinstance(error, expected_error)
-                assert str(error)
-
-    @pytest.mark.parametrize(
-        "context, config, expected_error",
-        [
-            ("context1", {}, InstTypeError),
-            ("context2", {"type": "UnknownClass"}, RegistryError),
-            ("context3", {"type": "MockedPermanence", "params": {"invalid": 1}}, RegistryParamError),
-            ("context4", {"type": "MockedPermanence"}, None),
-            ("context5", {"type": "MockedPipelineProcess"}, None),
-        ],
-        ids=("MissingType", "InvalidClass", "InvalidParams", "ValidPerma", "ValidProcess"),
-    )
-    def test_instantiate_from_config(self, context, config, expected_error):
-        self.pipeline_builder.register_class("MockedPermanence", MockedPermanence)
-        self.pipeline_builder.register_class("MockedPipelineProcess", MockedPipelineProcess)
-        result, error = self.pipeline_builder._instantiate_from_config(context, config)
-
-        if expected_error is None:
-            assert error is None
-            assert result is not None
-        else:
-            assert isinstance(error, expected_error)
-            assert str(error)
-            assert result is None
+                with pytest.raises(expected_error):
+                    self.pipeline_builder.load_config(Path(config_path))
 
     @pytest.mark.parametrize(
         "processes_config, expected_error",
         [
             ({"process1": {"type": "MockedPipelineProcess"}}, None),
             ({"process1": {"type": "UnknownClass"}}, RegistryError),
-            ({"process1": {"type": "MockedPipelineProcess", "params": {"invalid": 1}}}, RegistryParamError),
             ({"process1": {"type": "MockedPermanence"}}, InstTypeError),
         ],
-        ids=("ValidProcess", "InvalidProcess", "InvalidParams", "InvalidPermanence"),
+        ids=("ValidProcess", "InvalidProcess", "InvalidPermanence"),
     )
     def test_build_processes(self, processes_config, expected_error):
         self.pipeline_builder.register_class("MockedPipelineProcess", MockedPipelineProcess)
         self.pipeline_builder.register_class("MockedPermanence", MockedPermanence)
-        self.pipeline_builder._config["processes"] = processes_config
-        observer = Observer({})
-
-        error = self.pipeline_builder._build_processes(observer)
+        self.pipeline_builder._config = {"processes": processes_config, "permanences": {}}
 
         if expected_error is None:
-            assert error is None
-            assert len(observer._processes) == len(processes_config)
+            process_specs = self.pipeline_builder._build_processes()
+            assert len(process_specs) == len(processes_config)
         else:
-            assert isinstance(error, expected_error)
-            assert str(error)
+            with pytest.raises(expected_error):
+                self.pipeline_builder._build_processes()
 
     @pytest.mark.parametrize(
         "permanences_config, expected_error",
         [
-            ({"object1": {"type": "MockedPermanence"}}, None),  # Valid object
-            ({"object1": {"type": "UnknownClass"}}, RegistryError),  # Unknown class
-            ({"object1": {"type": "MockedPermanence", "params": {"invalid": 1}}}, RegistryParamError),  # Invalid params
+            ({"object1": {"type": "MockedPermanence"}}, None),  # ValidObjects
+            ({"object1": {"type": "UnknownClass"}}, RegistryError),  # InvalidClass
+            ({"object1": {"type": "MockedPermanence", "invalid": 1}}, InstTypeError),  # InvalidParams
         ],
         ids=("ValidObjects", "InvalidClass", "InvalidParams"),
     )
     def test_build_permanences(self, permanences_config, expected_error):
         self.pipeline_builder.register_class("MockedPermanence", MockedPermanence)
-        self.pipeline_builder._config["permanences"] = permanences_config
-
-        objects, error = self.pipeline_builder._build_permanences()
+        self.pipeline_builder._config = {"permanences": permanences_config, "processes": {}}
 
         if expected_error is None:
-            assert error is None
+            objects = self.pipeline_builder._build_permanences()
             assert len(objects) == len(permanences_config)
         else:
-            assert isinstance(error, expected_error)
-            assert str(error)
-            assert objects == {}
+            with pytest.raises(expected_error):
+                self.pipeline_builder._build_permanences()
 
     @pytest.mark.parametrize(
         "config, expected_error",
@@ -233,21 +170,19 @@ class TestPipelineBuilder:
         self.pipeline_builder.register_class("MockedPipelineProcess", MockedPipelineProcess)
         self.pipeline_builder._config = config
 
-        observer, error = self.pipeline_builder.build()
-
         if expected_error is None:
-            assert error is None
-            assert observer is not None
-            assert len(observer._permanences) == len(config["permanences"])
-            assert len(observer._processes) == len(config["processes"])
+            permanences, processes = self.pipeline_builder.build()
+            assert len(permanences) == len(config["permanences"])
+            assert len(processes) == len(config["processes"])
         else:
-            assert isinstance(error, expected_error)
+            with pytest.raises(expected_error):
+                self.pipeline_builder.build()
 
     @pytest.mark.parametrize(
         "pipeline_name, module_exists, expected_error",
         [
             ("valid_pipeline", True, None),
-            ("invalid_pipeline", False, ModuleNotFoundError),
+            ("invalid_pipeline", False, ImportError),  # Now raises ImportError from path_manager
         ],
         ids=("ValidPipeline", "InvalidPipeline"),
     )
@@ -256,26 +191,24 @@ class TestPipelineBuilder:
             "MockModule",
             (),
             {
-                "permanences_to_register": {"perm1": MockedPermanence},
-                "processes_to_register": {"proc1": MockedPipelineProcess},
+                "permanences_to_register": {MockedPermanence},  # Now a set of classes
+                "processes_to_register": {MockedPipelineProcess},  # Now a set of classes
             },
         )
 
-        with patch("importlib.import_module") as mock_import:
+        with patch("pytorchimagepipeline.core.builder.importlib.import_module") as mock_import:
             if module_exists:
                 mock_import.return_value = mock_module
             else:
                 mock_import.side_effect = ModuleNotFoundError()
 
-            objects, error = get_objects_for_pipeline(pipeline_name)
-
             if expected_error is None:
-                assert error is None
+                objects = get_objects_for_pipeline(pipeline_name)
                 assert len(objects) == 2
-                assert "perm1" in objects
-                assert "proc1" in objects
-                assert objects["perm1"] is MockedPermanence
-                assert objects["proc1"] is MockedPipelineProcess
+                assert "MockedPermanence" in objects
+                assert "MockedPipelineProcess" in objects
+                assert objects["MockedPermanence"] is MockedPermanence
+                assert objects["MockedPipelineProcess"] is MockedPipelineProcess
             else:
-                assert isinstance(error, expected_error)
-                assert objects == {}
+                with pytest.raises(expected_error):
+                    get_objects_for_pipeline(pipeline_name)

@@ -1,6 +1,0 @@
-[permanent_objects.data]
-type = "Datasets"
-params = { root = "localhost", format = "pascalvoc" }
-
-[processes.dummy]
-type = "DummyProcess"

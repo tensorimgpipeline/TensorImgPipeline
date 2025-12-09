@@ -1,9 +1,14 @@
-"""This module defines abstract base classes for the Pytorch image pipeline.
+"""Backward-compatible facade for abstract base classes.
 
-Classes:
-    AbstractObserver: Base class for the Observer class.
-    Permanence: Base class for objects that persist through the entire pipeline lifecycle.
-    PipelineProcess: Abstract base class for pipeline processes.
+This module maintains backward compatibility by re-exporting classes from
+the abstractions sub-package. New code should import directly from the
+sub-package modules.
+
+Deprecated classes that are no longer used:
+- AbstractManager (replaced by controller pattern)
+- AbstractSimpleManager (replaced by controller pattern)
+- AbstractProgressManager (replaced by controller pattern)
+- AbstractCombinedConfig (no longer needed)
 
 Copyright (C) 2025 Matti Kaupenjohann
 
@@ -21,53 +26,16 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from abc import ABC, abstractmethod
-from typing import Optional
+# Re-export commonly used abstractions for backward compatibility
+from pytorchimagepipeline.abstractions.config import AbstractConfig, ProcessConfig
+from pytorchimagepipeline.abstractions.controller import AbstractController
+from pytorchimagepipeline.abstractions.permanence import Permanence
+from pytorchimagepipeline.abstractions.process import PipelineProcess
 
-
-class AbstractObserver(ABC):
-    """Base class for the Observer class"""
-
-    @abstractmethod
-    def run(self) -> None:
-        """Executes the observer's processes.
-
-        This method runs the specific processes defined by the observer implementation.
-        The execution details depend on the concrete observer class. #todo: add different observers
-
-        Returns:
-            None: This method doesn't return any value
-        """
-        ...
-
-
-class Permanence(ABC):
-    """Base class for objects that persist through the entire pipeline lifecycle"""
-
-    @abstractmethod
-    def cleanup(self) -> Optional[Exception]:
-        """Cleans up data from RAM or VRAM.
-
-        Since the objects are permanent, it might be necessary to call a cleanup.
-        This will be executed by the observer.
-
-        Returns:
-            Optional[Exception]: An exception if an error occurs during cleanup, otherwise None.
-        """
-        ...
-
-
-class PipelineProcess(ABC):
-    """Abstract base class for pipeline processes"""
-
-    @abstractmethod
-    def execute(self, observer: AbstractObserver) -> Optional[Exception]:
-        """Executes the process.
-
-        Args:
-            observer (AbstractObserver): The observer instance managing the pipeline.
-
-        Returns:
-            Optional[Exception]: An exception if an error occurs during execution, otherwise None.
-        """
-        ...
+__all__ = [
+    "AbstractConfig",
+    "AbstractController",
+    "Permanence",
+    "PipelineProcess",
+    "ProcessConfig",
+]
