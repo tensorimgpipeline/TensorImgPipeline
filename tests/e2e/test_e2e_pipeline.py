@@ -418,6 +418,127 @@ class TestE2EWorkflow:
         assert run_result.exit_code == 0, f"Run crashed: {run_result.output}"
 
 
+class TestE2ERun:
+    """End-to-end tests for run command with output verification."""
+
+    @pytest.mark.order(4)
+    @pytest.mark.usefixtures("isolated_path_manager")
+    @pytest.mark.parametrize(
+        argnames=("example", "expected_output"),
+        argvalues=[
+            ("basic", ["Executing MyProcess"]),
+            ("full", ["Loading data from", "Loaded", "samples", "Processing data"]),
+            ("pause", []),  # pause template has progress bars but no text output
+        ],
+        ids=("basic", "full", "pause"),
+    )
+    def test_run_pipeline_success(self, cli_runner, tmp_path, example, expected_output):
+        """Test running a pipeline completes successfully and produces expected output."""
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
+
+        project_name = f"Demo{example.capitalize()}"
+
+        # 1. Create project with specified example template
+        create_result = cli_runner.invoke(app, ["create", project_name, "-l", str(workspace), "-e", example])
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
+
+        # 2. Add the project
+        add_result = cli_runner.invoke(app, ["add", str(workspace / project_name)])
+        assert add_result.exit_code == 0, f"Add failed: {add_result.output}"
+
+        # 3. Run the pipeline
+        run_result = cli_runner.invoke(app, ["run", project_name])
+        assert run_result.exit_code == 0, f"Run failed: {run_result.output}"
+
+        # 4. Verify expected output is present
+        stdout = run_result.stdout
+        for expected in expected_output:
+            assert expected in stdout, f"Expected '{expected}' not found in output:\n{stdout}"
+
+    @pytest.mark.order(5)
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_run_pipeline_with_progress_bar(self, cli_runner, tmp_path):
+        """Test running a pipeline with enable_progress=true shows progress bars.
+
+        The 'pause' template has enable_progress=true in pipeline_config.toml,
+        which enables the ProgressManager and shows progress bars for
+        'overall' (processes) and 'cleanup' (permanences) phases.
+        """
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
+
+        project_name = "DemoPause"
+
+        # Create project with pause example (has enable_progress=true)
+        create_result = cli_runner.invoke(app, ["create", project_name, "-l", str(workspace), "-e", "pause"])
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
+
+        # Add the project
+        add_result = cli_runner.invoke(app, ["add", str(workspace / project_name)])
+        assert add_result.exit_code == 0, f"Add failed: {add_result.output}"
+
+        # Run the pipeline
+        run_result = cli_runner.invoke(app, ["run", project_name])
+        assert run_result.exit_code == 0, f"Run failed: {run_result.output}"
+
+        stdout = run_result.stdout
+
+        # Verify progress bar output for overall (1 process)
+        # Pattern: "overall" followed by progress bar showing (1/1)
+        overall_pattern = r"overall\s+.*?\(1/1\)"
+        overall_match = re.search(overall_pattern, stdout)
+        assert overall_match is not None, f"Expected overall progress (1/1) not found in output:\n{stdout}"
+
+        # Verify progress bar output for cleanup
+        # Note: Cleanup shows (2/2) because it includes MyPermanence + ProgressManager
+        # Pattern: "cleanup" followed by progress bar showing (N/N) where N >= 1
+        cleanup_pattern = r"cleanup\s+.*?\((\d+)/\1\)"
+        cleanup_match = re.search(cleanup_pattern, stdout)
+        assert cleanup_match is not None, f"Expected cleanup progress (N/N) not found in output:\n{stdout}"
+        # Verify at least 2 permanences (MyPermanence + ProgressManager)
+        cleanup_count = int(cleanup_match.group(1))
+        assert cleanup_count >= 2, f"Expected cleanup count >= 2, got {cleanup_count}"
+
+    @pytest.mark.order(6)
+    @pytest.mark.usefixtures("isolated_path_manager")
+    def test_run_nonexistent_pipeline(self, cli_runner):
+        """Test running a pipeline that doesn't exist."""
+        result = cli_runner.invoke(app, ["run", "NonExistentProject"])
+
+        assert result.exit_code != 0
+        assert "not found" in result.stderr.lower() or "error" in result.stderr.lower()
+
+    @pytest.mark.order(7)
+    @pytest.mark.usefixtures("isolated_path_manager")
+    @pytest.mark.parametrize(
+        argnames="example",
+        argvalues=["basic", "full", "pause"],
+        ids=("basic", "full", "pause"),
+    )
+    def test_run_pipeline_twice_succeeds(self, cli_runner, tmp_path, example):
+        """Test that running a pipeline twice succeeds (idempotent execution)."""
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
+
+        project_name = f"Test{example.capitalize()}"
+
+        # Create and add
+        create_result = cli_runner.invoke(app, ["create", project_name, "-l", str(workspace), "-e", example])
+        assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
+
+        add_result = cli_runner.invoke(app, ["add", str(workspace / project_name)])
+        assert add_result.exit_code == 0, f"Add failed: {add_result.output}"
+
+        # Run first time
+        run_result1 = cli_runner.invoke(app, ["run", project_name])
+        assert run_result1.exit_code == 0, f"First run failed: {run_result1.output}"
+
+        # Run second time
+        run_result2 = cli_runner.invoke(app, ["run", project_name])
+        assert run_result2.exit_code == 0, f"Second run failed: {run_result2.output}"
+
+
 class TestE2EEnvironmentOverrides:
     """Test environment variable overrides with fake filesystem."""
 
