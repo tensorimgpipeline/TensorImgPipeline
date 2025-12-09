@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import inspect
 import os
 from dataclasses import dataclass
 from functools import wraps
 from logging import info
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 import torch
 import wandb
@@ -232,7 +234,7 @@ class ProgressManager(Permanence):
         group = Group(*self.progress_dict.values())
         self.live = Live(group, console=self.console)
 
-    def add_task_to_progress(self, task_description: str, total: int, visible=False) -> int:
+    def add_task_to_progress(self, task_description: str, total: int, visible: bool = False) -> int:
         """
         Add a task to the specified progress object.
         The string `task_description` will be evaluated by `_get_progress_for_task` to determine a
@@ -250,11 +252,11 @@ class ProgressManager(Permanence):
         progress = self._get_progress_for_task(task_description)
         return progress.add_task(task_description, total=total, status="", visible=visible)
 
-    def _toogle_visability(self, progress: Progress, task_id: int):
+    def _toogle_visability(self, progress: Progress, task_id: int) -> None:
         visible = not progress._tasks[TaskID(task_id)].finished and progress._tasks[TaskID(task_id)].completed >= 0
         progress.update(TaskID(task_id), visible=visible)
 
-    def advance(self, progress_name: str, task_id: int, step: float = 1.0, status=""):
+    def advance(self, progress_name: str, task_id: int, step: float = 1.0, status: str = "") -> None:
         if progress_name not in self.progress_dict:
             raise ValueError(f"{progress_name=}")
         progress = self.progress_dict[progress_name]
@@ -274,14 +276,14 @@ class ProgressManager(Permanence):
                 continue
         raise RuntimeError(f"{task_description=}")
 
-    def reset(self, progress_name):
+    def reset(self, progress_name: str) -> None:
         if progress_name not in self.progress_dict:
             raise ValueError(f"{progress_name=}")
         progress = self.progress_dict[progress_name]
         for task_id in self.progress_dict[progress_name]._tasks:
             progress.reset(task_id)
 
-    def progress_task(self, task_name: str, visible: bool = True):
+    def progress_task(self, task_name: str, visible: bool = True) -> Callable[..., Callable[..., Any]]:
         """
         Decorator for wrapping functions with progress tracking.
 
@@ -313,36 +315,36 @@ class ProgressManager(Permanence):
             Decorator function that wraps the target function with progress tracking
         """
 
-        def decorator(func):
+        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             # Inspect function signature to see what parameters it accepts
             sig = inspect.signature(func)
             params = list(sig.parameters.keys())
 
             @wraps(func)
-            def wrapper(total, *args, **kwargs):
+            def wrapper(total: int, *args: Any, **kwargs: Any) -> Any:
                 # Find matching progress bar
                 progress_key = next((key for key in self.progress_dict if task_name.lower() in key.lower()), None)
                 if not progress_key:
                     raise ProgressNoMatch(task_name)
-                progress = self.progress_dict[progress_key]
+                progress_obj = self.progress_dict[progress_key]
 
                 # Add task to progress
-                task_id = progress.add_task(task_name, total=total)
+                task_id = progress_obj.add_task(task_name, total=total)
 
                 # Build kwargs based on what the function accepts
-                func_kwargs = {}
+                func_kwargs: dict[str, Any] = {}
                 if "total" in params:
                     func_kwargs["total"] = total
                 if "task_id" in params:
                     func_kwargs["task_id"] = task_id
                 if "progress" in params:
-                    func_kwargs["progress"] = progress
+                    func_kwargs["progress"] = progress_obj
 
                 # Call the function with only the parameters it needs
                 result = func(*args, **func_kwargs, **kwargs)
 
                 # Hide task when done if not visible
-                progress.update(task_id, visible=visible)
+                progress_obj.update(task_id, visible=visible)
                 return result
 
             return wrapper
@@ -394,7 +396,7 @@ class WandBManager(Permanence):
         project: str,
         entity: str,
         name: str = "",
-        tags: Optional[list[str]] = None,
+        tags: list[str] | None = None,
         notes: str = "",
         count: int = 10,
     ) -> None:
@@ -455,7 +457,7 @@ class WandBManager(Permanence):
         name, tags, and notes.
         """
         os.environ["WANDB_SILENT"] = "true"
-        name = f"{self.name}_{wandb.util.generate_id()}"  # type: ignore[attr-defined]
+        name = f"{self.name}_{wandb.util.generate_id()}"
         notes = f"{self.notes} {self.sweep_id}" if self.sweep_id else self.notes
         run_id = wandb.init(
             project=self.project,
@@ -472,7 +474,7 @@ class WandBManager(Permanence):
         api = wandb.Api()
         try:
             sweep = api.sweep(f"{self.entity}/{self.project}/{self.sweep_id}")
-        except wandb.errors.CommError as e:  # type: ignore[attr-defined]
+        except wandb.errors.CommError as e:
             info(f"Error fetching sweep: {e}")
             return False
         else:

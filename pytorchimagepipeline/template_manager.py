@@ -59,7 +59,7 @@ class ProjectSetup(BaseModel):
 class TemplateManager:
     """Manages Jinja2 templates for project scaffolding."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the template manager."""
         self.template_dir = Path(__file__).parent.parent / "templates"
         self.env = Environment(

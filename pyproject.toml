@@ -144,6 +144,7 @@ ignore = [
 "tests/*" = ["S101", "S108"]
 "notebooks/*" = ["S314", "TRY003"]
 "pytorchimagepipeline/cli.py" = ["C901", "S603"]
+"pytorchimagepipeline/core/builder.py" = ["TRY003"]
 
 [tool.ruff.format]
 preview = true

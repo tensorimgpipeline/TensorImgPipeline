@@ -11,9 +11,7 @@ permanences_to_register: set[type[Permanence]] = {
     WandBManager,
 }
 
-processes_to_register: set[type[PipelineProcess]] = {
-    # ResultProcess,
-}
+processes_to_register: set[type[PipelineProcess]] = set()
 
 __all__ = [
     "permanences_to_register",

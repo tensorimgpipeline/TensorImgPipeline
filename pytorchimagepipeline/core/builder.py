@@ -1,5 +1,3 @@
-# type: ignore
-# ruff: noqa
 """This module provides the implementation of the PipelineBuilder class, which is responsible for
 building and configuring a pipeline of processes and permanences for the PytorchImagePipeline project.
 
@@ -37,25 +35,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
 
+import contextlib
 import importlib
 import os
-import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 try:
-    from tomllib import TOMLDecodeError  # type ignore[import-not-found]
-    from tomllib import load as toml_load  # type ignore[import-not-found]
+    from tomllib import TOMLDecodeError
+    from tomllib import load as toml_load
 except ImportError:
-    try:
-        from tomli import TOMLDecodeError  # type: ignore  # noqa: PGH003  # type: ignore[unused-import]
-        from tomli import load as toml_load  # type: ignore  # noqa: PGH003 # type: ignore[unused-import]
-    except ImportError:
-        sys.exit("Error: This program requires either tomllib or tomli but neither is available")
+    from tomli import TOMLDecodeError  # type: ignore[import-not-found, no-redef]
+    from tomli import load as toml_load  # type: ignore[no-redef]
 
 from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
-from pytorchimagepipeline.core.controller import PipelineController
 from pytorchimagepipeline.errors import (
     ConfigInvalidTomlError,
     ConfigNotFoundError,
@@ -63,14 +57,16 @@ from pytorchimagepipeline.errors import (
     ConfigSectionError,
     InstTypeError,
     RegistryError,
-    RegistryParamError,
 )
 from pytorchimagepipeline.paths import get_path_manager
+
+if TYPE_CHECKING:
+    from pytorchimagepipeline.core.controller import PipelineController
 
 
 @dataclass
 class ProcessWithParams:
-    process: PipelineProcess
+    process: type[PipelineProcess]
     params: dict[str, Any]
 
     def get_instance(self, controller: PipelineController) -> PipelineProcess:
@@ -82,9 +78,9 @@ class ProcessWithParams:
 class PipelineBuilder:
     """Builds pipeline components from configuration."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the builder with empty registries."""
-        self._registry: dict[str, type] = {}
+        self._registry: dict[str, type[Permanence] | type[PipelineProcess]] = {}
         self._config: dict[str, Any] = {}
         self._config_path: Path | None = None
 
@@ -193,25 +189,33 @@ class PipelineBuilder:
         user_permanences = self._config.get("permanences", {})
 
         # Build ProgressManager if enabled and not explicitly overridden
-        if pipeline_config.get("enable_progress", False) and "progress_manager" not in user_permanences:
-            if "ProgressManager" in self._registry:
-                try:
-                    # Create ProgressManager with direct=True to initialize .live
-                    progress_manager = self._registry["ProgressManager"](direct=True)
-                    core_permanences["progress_manager"] = progress_manager
-                except Exception as e:
-                    raise InstTypeError(f"Failed to create ProgressManager: {e}") from e
+        if (
+            pipeline_config.get("enable_progress", False)
+            and "progress_manager" not in user_permanences
+            and "ProgressManager" in self._registry
+        ):
+            try:
+                # Create ProgressManager with direct=True to initialize .live
+                perm_class = cast(type[Permanence], self._registry["ProgressManager"])
+                progress_manager = perm_class(direct=True)  # type: ignore[call-arg]
+                core_permanences["progress_manager"] = progress_manager
+            except Exception as e:
+                raise InstTypeError(f"Failed to create ProgressManager: {e}") from e
 
         # Build WandBLogger if enabled and not explicitly overridden
-        if pipeline_config.get("enable_wandb", False) and "wandb_logger" not in user_permanences:
-            if "WandBManager" in self._registry:
-                try:
-                    # WandBManager might need config parameters
-                    wandb_config = pipeline_config.get("wandb", {})
-                    wandb_logger = self._registry["WandBManager"](**wandb_config)
-                    core_permanences["wandb_logger"] = wandb_logger
-                except Exception as e:
-                    raise InstTypeError(f"Failed to create WandBManager: {e}") from e
+        if (
+            pipeline_config.get("enable_wandb", False)
+            and "wandb_logger" not in user_permanences
+            and "WandBManager" in self._registry
+        ):
+            try:
+                # WandBManager might need config parameters
+                wandb_config = pipeline_config.get("wandb", {})
+                perm_class = cast(type[Permanence], self._registry["WandBManager"])
+                wandb_logger = perm_class(**wandb_config)
+                core_permanences["wandb_logger"] = wandb_logger
+            except Exception as e:
+                raise InstTypeError(f"Failed to create WandBManager: {e}") from e
 
         return core_permanences
 
@@ -315,7 +319,9 @@ class PipelineBuilder:
         return process_specs
 
 
-def get_objects_for_pipeline(pipeline_name: str) -> dict[str, type]:
+def get_objects_for_pipeline(
+    pipeline_name: str,
+) -> dict[str, type[Permanence] | type[PipelineProcess]]:
     """
     Retrieves and combines objects to be registered for a given pipeline.
 
@@ -339,10 +345,8 @@ def get_objects_for_pipeline(pipeline_name: str) -> dict[str, type]:
     module = None
 
     # Attempt 1: Try built-in pipelines
-    try:
+    with contextlib.suppress(ModuleNotFoundError):
         module = importlib.import_module(full_module_name)
-    except ModuleNotFoundError:
-        pass
 
     # Attempt 2: Try loading from user projects directory (symlinked projects)
     if module is None:
@@ -363,7 +367,7 @@ def get_objects_for_pipeline(pipeline_name: str) -> dict[str, type]:
         )
 
     # Combine the registries and also register by class name
-    combined: set[type[Permanence] | type[PipelineProcess]] = {}
+    combined: dict[str, type[Permanence] | type[PipelineProcess]] = {}
 
     # Add permanences with both instance names and class names
     for cls in module.permanences_to_register:
@@ -402,5 +406,8 @@ if __name__ == "__main__":
     # Create controller
     controller = PipelineController(permanences, process_specs)
 
-    # Run the pipeline
-    controller.run_wandb()
+    # Run the pipeline using executor
+    from pytorchimagepipeline.core.executor import PipelineExecutor
+
+    executor = PipelineExecutor(controller)
+    executor.run()

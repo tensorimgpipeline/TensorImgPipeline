@@ -1,5 +1,3 @@
-# type: ignore
-# ruff: noqa
 """This module defines an PipelineController responsible for managing a pipeline of processes and handling
 potential errors that occur during their execution.
 
@@ -24,17 +22,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
 
-from functools import wraps
-from typing import Any, Callable
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, Any
 
-from pytorchimagepipeline.abstractions import AbstractController, Permanence, PipelineProcess
+from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
 from pytorchimagepipeline.errors import (
-    BuilderError,
     ErrorCode,
-    ExecutionError,
     PermanenceKeyError,
-    SweepNoConfigError,
 )
+
+if TYPE_CHECKING:
+    from pytorchimagepipeline.core.builder import ProcessWithParams
 
 # Sentinel value for get_permanence to distinguish between "no default provided" and "default is None"
 _MISSING = object()
@@ -50,7 +48,7 @@ class PipelineController:
     - Yield processes for execution
     """
 
-    def __init__(self, permanences: dict[str, Permanence], process_specs: list[ProcessWithParams]):
+    def __init__(self, permanences: dict[str, Permanence], process_specs: list[ProcessWithParams]) -> None:
         self._permanences = permanences
         self._process_specs = process_specs
 
@@ -86,8 +84,7 @@ class PipelineController:
 
     def iterate_permanences(self) -> Iterator[Permanence]:
         """Yield permanence instances for cleanup or inspection."""
-        for permanence in self._permanences.values():
-            yield permanence
+        yield from self._permanences.values()
 
     def get_permanence_count(self) -> int:
         """Get total number of permanences."""

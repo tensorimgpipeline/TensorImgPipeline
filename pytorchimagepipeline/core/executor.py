@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import inspect
 from functools import wraps
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from pytorchimagepipeline.abstractions import PipelineProcess
-from pytorchimagepipeline.core.controller import PipelineController
 from pytorchimagepipeline.errors import BuilderError, ExecutionError
+
+if TYPE_CHECKING:
+    from pytorchimagepipeline.core.controller import PipelineController
 
 
 class PipelineExecutor:
@@ -18,7 +22,7 @@ class PipelineExecutor:
     - Error handling during execution
     """
 
-    def __init__(self, controller: PipelineController):
+    def __init__(self, controller: PipelineController) -> None:
         self.controller = controller
         self.progress_manager = controller.get_permanence("progress_manager", None)
         self.wandb_logger = controller.get_permanence("wandb_logger", None)
@@ -43,7 +47,7 @@ class PipelineExecutor:
         decorator = self._get_progress_decorator()
 
         @decorator("overall")
-        def _execute(task_id, progress):
+        def _execute(task_id: int, progress: object) -> None:
             for _idx, process in self.controller.iterate_processes():
                 if not process.skip():
                     try:
@@ -51,7 +55,7 @@ class PipelineExecutor:
                     except Exception as error:
                         self._handle_error(process, error)
                 if progress:
-                    progress.advance(task_id)
+                    progress.advance(task_id)  # type: ignore[attr-defined]
 
         _execute(self.controller.get_process_count())  # Passed to decorator for progress bar max
 
@@ -60,30 +64,30 @@ class PipelineExecutor:
         decorator = self._get_progress_decorator()
 
         @decorator("cleanup")
-        def _cleanup(task_id, progress):
+        def _cleanup(task_id: int, progress: object) -> None:
             for permanence in self.controller.iterate_permanences():
                 permanence.cleanup()
                 if progress:
-                    progress.advance(task_id)
+                    progress.advance(task_id)  # type: ignore[attr-defined]
 
         _cleanup(self.controller.get_permanence_count())  # Passed to decorator for progress bar max
 
-    def _get_progress_decorator(self) -> Callable:
+    def _get_progress_decorator(self) -> Callable[..., Callable[..., Callable[..., None]]]:
         """Get progress decorator (or no-op if no progress manager)."""
         if self.progress_manager:
-            return self.progress_manager.progress_task
+            return self.progress_manager.progress_task  # type: ignore[no-any-return]
         else:
 
-            def empty_decorator(name):
-                def wrapper(func):
+            def empty_decorator(name: str) -> Callable[..., Callable[..., None]]:
+                def wrapper(func: Callable[..., None]) -> Callable[..., None]:
                     # Inspect to see what parameters the function accepts
                     sig = inspect.signature(func)
                     params = list(sig.parameters.keys())
 
                     @wraps(func)
-                    def inner(total, *args, **kwargs):
+                    def inner(total: int, *args: object, **kwargs: object) -> None:
                         # Build kwargs based on what the function accepts
-                        func_kwargs = {}
+                        func_kwargs: dict[str, object] = {}
                         if "total" in params:
                             func_kwargs["total"] = total
                         if "task_id" in params:
@@ -91,7 +95,7 @@ class PipelineExecutor:
                         if "progress" in params:
                             func_kwargs["progress"] = None
 
-                        return func(*args, **func_kwargs, **kwargs)
+                        func(*args, **func_kwargs, **kwargs)
 
                     return inner
 

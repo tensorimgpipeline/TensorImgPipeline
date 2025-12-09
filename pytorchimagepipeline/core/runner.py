@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 from pytorchimagepipeline.core.builder import PipelineBuilder, get_objects_for_pipeline
@@ -13,7 +15,7 @@ class PipelineRunner:
     Provides programmatic API.
     """
 
-    def __init__(self, pipeline_name: str, config_path: Path | None = None):
+    def __init__(self, pipeline_name: str, config_path: Path | None = None) -> None:
         self.pipeline_name = pipeline_name
         self.config_path = config_path or Path(f"{pipeline_name}/pipeline_config.toml")
 
@@ -79,8 +81,8 @@ class PipelineRunner:
         executor = PipelineExecutor(controller)
         executor.run()
 
-    def _run_with_sweep(self, controller: PipelineController, wandb_logger) -> None:
+    def _run_with_sweep(self, controller: PipelineController, wandb_logger: object) -> None:
         """Execute pipeline with WandB sweep."""
         hyperparams = controller.get_permanence("hyperparams", {})
-        wandb_logger.create_sweep(hyperparams.hyperparams.get("sweep_configuration", {}))
-        wandb_logger.create_sweep_agent(lambda: self._run_once(controller))
+        wandb_logger.create_sweep(hyperparams.hyperparams.get("sweep_configuration", {}))  # type: ignore[attr-defined]
+        wandb_logger.create_sweep_agent(lambda: self._run_once(controller))  # type: ignore[attr-defined]

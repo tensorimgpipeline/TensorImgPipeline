@@ -16,6 +16,7 @@ the Free Software Foundation, either version 3 of the License, or
 import importlib
 import os
 import sys
+import types
 from pathlib import Path
 from typing import Optional
 
@@ -31,7 +32,7 @@ class PathManager:
     Environment variables can override these defaults.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._user_config_dir = self._get_user_config_dir()
         self._ensure_user_directories()
 
@@ -51,7 +52,7 @@ class PathManager:
 
         return base_dir / "pytorchimagepipeline"
 
-    def _ensure_user_directories(self):
+    def _ensure_user_directories(self) -> None:
         """Ensure user directories exist."""
         # Always create user directories (all pipelines are sideloaded)
         self.get_projects_dir().mkdir(parents=True, exist_ok=True)
@@ -151,7 +152,7 @@ class PathManager:
 
         return True
 
-    def import_project_module(self, project_name: str):
+    def import_project_module(self, project_name: str) -> types.ModuleType:
         """Dynamically import a project module.
 
         Args:
@@ -173,7 +174,7 @@ class PathManager:
         Returns:
             List of unique project names.
         """
-        projects = []
+        projects: list[str] = []
         projects_dir = self.get_projects_dir()
 
         if not projects_dir.exists():

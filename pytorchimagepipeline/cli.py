@@ -75,7 +75,7 @@ def run_pipeline(
         runner = PipelineRunner(pipeline_name, config_path)
         runner.run()
     except Exception as err:
-        _exit_with_error(err)
+        _exit_with_error(str(err), err=err)
 
 
 @app.command(name="list")
@@ -236,9 +236,7 @@ def create_project(
     location: Optional[str] = typer.Option(
         None, "--location", "-l", help="Location to create project (default: current directory)"
     ),
-    example: Optional[str] = typer.Option(
-        "basic", "--example", "-e", help="Include working example process and permanence"
-    ),
+    example: str = typer.Option("basic", "--example", "-e", help="Include working example process and permanence"),
     description: Optional[str] = typer.Option(None, "--description", "-d", help="Project description"),
 ) -> None:
     """Create a new pipeline project with scaffolding.
@@ -264,9 +262,19 @@ def create_project(
     if base_dir.exists():
         _exit_with_error(f"Directory '{base_dir}' already exists.")
 
+    # Validate example is one of the allowed values
+    if example not in ("basic", "full", "pause"):
+        _exit_with_error(f"Invalid example '{example}'. Must be one of: basic, full, pause")
+
     try:
         # Use template manager to create project
-        project_data = ProjectSetup(name=project_name, base_dir=base_dir, example=example, description=description)
+        # Cast is safe because we validated above
+        project_data = ProjectSetup(
+            name=project_name,
+            base_dir=base_dir,
+            example=example,  # type: ignore[arg-type]
+            description=description,
+        )
 
         template_manager.create_project(project_data=project_data)
     except Exception as err:

@@ -41,7 +41,7 @@ class ProcessWrapper(Protocol):
 def pipeline_process(
     name: str | None = None,
     skip_if: Callable[[], bool] | None = None,
-):
+) -> Callable[[Callable[..., Any]], ProcessWrapper]:
     """Decorator to convert a function into a pipeline process.
 
     The decorated function can run standalone or as part of a pipeline.
@@ -74,7 +74,7 @@ def pipeline_process(
         # params = { epochs = 10 }
     """
 
-    def decorator(func: Callable) -> ProcessWrapper:
+    def decorator(func: Callable[..., Any]) -> ProcessWrapper:
         process_name = name or func.__name__
 
         # Get function signature for parameter handling
@@ -86,17 +86,20 @@ def pipeline_process(
 
         # Create a PipelineProcess class dynamically
         class FunctionProcess(PipelineProcess):
-            def __init__(self, controller, force: bool = False, **kwargs):
+            def __init__(self, controller: Any, force: bool = False, **kwargs: Any) -> None:
                 self.controller = controller
                 self.force = force
                 # Store function parameters
                 for param_name, default_value in params.items():
                     setattr(self, param_name, kwargs.get(param_name, default_value))
 
-            def execute(self) -> Exception | None:
+            def execute(self) -> None:
                 """Execute the wrapped function."""
                 # Set pipeline context so helpers work
-                from pytorchimagepipeline.helpers import clear_pipeline_context, set_pipeline_context
+                from pytorchimagepipeline.helpers import (  # type: ignore[attr-defined]
+                    clear_pipeline_context,
+                    set_pipeline_context,
+                )
 
                 try:
                     # Provide permanences to helpers
@@ -110,10 +113,6 @@ def pipeline_process(
                     # Call the original function with stored parameters
                     func_params = {name: getattr(self, name) for name in params}
                     func(**func_params)
-                except Exception as err:
-                    return err
-                else:
-                    return None
                 finally:
                     clear_pipeline_context()
 
@@ -129,7 +128,7 @@ def pipeline_process(
 
         # Allow function to still be called normally
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             return func(*args, **kwargs)
 
         # Attach the process class for pipeline registration
@@ -143,7 +142,7 @@ def pipeline_process(
 def pipeline_script(
     project: str | None = None,
     config_file: str | None = None,
-):
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to make a script runnable as standalone or pipeline.
 
     This decorator allows an entire script to be run either:
@@ -168,9 +167,9 @@ def pipeline_script(
             main()
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Check if running in pipeline mode
             import sys
 
