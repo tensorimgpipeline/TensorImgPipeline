@@ -40,14 +40,9 @@ import importlib
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from tomllib import TOMLDecodeError
+from tomllib import load as toml_load
 from typing import TYPE_CHECKING, Any, cast
-
-try:
-    from tomllib import TOMLDecodeError
-    from tomllib import load as toml_load
-except ImportError:
-    from tomli import TOMLDecodeError  # type: ignore[import-not-found, no-redef]
-    from tomli import load as toml_load  # type: ignore[no-redef]
 
 from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
 from pytorchimagepipeline.errors import (
