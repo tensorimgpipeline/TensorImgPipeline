@@ -1,5 +1,7 @@
 # TensorImgPipeline
 
+![LOGO](docs/assets/logos/tipi_logo_text.v2.png)
+
 [![Release](https://img.shields.io/github/v/release/tensorimgpipeline/TensorImgPipeline)](https://img.shields.io/github/v/release/tensorimgpipeline/TensorImgPipeline)
 [![Build status](https://img.shields.io/github/actions/workflow/status/tensorimgpipeline/TensorImgPipeline/main.yml?branch=main)](https://github.com/tensorimgpipeline/TensorImgPipeline/actions/workflows/main.yml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/tensorimgpipeline/TensorImgPipeline/branch/main/graph/badge.svg)](https://codecov.io/gh/tensorimgpipeline/TensorImgPipeline)
