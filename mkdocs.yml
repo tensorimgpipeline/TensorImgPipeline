@@ -19,7 +19,7 @@ nav:
       - abstractions.py: modules/abstractions.md
       - errors.py: modules/errors.md
   - Generated:
-      - Architecture: architecture_diagram.md
+      - Architecture: generated/architecture_diagram.md
       - CLI Enhancement: generated/cli_enhancements.md
       - CLI Reference: generated/cli_reference.md
       - Improvments Summary: generated/improvements_summary.md

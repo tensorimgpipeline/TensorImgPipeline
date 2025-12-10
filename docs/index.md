@@ -7,7 +7,7 @@
 [![Commit activity](https://img.shields.io/github/commit-activity/m/tensorimgpipeline/TensorImgPipeline)](https://img.shields.io/github/commit-activity/m/tensorimgpipeline/TensorImgPipeline)
 [![License](https://img.shields.io/github/license/tensorimgpipeline/TensorImgPipeline)](https://img.shields.io/github/license/tensorimgpipeline/TensorImgPipeline)
 
-This is a repository for creating and running Pytorch Image Pipelines.
+This is a repository for creating and running Tensor Image Pipelines -> short tipis.
 
 ## Overview
 

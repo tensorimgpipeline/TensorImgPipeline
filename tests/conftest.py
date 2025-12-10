@@ -196,4 +196,4 @@ def pytest_runtest_makereport(item, call):
 
 
 def pytest_html_report_title(report):
-    report.title = "PyTorch Image Pipeline Test Report"
+    report.title = "Tensor Image Pipeline Test Report"

@@ -15,7 +15,7 @@ As described in the [Overview](index.md/#overview), the first step is to decide 
 In detail the following image provides some information how the Pipeline is structured.
 If you do not want to read the internal logic jump straight to [Create Config](#create-config)
 
-![UML](assets/TensorImgPipeline.drawio.svg)
+![UML](assets/TensorImgPipeline.svg)
 ///caption
 UML Diagram sketch of `TensorImgPipeline`
 ///

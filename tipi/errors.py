@@ -1,4 +1,4 @@
-"""Error handling for pytorch image pipeline.
+"""Error handling for tensor image pipeline.
 
 This module implements error handling for configuration, registry and execution of the pipeline.
 
