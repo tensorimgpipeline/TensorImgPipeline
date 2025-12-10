@@ -22,7 +22,7 @@ nav:
       - Architecture: generated/architecture_diagram.md
       - CLI Enhancement: generated/cli_enhancements.md
       - CLI Reference: generated/cli_reference.md
-      - Improvments Summary: generated/improvements_summary.md
+      - Improvements Summary: generated/improvements_summary.md
       - Path Management: generated/path_management.md
       - Progressive Enhancement: generated/progressive_enhancement.md
   - Ideas: ideas.md
