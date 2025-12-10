@@ -10,7 +10,8 @@
     // Use 'postCreateCommand' to run commands after the container is created.
     "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
     "remoteEnv": {
-        "IS_IN_CONTAINER": "true"
+        "IS_IN_CONTAINER": "true",
+        "UV_LINK_MODE": "copy"
     },
     // Configure tool-specific properties.
     "customizations": {
