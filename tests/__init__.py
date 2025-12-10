@@ -1,1 +1,1 @@
-"""Test package for PytorchImagePipeline."""
+"""Test package for TensorImgPipeline."""

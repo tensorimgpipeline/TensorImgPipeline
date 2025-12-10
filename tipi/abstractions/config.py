@@ -1,4 +1,4 @@
-"""Configuration abstractions for PytorchImagePipeline.
+"""Configuration abstractions for TensorImgPipeline.
 
 Provides abstract base classes for configuration objects used throughout the pipeline.
 
@@ -24,7 +24,7 @@ from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any, Union, get_args, get_origin, get_type_hints
 
-from pytorchimagepipeline.errors import InvalidConfigError
+from tipi.errors import InvalidConfigError
 
 
 @dataclass

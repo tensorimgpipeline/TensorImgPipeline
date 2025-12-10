@@ -26,7 +26,7 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any, Protocol, cast
 
-from pytorchimagepipeline.abstractions import PipelineProcess
+from tipi.abstractions import PipelineProcess
 
 
 class ProcessWrapper(Protocol):
@@ -97,7 +97,7 @@ def pipeline_process(
             def execute(self) -> None:
                 """Execute the wrapped function."""
                 # Set pipeline context so helpers work
-                from pytorchimagepipeline.helpers import (  # type: ignore[attr-defined]
+                from tipi.helpers import (  # type: ignore[attr-defined]
                     clear_pipeline_context,
                     set_pipeline_context,
                 )
@@ -148,7 +148,7 @@ def pipeline_script(
 
     This decorator allows an entire script to be run either:
     1. Directly: python my_script.py
-    2. As pipeline: pytorchpipeline run my_pipeline
+    2. As pipeline: tipi run my_pipeline
 
     Args:
         project: Project name for WandB (if using).

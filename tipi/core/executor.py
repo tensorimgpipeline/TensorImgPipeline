@@ -5,11 +5,11 @@ from collections.abc import Callable
 from functools import wraps
 from typing import TYPE_CHECKING
 
-from pytorchimagepipeline.abstractions import PipelineProcess
-from pytorchimagepipeline.errors import BuilderError, ExecutionError
+from tipi.abstractions import PipelineProcess
+from tipi.errors import BuilderError, ExecutionError
 
 if TYPE_CHECKING:
-    from pytorchimagepipeline.core.controller import PipelineController
+    from tipi.core.controller import PipelineController
 
 
 class PipelineExecutor:

@@ -1,1 +1,1 @@
-::: pytorchimagepipeline.abstractions
+::: tipi.abstractions

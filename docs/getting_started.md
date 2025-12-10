@@ -15,12 +15,12 @@ As described in the [Overview](index.md/#overview), the first step is to decide 
 In detail the following image provides some information how the Pipeline is structured.
 If you do not want to read the internal logic jump straight to [Create Config](#create-config)
 
-![UML](assets/PytorchImagePipeline.drawio.svg)
+![UML](assets/TensorImgPipeline.drawio.svg)
 ///caption
-UML Diagram sketch of `PytorchImagePipeline`
+UML Diagram sketch of `TensorImgPipeline`
 ///
 
-In the diagram are the three main components of the PytorchImagePipeline depicted.
+In the diagram are the three main components of the TensorImgPipeline depicted.
 The [`PipelineController`][{{ controller }}] class is central part of the pipeline, storing and providing all the necessary components of the pipeline.
 The [`Permanence`][{{ permanence }}] abstract class is used to create new implementations for objects which hold permanent information about the pipeline.
 As example a `Dataset` is a kind of information, which a process needs to access, but could be created without the flow of the pipeline.
@@ -117,7 +117,7 @@ It is necessary to create for every entry in the config its implementation, but 
 The structure of a new pipeline subpackage looks the following:
 
 ```tree
-📦pytorchimagepipeline
+📦tipi
  ┗ 📦pipelines
     ┗ 📦node_modules
        ┣ 📜__init__.py

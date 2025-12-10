@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from pytorchimagepipeline import paths
+from tipi import paths
 
 
 def is_running_in_container() -> bool:
@@ -94,9 +94,9 @@ def isolated_path_manager(tmp_path, monkeypatch):
     cache_dir.mkdir()
 
     # Set environment variables to use temp directories
-    monkeypatch.setenv("PYTORCHPIPELINE_PROJECTS_DIR", str(projects_dir))
-    monkeypatch.setenv("PYTORCHPIPELINE_CONFIG_DIR", str(configs_dir))
-    monkeypatch.setenv("PYTORCHPIPELINE_CACHE_DIR", str(cache_dir))
+    monkeypatch.setenv("TIPI_PROJECTS_DIR", str(projects_dir))
+    monkeypatch.setenv("TIPI_CONFIG_DIR", str(configs_dir))
+    monkeypatch.setenv("TIPI_CACHE_DIR", str(cache_dir))
 
     # Reset global path manager to pick up new env vars
     paths._path_manager = None

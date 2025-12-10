@@ -1,1 +1,1 @@
-::: pytorchimagepipeline.core.builder
+::: tipi.core.builder

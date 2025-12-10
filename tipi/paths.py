@@ -1,4 +1,4 @@
-"""Path management for PytorchImagePipeline.
+"""Path management for TensorImgPipeline.
 
 Handles environment-aware path resolution for:
 - Development mode (editable install)
@@ -24,9 +24,9 @@ class PathManager:
     """Manages paths for both development and production environments.
 
     All pipelines are sideloaded from user directories:
-        - pipelines: ~/.config/pytorchimagepipeline/projects
-        - configs: ~/.config/pytorchimagepipeline/configs
-        - cache: ~/.cache/pytorchimagepipeline
+        - pipelines: ~/.config/tipi/projects
+        - configs: ~/.config/tipi/configs
+        - cache: ~/.cache/tipi
 
     Environment variables can override these defaults.
     """
@@ -42,14 +42,14 @@ class PathManager:
             Path: User config directory.
         """
         # Check environment variable override
-        if override := os.environ.get("PYTORCHPIPELINE_CONFIG_DIR"):
+        if override := os.environ.get("TIPI_CONFIG_DIR"):
             return Path(override).expanduser()
 
         # Use XDG_CONFIG_HOME if set, otherwise default to ~/.config
         config_home = os.environ.get("XDG_CONFIG_HOME")
         base_dir = Path(config_home) if config_home else Path.home() / ".config"
 
-        return base_dir / "pytorchimagepipeline"
+        return base_dir / "tipi"
 
     def _ensure_user_directories(self) -> None:
         """Ensure user directories exist."""
@@ -61,13 +61,13 @@ class PathManager:
     def get_projects_dir(self) -> Path:
         """Get directory for pipeline projects.
 
-        All pipelines are sideloaded from: ~/.config/pytorchimagepipeline/projects
+        All pipelines are sideloaded from: ~/.config/tipi/projects
 
         Returns:
             Path: Projects directory.
         """
         # Check environment variable override
-        if override := os.environ.get("PYTORCHPIPELINE_PROJECTS_DIR"):
+        if override := os.environ.get("TIPI_PROJECTS_DIR"):
             return Path(override).expanduser()
 
         return self._user_config_dir / "projects"
@@ -75,13 +75,13 @@ class PathManager:
     def get_configs_dir(self) -> Path:
         """Get directory for pipeline configurations.
 
-        All configs are in: ~/.config/pytorchimagepipeline/configs
+        All configs are in: ~/.config/tipi/configs
 
         Returns:
             Path: Configs directory.
         """
         # Check environment variable override
-        if override := os.environ.get("PYTORCHPIPELINE_CONFIG_DIR"):
+        if override := os.environ.get("TIPI_CONFIG_DIR"):
             return Path(override).expanduser()
 
         return self._user_config_dir / "configs"
@@ -89,21 +89,21 @@ class PathManager:
     def get_cache_dir(self) -> Path:
         """Get cache directory for temporary files (git clones).
 
-        Development: ~/.cache/pytorchimagepipeline
-        Production: ~/.cache/pytorchimagepipeline
+        Development: ~/.cache/tipi
+        Production: ~/.cache/tipi
 
         Returns:
             Path: Cache directory.
         """
         # Check environment variable override
-        if override := os.environ.get("PYTORCHPIPELINE_CACHE_DIR"):
+        if override := os.environ.get("TIPI_CACHE_DIR"):
             return Path(override).expanduser()
 
         # Use XDG_CACHE_HOME if set, otherwise default to ~/.cache
         cache_home = os.environ.get("XDG_CACHE_HOME")
         base_dir = Path(cache_home) if cache_home else Path.home() / ".cache"
 
-        return base_dir / "pytorchimagepipeline"
+        return base_dir / "tipi"
 
     def get_project_path(self, project_name: str) -> Path | None:
         """Get path to a specific project.

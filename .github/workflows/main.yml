@@ -55,7 +55,7 @@ jobs:
         if: ${{ matrix.python-version == '3.11' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: MaKaNu/PytorchPipeline
+          slug: tensorimgpipeline/TensorImgPipeline
 
   check-docs:
     runs-on: ubuntu-latest

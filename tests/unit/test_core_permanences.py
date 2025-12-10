@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 import torch
 
-from pytorchimagepipeline.core.permanences import Device, ProgressManager, VRAMUsageError
-from pytorchimagepipeline.errors import ProgressNoMatch
+from tipi.core.permanences import Device, ProgressManager, VRAMUsageError
+from tipi.errors import ProgressNoMatch
 
 
 @pytest.fixture

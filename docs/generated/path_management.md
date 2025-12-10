@@ -1,10 +1,10 @@
 # Path Management and Deployment
 
-This document explains how PytorchImagePipeline manages paths and how the PathManager enables flexible project organization.
+This document explains how TensorImgPipeline manages paths and how the PathManager enables flexible project organization.
 
 ## Overview
 
-PytorchImagePipeline uses a centralized path management system that:
+TensorImgPipeline uses a centralized path management system that:
 
 1. Stores all pipelines in user-configurable directories
 2. Follows XDG Base Directory standards on Linux/Unix
@@ -12,7 +12,7 @@ PytorchImagePipeline uses a centralized path management system that:
 
 ## PathManager
 
-The `PathManager` class (in `pytorchimagepipeline/paths.py`) provides appropriate paths for:
+The `PathManager` class (in `tipi/paths.py`) provides appropriate paths for:
 
 - **Projects directory**: Where pipeline packages are loaded from
 - **Configs directory**: Where TOML configuration files are stored
@@ -24,7 +24,7 @@ The `PathManager` class (in `pytorchimagepipeline/paths.py`) provides appropriat
 
 ```
 # User's home directory
-~/.config/pytorchimagepipeline/
+~/.config/tipi/
 ├── projects/                   # ← Projects loaded from here
 │   ├── my_pipeline/           # User's custom pipeline
 │   └── cloned_pipeline/       # symlink to cache
@@ -34,7 +34,7 @@ The `PathManager` class (in `pytorchimagepipeline/paths.py`) provides appropriat
 │   └── cloned_pipeline/
 │       └── pipeline_config.toml
 
-~/.cache/pytorchimagepipeline/  # ← Git clones stored here
+~/.cache/tipi/  # ← Git clones stored here
 └── projects/
     └── cloned_pipeline/
 ```
@@ -53,7 +53,7 @@ This ensures proper integration with Linux/Unix systems and respects user prefer
 ### Check Your Current Configuration
 
 ```bash
-pytorchpipeline info
+tipi info
 ```
 
 This shows:
@@ -65,65 +65,65 @@ This shows:
 
 ```bash
 # 1. Install the package
-pip install pytorchimagepipeline
+pip install tensorimgpipeline
 
 # 2. Check configuration
-pytorchpipeline info
+tipi info
 
 # 3. Create a new pipeline
-pytorchpipeline create my_pipeline
+tipi create my_pipeline
 
 # 4. Link it
-pytorchpipeline add ./my_pipeline
-# - Or use 'pytorchpipeline add' to link external projects
+tipi add ./my_pipeline
+# - Or use 'tipi add' to link external projects
 ```
 
 ### Production Workflow (End Users)
 
 ```bash
 # 1. Install from PyPI
-pip install pytorchimagepipeline
+pip install tensorimgpipeline
 
 # Or use uvx for isolated execution
-uvx pytorchimagepipeline --help
+uvx tensorimgpipeline --help
 
 # 2. Check mode (should show "production")
-pytorchpipeline info
+tipi info
 
 # 3. Create or add custom pipelines
 # Option A: Create new pipeline
-pytorchpipeline create my_pipeline
+tipi create my_pipeline
 cd my_pipeline
 # ... develop your pipeline ...
 cd ..
-pytorchpipeline add ./my_pipeline
+tipi add ./my_pipeline
 
 # Option B: Clone from git
-pytorchpipeline add https://github.com/user/awesome-pipeline.git
+tipi add https://github.com/user/awesome-pipeline.git
 
 # 4. Run your pipeline
-pytorchpipeline run my_pipeline
+tipi run my_pipeline
 ```
 
 ### Hybrid Workflow (Production with Local Development)
 
 ```bash
 # 1. Install from PyPI for CLI tools
-pip install pytorchimagepipeline
+pip install tensorimgpipeline
 
 # 2. Develop pipelines separately
 mkdir ~/ml-pipelines
 cd ~/ml-pipelines
-pytorchpipeline create image_segmentation
+tipi create image_segmentation
 cd image_segmentation
 # ... develop ...
 
 # 3. Link to production installation
-pytorchpipeline add ~/ml-pipelines/image_segmentation
+tipi add ~/ml-pipelines/image_segmentation
 
 # 4. Use like any other pipeline
-pytorchpipeline list
-pytorchpipeline run image_segmentation
+tipi list
+tipi run image_segmentation
 ```
 
 ## Environment Variables
@@ -134,16 +134,16 @@ For advanced use cases or testing, you can override the automatic detection:
 
 ```bash
 # Override projects directory
-export PYTORCHPIPELINE_PROJECTS_DIR=/custom/path/projects
-pytorchpipeline list
+export TIPI_PROJECTS_DIR=/custom/path/projects
+tipi list
 
 # Override configs directory
-export PYTORCHPIPELINE_CONFIG_DIR=/custom/path/configs
-pytorchpipeline run my_pipeline
+export TIPI_CONFIG_DIR=/custom/path/configs
+tipi run my_pipeline
 
 # Override cache directory
-export PYTORCHPIPELINE_CACHE_DIR=/custom/path/cache
-pytorchpipeline add https://github.com/user/repo.git
+export TIPI_CACHE_DIR=/custom/path/cache
+tipi add https://github.com/user/repo.git
 ```
 
 **Note:** Environment variables are useful for testing and creating isolated environments.
@@ -168,10 +168,10 @@ This allows seamless imports regardless of where pipelines are located.
 
 ### For Pipeline Developers
 
-1. **Create standalone projects** that can be added via `pytorchpipeline add`
+1. **Create standalone projects** that can be added via `tipi add`
 
    ```bash
-   pytorchpipeline create my_pipeline
+   tipi create my_pipeline
    cd my_pipeline
    # Edit your pipeline code
    ```
@@ -179,14 +179,14 @@ This allows seamless imports regardless of where pipelines are located.
 2. **Link your project** for testing
 
    ```bash
-   pytorchpipeline add ./my_pipeline
-   pytorchpipeline validate my_pipeline
+   tipi add ./my_pipeline
+   tipi validate my_pipeline
    ```
 
 3. **Use environment overrides** for isolated testing
 
    ```bash
-   PYTORCHPIPELINE_PROJECTS_DIR=/tmp/test_projects pytorchpipeline list
+   TIPI_PROJECTS_DIR=/tmp/test_projects tipi list
    ```
 
 ### For End Users
@@ -194,34 +194,34 @@ This allows seamless imports regardless of where pipelines are located.
 1. **Installation**: Use pip or uvx
 
    ```bash
-   pip install pytorchimagepipeline
+   pip install tensorimgpipeline
    # or
-   uvx pytorchimagepipeline
+   uvx tensorimgpipeline
    ```
 
-2. **Custom Pipelines**: Store in `~/.config/pytorchimagepipeline/projects/`
+2. **Custom Pipelines**: Store in `~/.config/tipi/projects/`
 
-   - Create with `pytorchpipeline create`
-   - Or add existing with `pytorchpipeline add`
+   - Create with `tipi create`
+   - Or add existing with `tipi add`
 
-3. **Verification**: Always check paths with `pytorchpipeline info` when troubleshooting
+3. **Verification**: Always check paths with `tipi info` when troubleshooting
 
 ### For System Administrators
 
-1. **Multi-User Setup**: Each user gets their own `~/.config/pytorchimagepipeline/`
+1. **Multi-User Setup**: Each user gets their own `~/.config/tipi/`
 
 2. **Shared Pipelines**: Use git repositories
 
    ```bash
    # Each user can clone
-   pytorchpipeline add https://company.com/shared-pipeline.git
+   tipi add https://company.com/shared-pipeline.git
    ```
 
 3. **Custom Paths**: Set system-wide environment variables if needed
    ```bash
    # In /etc/environment or similar
-   PYTORCHPIPELINE_PROJECTS_DIR=/opt/ml-pipelines/projects
-   PYTORCHPIPELINE_CONFIG_DIR=/opt/ml-pipelines/configs
+   TIPI_PROJECTS_DIR=/opt/ml-pipelines/projects
+   TIPI_CONFIG_DIR=/opt/ml-pipelines/configs
    ```
 
 ## Migration Guide
@@ -233,7 +233,7 @@ When you're ready to distribute your pipeline:
 1. **Package your pipeline** as a standalone project:
 
    ```bash
-   pytorchpipeline create my_pipeline_standalone
+   tipi create my_pipeline_standalone
    # Copy your code to the new project
    ```
 
@@ -250,7 +250,7 @@ When you're ready to distribute your pipeline:
 
 3. **Users can now add it**:
    ```bash
-   pytorchpipeline add https://github.com/you/my_pipeline_standalone.git
+   tipi add https://github.com/you/my_pipeline_standalone.git
    ```
 
 ### From Standalone to Integrated
@@ -286,7 +286,7 @@ If you have an existing Python package:
 
 3. **Link it**:
    ```bash
-   pytorchpipeline add ./my_package
+   tipi add ./my_package
    ```
 
 ## Troubleshooting
@@ -295,58 +295,58 @@ If you have an existing Python package:
 
 ```bash
 # Check configuration
-pytorchpipeline info
+tipi info
 
 # List available pipelines
-pytorchpipeline list
+tipi list
 
-# Check ~/.config/pytorchimagepipeline/projects/
+# Check ~/.config/tipi/projects/
 ```
 
 ### Config Not Found
 
 ```bash
 # Check config directory
-pytorchpipeline info
+tipi info
 
 # Inspect specific pipeline
-pytorchpipeline inspect my_pipeline
+tipi inspect my_pipeline
 
-# Create config in ~/.config/pytorchimagepipeline/configs/my_pipeline/
+# Create config in ~/.config/tipi/configs/my_pipeline/
 ```
 
 ### Import Errors
 
 ```bash
 # Verify module structure
-pytorchpipeline inspect my_pipeline
+tipi inspect my_pipeline
 
 # Check that __init__.py exists and has proper registration
-ls -la ~/.config/pytorchimagepipeline/projects/my_pipeline/
+ls -la ~/.config/tipi/projects/my_pipeline/
 
 # Validate the pipeline
-pytorchpipeline validate my_pipeline
+tipi validate my_pipeline
 ```
 
 ### Symlink Issues (Linux/Mac)
 
 ```bash
 # Check symlink
-ls -la ~/.config/pytorchimagepipeline/projects/
+ls -la ~/.config/tipi/projects/
 
 # Recreate if broken
-pytorchpipeline remove my_pipeline
-pytorchpipeline add /path/to/my_pipeline
+tipi remove my_pipeline
+tipi add /path/to/my_pipeline
 ```
 
 ### Permission Issues
 
 ```bash
 # Ensure proper ownership
-ls -la ~/.config/pytorchimagepipeline/
+ls -la ~/.config/tipi/
 
 # Fix if needed
-chmod -R u+rwX ~/.config/pytorchimagepipeline/
+chmod -R u+rwX ~/.config/tipi/
 ```
 
 ## API Reference
@@ -354,7 +354,7 @@ chmod -R u+rwX ~/.config/pytorchimagepipeline/
 For advanced usage in Python code:
 
 ```python
-from pytorchimagepipeline.paths import get_path_manager
+from tipi.paths import get_path_manager
 
 # Get the global PathManager instance
 pm = get_path_manager()

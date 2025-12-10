@@ -1,5 +1,5 @@
 """This module provides the implementation of the PipelineBuilder class, which is responsible for
-building and configuring a pipeline of processes and permanences for the PytorchImagePipeline project.
+building and configuring a pipeline of processes and permanences for the TensorImgPipeline project.
 
 The PipelineBuilder class allows for the registration of classes, loading of configuration files,
 validation of configuration sections, and construction of the complete pipeline. It handles errors
@@ -44,8 +44,8 @@ from tomllib import TOMLDecodeError
 from tomllib import load as toml_load
 from typing import TYPE_CHECKING, Any, cast
 
-from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
-from pytorchimagepipeline.errors import (
+from tipi.abstractions import Permanence, PipelineProcess
+from tipi.errors import (
     ConfigInvalidTomlError,
     ConfigNotFoundError,
     ConfigPermissionError,
@@ -53,10 +53,10 @@ from pytorchimagepipeline.errors import (
     InstTypeError,
     RegistryError,
 )
-from pytorchimagepipeline.paths import get_path_manager
+from tipi.paths import get_path_manager
 
 if TYPE_CHECKING:
-    from pytorchimagepipeline.core.controller import PipelineController
+    from tipi.core.controller import PipelineController
 
 
 @dataclass
@@ -333,9 +333,9 @@ def get_objects_for_pipeline(
         ModuleNotFoundError: If the pipeline module cannot be found.
     """
     # Try built-in pipelines first
-    full_module_name = "pytorchimagepipeline.pipelines." + pipeline_name
+    full_module_name = "tipi.pipelines." + pipeline_name
     if pipeline_name == "core":
-        full_module_name = "pytorchimagepipeline." + pipeline_name
+        full_module_name = "tipi." + pipeline_name
 
     module = None
 
@@ -402,7 +402,7 @@ if __name__ == "__main__":
     controller = PipelineController(permanences, process_specs)
 
     # Run the pipeline using executor
-    from pytorchimagepipeline.core.executor import PipelineExecutor
+    from tipi.core.executor import PipelineExecutor
 
     executor = PipelineExecutor(controller)
     executor.run()

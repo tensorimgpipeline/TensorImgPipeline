@@ -1,11 +1,11 @@
-site_name: PytorchPipeline
-repo_url: https://github.com/makanu/PytorchImagePipeline
-site_url: https://makanu.github.io/PytorchImagePipeline
-site_description: This is a repository for creating and running Pytorch Pipelines.
+site_name: TensorImgPipeline
+repo_url: https://github.com/tensorimgpipeline/TensorImgPipeline
+site_url: https://tensorimgpipeline.github.io/TensorImgPipeline
+site_description: This is a repository for creating and running Tipi Pipelines.
 site_author: Matti Kaupenjohann
 edit_uri: edit/main/docs/
-repo_name: makanu/PytorchImagePipeline
-copyright: Maintained by <a href="https://makanu.com">makanu</a>.
+repo_name: tensorimgpipeline/TensorImgPipeline
+copyright: Maintained by <a href="https://github.com/orgs/tensorimgpipeline">TensorImgPipeline</a>.
 
 nav:
   - Home: index.md
@@ -18,6 +18,13 @@ nav:
       - controller.py: modules/controller.md
       - abstractions.py: modules/abstractions.md
       - errors.py: modules/errors.md
+  - Generated:
+      - Architecture: architecture_diagram.md
+      - CLI Enhancement: generated/cli_enhancements.md
+      - CLI Reference: generated/cli_reference.md
+      - Improvments Summary: generated/improvements_summary.md
+      - Path Management: generated/path_management.md
+      - Progressive Enhancement: generated/progressive_enhancement.md
   - Ideas: ideas.md
 plugins:
   - search
@@ -25,7 +32,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: ["pytorchpipeline"]
+          paths: ["tipi"]
 theme:
   name: material
   feature:
@@ -51,15 +58,15 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/makanu/PytorchPipeline
+      link: https://github.com/tensorimgpipeline/TensorImgPipeline
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/PytorchPipeline
+      link: https://pypi.org/project/TensorImgPipeline
   # ShortsLinks for modules
-  permanence: pytorchimagepipeline.abstractions.Permanence
-  process: pytorchimagepipeline.abstractions.PipelineProcess
-  process_execute: pytorchimagepipeline.abstractions.PipelineProcess.execute
-  builder: pytorchimagepipeline.core.builder.PipelineBuilder
-  controller: pytorchimagepipeline.core.controller.PipelineController
+  permanence: tipi.abstractions.Permanence
+  process: tipi.abstractions.PipelineProcess
+  process_execute: tipi.abstractions.PipelineProcess.execute
+  builder: tipi.core.builder.PipelineBuilder
+  controller: tipi.core.controller.PipelineController
 
 markdown_extensions:
   - toc:

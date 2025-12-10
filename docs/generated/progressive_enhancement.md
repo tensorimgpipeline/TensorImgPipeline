@@ -43,7 +43,7 @@ Want to see progress? Just add one import:
 import torch
 from torch.utils.data import DataLoader
 from my_model import MyModel
-from pytorchimagepipeline.helpers import progress_bar  # ← Add this
+from tipi.helpers import progress_bar  # ← Add this
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = MyModel().to(device)
@@ -76,7 +76,7 @@ Want to track your experiments in WandB?
 import torch
 from torch.utils.data import DataLoader
 from my_model import MyModel
-from pytorchimagepipeline.helpers import progress_bar, logger  # ← Add logger
+from tipi.helpers import progress_bar, logger  # ← Add logger
 
 # Initialize logging (runs once)
 logger.init(project="my_research", entity="my_team")  # ← Add this
@@ -116,7 +116,7 @@ Tired of CUDA boilerplate?
 import torch
 from torch.utils.data import DataLoader
 from my_model import MyModel
-from pytorchimagepipeline.helpers import (
+from tipi.helpers import (
     progress_bar,
     logger,
     device_manager  # ← Add this
@@ -154,8 +154,8 @@ Your script is working great! Now extract functions for reuse:
 import torch
 from torch.utils.data import DataLoader
 from my_model import MyModel
-from pytorchimagepipeline.helpers import progress_bar, logger, device_manager
-from pytorchimagepipeline.decorators import pipeline_process  # ← New!
+from tipi.helpers import progress_bar, logger, device_manager
+from tipi.decorators import pipeline_process  # ← New!
 
 logger.init(project="my_research", entity="my_team")
 
@@ -212,8 +212,8 @@ Ready for production? Create a config file and you're done!
 
 ```python
 # processes/training.py
-from pytorchimagepipeline import PipelineProcess
-from pytorchimagepipeline.helpers import progress_bar, logger
+from tipi import PipelineProcess
+from tipi.helpers import progress_bar, logger
 
 class TrainingProcess(PipelineProcess):
     def __init__(self, controller, force: bool = False, epochs: int = 10):
@@ -277,14 +277,14 @@ type = "TestingProcess"
 
 ```bash
 # Run the full pipeline
-pytorchpipeline run my_pipeline
+tipi run my_pipeline
 
 # Or with different config
-pytorchpipeline run my_pipeline --config custom_config.toml
+tipi run my_pipeline --config custom_config.toml
 
 # Or programmatically
 python -c "
-from pytorchimagepipeline import PipelineRunner
+from tipi import PipelineRunner
 runner = PipelineRunner('my_pipeline')
 runner.run()
 "
@@ -367,7 +367,7 @@ for epoch in range(5):
 
 ```python
 # quick_experiment.py
-from pytorchimagepipeline.helpers import progress_bar, logger
+from tipi.helpers import progress_bar, logger
 
 logger.init(project="new_idea")
 
@@ -407,7 +407,7 @@ params = { learning_rate = 0.001 }
 ```
 
 ```bash
-pytorchpipeline run production
+tipi run production
 ```
 
 ---
@@ -470,7 +470,7 @@ Moving from Level N to Level N+1:
 
 ```python
 # experiment_hybrid.py
-from pytorchimagepipeline.helpers import progress_bar, logger
+from tipi.helpers import progress_bar, logger
 from my_pipeline.processes.training import train_epoch  # ← From Level 5
 
 # Quick experiment using production code

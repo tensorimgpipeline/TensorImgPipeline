@@ -6,7 +6,7 @@ This module provides simple, script-friendly functions that work standalone
 but automatically integrate with the pipeline when available.
 
 Usage in Scripts:
-    from pytorchimagepipeline.helpers import progress_bar, logger, device_manager
+    from tipi.helpers import progress_bar, logger, device_manager
 
     # Works standalone - no pipeline needed!
     for epoch in progress_bar(range(10), desc="Training"):

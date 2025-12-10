@@ -1,15 +1,15 @@
-# PytorchImagePipeline
+# TensorImgPipeline
 
-[![Release](https://img.shields.io/github/v/release/makanu/PytorchPipeline)](https://img.shields.io/github/v/release/makanu/PytorchPipeline)
-[![Build status](https://img.shields.io/github/actions/workflow/status/makanu/PytorchPipeline/main.yml?branch=main)](https://github.com/makanu/PytorchPipeline/actions/workflows/main.yml?query=branch%3Amain)
-[![codecov](https://codecov.io/gh/makanu/PytorchPipeline/branch/main/graph/badge.svg)](https://codecov.io/gh/makanu/PytorchPipeline)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/makanu/PytorchPipeline)](https://img.shields.io/github/commit-activity/m/makanu/PytorchPipeline)
-[![License](https://img.shields.io/github/license/makanu/PytorchPipeline)](https://img.shields.io/github/license/makanu/PytorchPipeline)
+[![Release](https://img.shields.io/github/v/release/tensorimgpipeline/TensorImgPipeline)](https://img.shields.io/github/v/release/tensorimgpipeline/TensorImgPipeline)
+[![Build status](https://img.shields.io/github/actions/workflow/status/tensorimgpipeline/TensorImgPipeline/main.yml?branch=main)](https://github.com/tensorimgpipeline/TensorImgPipeline/actions/workflows/main.yml?query=branch%3Amain)
+[![codecov](https://codecov.io/gh/tensorimgpipeline/TensorImgPipeline/branch/main/graph/badge.svg)](https://codecov.io/gh/tensorimgpipeline/TensorImgPipeline)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/tensorimgpipeline/TensorImgPipeline)](https://img.shields.io/github/commit-activity/m/tensorimgpipeline/TensorImgPipeline)
+[![License](https://img.shields.io/github/license/tensorimgpipeline/TensorImgPipeline)](https://img.shields.io/github/license/tensorimgpipeline/TensorImgPipeline)
 
-This is a repository for creating and running Pytorch Image Pipelines.
+This is a repository for creating and running Tensor Image Pipelines, short tipis.
 
-- **Github repository**: <https://github.com/makanu/PytorchImagePipeline/>
-- **Documentation** <https://makanu.github.io/PytorchImagePipeline/>
+- **Github repository**: <https://github.com/tensorimgpipeline/TensorImgPipeline/>
+- **Documentation** <https://tensorimgpipeline.github.io/TensorImgPipeline/>
 
 ## Development
 
@@ -47,7 +47,7 @@ First, create a repository on GitHub with the same name as this project, and the
 git init -b main
 git add .
 git commit -m "init commit"
-git remote add origin git@github.com:makanu/PytorchPipeline.git
+git remote add origin git@github.com:tensorimgpipeline/TensorImgPipeline.git
 git push -u origin main
 ```
 
@@ -89,8 +89,8 @@ To enable the code coverage reports, see [here](https://fpgmaas.github.io/cookie
 ## Releasing a new version
 
 - Create an API Token on [PyPI](https://pypi.org/).
-- Add the API Token to your projects secrets with the name `PYPI_TOKEN` by visiting [this page](https://github.com/makanu/PytorchPipeline/settings/secrets/actions/new).
-- Create a [new release](https://github.com/makanu/PytorchPipeline/releases/new) on Github.
+- Add the API Token to your projects secrets with the name `PYPI_TOKEN` by visiting [this page](https://github.com/tensorimgpipeline/TensorImgPipeline/settings/secrets/actions/new).
+- Create a [new release](https://github.com/tensorimgpipeline/TensorImgPipeline/releases/new) on Github.
 - Create a new tag in the form `*.*.*`.
 
 For more details, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/cicd/#how-to-trigger-a-release).

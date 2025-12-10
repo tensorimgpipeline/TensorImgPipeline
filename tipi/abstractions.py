@@ -1,6 +1,14 @@
-"""Abstract base classes for PytorchImagePipeline.
+"""Backward-compatible facade for abstract base classes.
 
-This package provides the core abstractions used throughout the pipeline framework.
+This module maintains backward compatibility by re-exporting classes from
+the abstractions sub-package. New code should import directly from the
+sub-package modules.
+
+Deprecated classes that are no longer used:
+- AbstractManager (replaced by controller pattern)
+- AbstractSimpleManager (replaced by controller pattern)
+- AbstractProgressManager (replaced by controller pattern)
+- AbstractCombinedConfig (no longer needed)
 
 Copyright (C) 2025 Matti Kaupenjohann
 
@@ -18,10 +26,11 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from pytorchimagepipeline.abstractions.config import AbstractConfig, ProcessConfig
-from pytorchimagepipeline.abstractions.controller import AbstractController
-from pytorchimagepipeline.abstractions.permanence import Permanence
-from pytorchimagepipeline.abstractions.process import PipelineProcess
+# Re-export commonly used abstractions for backward compatibility
+from tipi.abstractions.config import AbstractConfig, ProcessConfig
+from tipi.abstractions.controller import AbstractController
+from tipi.abstractions.permanence import Permanence
+from tipi.abstractions.process import PipelineProcess
 
 __all__ = [
     "AbstractConfig",

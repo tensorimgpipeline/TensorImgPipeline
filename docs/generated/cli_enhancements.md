@@ -70,7 +70,7 @@ The CLI has been significantly enhanced to support the research-to-production wo
 
 ```bash
 # Create standalone project
-pytorchpipeline create my_pipeline --example
+tipi create my_pipeline --example
 
 # Project structure created:
 my_pipeline/
@@ -89,32 +89,32 @@ my_pipeline/
 
 ```bash
 # Link local project
-pytorchpipeline add ./my_pipeline
+tipi add ./my_pipeline
 
 # Clone from git
-pytorchpipeline add https://github.com/user/pipeline.git
+tipi add https://github.com/user/pipeline.git
 
 # Creates symlink:
-# pytorchimagepipeline/pipelines/my_pipeline -> source
+# tipi/pipelines/my_pipeline -> source
 ```
 
 ### Managing Projects
 
 ```bash
 # List all
-pytorchpipeline list -v
+tipi list -v
 
 # Inspect specific
-pytorchpipeline inspect my_pipeline --docs
+tipi inspect my_pipeline --docs
 
 # Validate
-pytorchpipeline validate my_pipeline
+tipi validate my_pipeline
 
 # Run
-pytorchpipeline run my_pipeline
+tipi run my_pipeline
 
 # Remove
-pytorchpipeline remove my_pipeline
+tipi remove my_pipeline
 ```
 
 ## File Generators
@@ -224,11 +224,11 @@ The CLI now supports the Level 5 workflow:
 ```
 Level 4: Functions          Level 5: Full Pipeline
 ─────────────────────      ────────────────────────
-@pipeline_process     →    pytorchpipeline create my_pipeline
+@pipeline_process     →    tipi create my_pipeline
 def train():          →    Edit permanences.py & processes.py
     ...               →    Update config.toml
-                      →    pytorchpipeline add ./my_pipeline
-Run as script         →    pytorchpipeline run my_pipeline
+                      →    tipi add ./my_pipeline
+Run as script         →    tipi run my_pipeline
 ```
 
 ## Example Workflows
@@ -237,7 +237,7 @@ Run as script         →    pytorchpipeline run my_pipeline
 
 ```bash
 # Day 1: Create project
-pytorchpipeline create research_pipeline --example
+tipi create research_pipeline --example
 cd research_pipeline
 
 # Day 2-7: Develop (edit files)
@@ -246,39 +246,39 @@ cd research_pipeline
 # Edit configs/pipeline_config.toml
 
 # Week 2: Link to main pipeline
-cd /path/to/PytorchPipeline
-pytorchpipeline add ../research_pipeline
+cd /path/to/TensorImgPipeline
+tipi add ../research_pipeline
 
 # Validate and run
-pytorchpipeline validate research_pipeline
-pytorchpipeline run research_pipeline
+tipi validate research_pipeline
+tipi run research_pipeline
 ```
 
 ### Team Member Uses Existing Pipeline
 
 ```bash
 # Clone from team repo
-pytorchpipeline add https://github.com/team/ml-pipeline.git
+tipi add https://github.com/team/ml-pipeline.git
 
 # Inspect what it does
-pytorchpipeline inspect ml-pipeline --docs
+tipi inspect ml-pipeline --docs
 
 # Run it
-pytorchpipeline validate ml-pipeline
-pytorchpipeline run ml-pipeline
+tipi validate ml-pipeline
+tipi run ml-pipeline
 ```
 
 ### Cleanup Old Projects
 
 ```bash
 # List all pipelines
-pytorchpipeline list -v
+tipi list -v
 
 # Remove old one (keep source)
-pytorchpipeline remove old_pipeline
+tipi remove old_pipeline
 
 # Remove cloned repo (delete source)
-pytorchpipeline remove temp_pipeline --delete-source
+tipi remove temp_pipeline --delete-source
 ```
 
 ## Benefits
@@ -295,11 +295,11 @@ pytorchpipeline remove temp_pipeline --delete-source
 
 Possible future additions:
 
-- `pytorchpipeline update <name>` - Update git-cloned packages
-- `pytorchpipeline test <name>` - Run pipeline tests
-- `pytorchpipeline export <name>` - Export pipeline as standalone package
-- `pytorchpipeline template list` - Show available templates
-- `pytorchpipeline template create <name>` - Create custom templates
+- `tipi update <name>` - Update git-cloned packages
+- `tipi test <name>` - Run pipeline tests
+- `tipi export <name>` - Export pipeline as standalone package
+- `tipi template list` - Show available templates
+- `tipi template create <name>` - Create custom templates
 - Auto-completion support
 - Configuration validation with JSON schema
 - Pipeline dependency resolution

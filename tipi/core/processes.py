@@ -19,7 +19,7 @@ from typing import Any
 import torch
 
 import wandb
-from pytorchimagepipeline.abstractions import PipelineProcess
+from tipi.abstractions import PipelineProcess
 
 
 class ResultProcess(PipelineProcess):

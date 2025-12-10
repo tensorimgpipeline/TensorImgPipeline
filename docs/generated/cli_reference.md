@@ -1,13 +1,13 @@
 # CLI Reference
 
-Complete reference for the `pytorchpipeline` command-line tool.
+Complete reference for the `tipi` command-line tool.
 
 ## Overview
 
-The `pytorchpipeline` CLI supports the complete workflow from creating new pipeline projects to running them in production.
+The `tipi` CLI supports the complete workflow from creating new pipeline projects to running them in production.
 
 ```bash
-pytorchpipeline [COMMAND] [OPTIONS]
+tipi [COMMAND] [OPTIONS]
 ```
 
 ## Commands
@@ -17,7 +17,7 @@ pytorchpipeline [COMMAND] [OPTIONS]
 Run a pipeline by name.
 
 ```bash
-pytorchpipeline run PIPELINE_NAME [OPTIONS]
+tipi run PIPELINE_NAME [OPTIONS]
 ```
 
 **Arguments:**
@@ -32,10 +32,10 @@ pytorchpipeline run PIPELINE_NAME [OPTIONS]
 
 ```bash
 # Run default pipeline
-pytorchpipeline run sam2segnet
+tipi run sam2segnet
 
 # Run with custom config
-pytorchpipeline run my_pipeline --config custom.toml
+tipi run my_pipeline --config custom.toml
 ```
 
 ---
@@ -45,7 +45,7 @@ pytorchpipeline run my_pipeline --config custom.toml
 Show all available pipelines including linked subpackages.
 
 ```bash
-pytorchpipeline list [OPTIONS]
+tipi list [OPTIONS]
 ```
 
 **Options:**
@@ -57,13 +57,13 @@ pytorchpipeline list [OPTIONS]
 
 ```bash
 # Simple list
-pytorchpipeline list
+tipi list
 
 # Detailed view
-pytorchpipeline list -v
+tipi list -v
 
 # Hide link sources
-pytorchpipeline list --no-links
+tipi list --no-links
 ```
 
 **Output:**
@@ -83,7 +83,7 @@ pytorchpipeline list --no-links
 Show detailed information about a pipeline's permanences and processes.
 
 ```bash
-pytorchpipeline inspect PIPELINE_NAME [OPTIONS]
+tipi inspect PIPELINE_NAME [OPTIONS]
 ```
 
 **Arguments:**
@@ -98,10 +98,10 @@ pytorchpipeline inspect PIPELINE_NAME [OPTIONS]
 
 ```bash
 # Basic inspection
-pytorchpipeline inspect sam2segnet
+tipi inspect sam2segnet
 
 # With docstrings
-pytorchpipeline inspect sam2segnet --docs
+tipi inspect sam2segnet --docs
 ```
 
 **Output:**
@@ -118,7 +118,7 @@ pytorchpipeline inspect sam2segnet --docs
 Create a new standalone pipeline project with complete scaffolding.
 
 ```bash
-pytorchpipeline create PROJECT_NAME [OPTIONS]
+tipi create PROJECT_NAME [OPTIONS]
 ```
 
 **Arguments:**
@@ -134,13 +134,13 @@ pytorchpipeline create PROJECT_NAME [OPTIONS]
 
 ```bash
 # Create in current directory
-pytorchpipeline create my_pipeline
+tipi create my_pipeline
 
 # Create in specific location
-pytorchpipeline create my_pipeline --location ./projects
+tipi create my_pipeline --location ./projects
 
 # Create with examples
-pytorchpipeline create my_pipeline --example
+tipi create my_pipeline --example
 ```
 
 **Creates:**
@@ -165,7 +165,7 @@ my_pipeline/
 Link an existing local project or clone from a git repository as a subpackage.
 
 ```bash
-pytorchpipeline add SOURCE [OPTIONS]
+tipi add SOURCE [OPTIONS]
 ```
 
 **Arguments:**
@@ -182,25 +182,25 @@ pytorchpipeline add SOURCE [OPTIONS]
 
 ```bash
 # Link local project
-pytorchpipeline add ./my_pipeline_project
-pytorchpipeline add /path/to/project --name custom_name
+tipi add ./my_pipeline_project
+tipi add /path/to/project --name custom_name
 
 # Clone from git (HTTPS)
-pytorchpipeline add https://github.com/user/ml-pipeline.git
+tipi add https://github.com/user/ml-pipeline.git
 
 # Clone from git (SSH)
-pytorchpipeline add git@github.com:user/pipeline.git
+tipi add git@github.com:user/pipeline.git
 
 # Clone specific branch
-pytorchpipeline add https://github.com/user/repo.git --branch dev
+tipi add https://github.com/user/repo.git --branch dev
 
 # Clone to custom location
-pytorchpipeline add https://github.com/user/pipeline.git --location ./external
+tipi add https://github.com/user/pipeline.git --location ./external
 ```
 
 **Behavior:**
 
-- **Local path**: Creates a symlink in the projects directory (development: `pytorchimagepipeline/pipelines/`, production: `~/.config/pytorchimagepipeline/projects/`)
+- **Local path**: Creates a symlink in the projects directory (development: `tipi/pipelines/`, production: `~/.config/tipi/projects/`)
 - **Git URL**: Clones to specified location (or cache directory), then creates symlink
 - Validates package structure (must have `__init__.py`)
 - Checks for naming conflicts
@@ -213,7 +213,7 @@ pytorchpipeline add https://github.com/user/pipeline.git --location ./external
 Remove a linked subpackage from the pipeline system.
 
 ```bash
-pytorchpipeline remove PIPELINE_NAME [OPTIONS]
+tipi remove PIPELINE_NAME [OPTIONS]
 ```
 
 **Arguments:**
@@ -228,10 +228,10 @@ pytorchpipeline remove PIPELINE_NAME [OPTIONS]
 
 ```bash
 # Just remove the link
-pytorchpipeline remove my_pipeline
+tipi remove my_pipeline
 
 # Remove link and delete source (if in submodules/)
-pytorchpipeline remove my_pipeline --delete-source
+tipi remove my_pipeline --delete-source
 ```
 
 **Safety:**
@@ -247,7 +247,7 @@ pytorchpipeline remove my_pipeline --delete-source
 Check that a pipeline is properly configured and ready to run.
 
 ```bash
-pytorchpipeline validate PIPELINE_NAME
+tipi validate PIPELINE_NAME
 ```
 
 **Arguments:**
@@ -257,7 +257,7 @@ pytorchpipeline validate PIPELINE_NAME
 **Examples:**
 
 ```bash
-pytorchpipeline validate sam2segnet
+tipi validate sam2segnet
 ```
 
 **Checks:**
@@ -277,16 +277,16 @@ pytorchpipeline validate sam2segnet
 
 ### `info` - Show Installation Information
 
-Display information about the current PytorchImagePipeline installation and configuration.
+Display information about the current TensorImgPipeline installation and configuration.
 
 ```bash
-pytorchpipeline info
+tipi info
 ```
 
 **Examples:**
 
 ```bash
-pytorchpipeline info
+tipi info
 ```
 
 **Output:**
@@ -294,14 +294,14 @@ pytorchpipeline info
 - Projects directory path (where pipelines are loaded from)
 - Configs directory path (where configuration files are stored)
 - Cache directory path (for cloned repositories)
-- User config directory (~/.config/pytorchimagepipeline)
+- User config directory (~/.config/tipi)
 - Directory existence status
 
 **Default Paths:**
 
-- Projects: `~/.config/pytorchimagepipeline/projects/`
-- Configs: `~/.config/pytorchimagepipeline/configs/`
-- Cache: `~/.cache/pytorchimagepipeline/`
+- Projects: `~/.config/tipi/projects/`
+- Configs: `~/.config/tipi/configs/`
+- Cache: `~/.cache/tipi/`
 
 **Use Cases:**
 
@@ -317,7 +317,7 @@ pytorchpipeline info
 
 ```bash
 # 1. Create a new pipeline project
-pytorchpipeline create my_ml_pipeline --example
+tipi create my_ml_pipeline --example
 
 
 # 2. Navigate to the project
@@ -329,53 +329,53 @@ cd my_ml_pipeline
 # - Update configs/pipeline_config.toml
 
 # 4. Go back to main pipeline directory
-cd /path/to/PytorchPipeline
+cd /path/to/TensorImgPipeline
 
 # 5. Link your project
-pytorchpipeline add ../my_ml_pipeline
+tipi add ../my_ml_pipeline
 
 # 6. Validate configuration
-pytorchpipeline validate my_ml_pipeline
+tipi validate my_ml_pipeline
 
 # 7. Run the pipeline
-pytorchpipeline run my_ml_pipeline
+tipi run my_ml_pipeline
 ```
 
 ### Using an Existing Git Repository
 
 ```bash
 # 1. Clone and link a pipeline from GitHub
-pytorchpipeline add https://github.com/user/awesome-pipeline.git
+tipi add https://github.com/user/awesome-pipeline.git
 
 # 2. Check what was added
-pytorchpipeline list -v
+tipi list -v
 
 # 3. Inspect the components
-pytorchpipeline inspect awesome-pipeline --docs
+tipi inspect awesome-pipeline --docs
 
 # 4. Validate before running
-pytorchpipeline validate awesome-pipeline
+tipi validate awesome-pipeline
 
 # 5. Run it
-pytorchpipeline run awesome-pipeline
+tipi run awesome-pipeline
 ```
 
 ### Managing Multiple Pipelines
 
 ```bash
 # List all pipelines
-pytorchpipeline list -v
+tipi list -v
 
 # Inspect each one
-pytorchpipeline inspect pipeline1
-pytorchpipeline inspect pipeline2
+tipi inspect pipeline1
+tipi inspect pipeline2
 
 # Run specific ones
-pytorchpipeline run pipeline1
-pytorchpipeline run pipeline2 --config custom.toml
+tipi run pipeline1
+tipi run pipeline2 --config custom.toml
 
 # Remove one that's no longer needed
-pytorchpipeline remove old_pipeline
+tipi remove old_pipeline
 ```
 
 ---
@@ -425,9 +425,9 @@ type = "ValidationProcess"
 
 ## Environment Variables
 
-- `PYTORCHPIPELINE_CONFIG_DIR` - Override configs directory
-- `PYTORCHPIPELINE_PROJECTS_DIR` - Override projects directory
-- `PYTORCHPIPELINE_CACHE_DIR` - Override cache directory
+- `TIPI_CONFIG_DIR` - Override configs directory
+- `TIPI_PROJECTS_DIR` - Override projects directory
+- `TIPI_CACHE_DIR` - Override cache directory
 
 **Note:** Environment variables are primarily for testing and creating isolated test scenarios.
 
@@ -439,32 +439,32 @@ type = "ValidationProcess"
 
 ```bash
 # Combine list and inspect for quick overview
-pytorchpipeline list -v && pytorchpipeline inspect sam2segnet
+tipi list -v && tipi inspect sam2segnet
 ```
 
 ### Development Workflow
 
 ```bash
 # During development, frequently validate
-pytorchpipeline validate my_pipeline && pytorchpipeline run my_pipeline
+tipi validate my_pipeline && tipi run my_pipeline
 ```
 
 ### Working with Git Repos
 
 ```bash
 # Clone, inspect, then run
-pytorchpipeline add https://github.com/user/pipeline.git && \
-  pytorchpipeline inspect pipeline --docs && \
-  pytorchpipeline validate pipeline
+tipi add https://github.com/user/pipeline.git && \
+  tipi inspect pipeline --docs && \
+  tipi validate pipeline
 ```
 
 ### Batch Operations
 
 ```bash
 # Validate all pipelines
-for pipeline in $(pytorchpipeline list --no-links | tail -n +3 | awk '{print $1}'); do
+for pipeline in $(tipi list --no-links | tail -n +3 | awk '{print $1}'); do
     echo "Validating $pipeline..."
-    pytorchpipeline validate $pipeline
+    tipi validate $pipeline
 done
 ```
 
@@ -474,16 +474,16 @@ done
 
 ### "Pipeline not found"
 
-- Check `pytorchpipeline list` to see available pipelines
-- Use `pytorchpipeline info` to verify your paths
-- Check that pipelines are in `~/.config/pytorchimagepipeline/projects/`
+- Check `tipi list` to see available pipelines
+- Use `tipi info` to verify your paths
+- Check that pipelines are in `~/.config/tipi/projects/`
 - For linked packages, verify the symlink exists in the projects directory
 
 ### "Missing config"
 
-- Create or update configs in the configs directory (use `pytorchpipeline info` to see path)
-- Default location: `~/.config/pytorchimagepipeline/configs/<pipeline_name>/pipeline_config.toml`
-- Check the config file path with `pytorchpipeline inspect <pipeline>`
+- Create or update configs in the configs directory (use `tipi info` to see path)
+- Default location: `~/.config/tipi/configs/<pipeline_name>/pipeline_config.toml`
+- Check the config file path with `tipi inspect <pipeline>`
 
 ### "Invalid TOML"
 
