@@ -47,40 +47,47 @@ class ErrorCode(Enum):
 @dataclass
 class BuilderError(RuntimeError):
     error_value: Any
+    error_code: ErrorCode | None = None
 
-    def __post_init__(self, error_code: ErrorCode) -> None:  # type: ignore  # noqa: PGH003
+    def __post_init__(self) -> None:
+        pass
+
+    def _set_error_code(self, error_code: ErrorCode) -> None:
+        """Set the error code (called by subclasses)."""
         self.error_code = error_code
 
     def __str__(self) -> str:
-        return f"[{self.error_code.code}]: {self.error_code.message}: {self.error_value}"
+        if self.error_code:
+            return f"[{self.error_code.code}]: {self.error_code.message}: {self.error_value}"
+        return f"BuilderError: {self.error_value}"
 
 
 class ConfigNotFoundError(BuilderError):
     """Raised when the builder configuration file does not exists"""
 
     def __post_init__(self) -> None:
-        super().__post_init__(ErrorCode.CONFIG_MISSING)
+        self._set_error_code(ErrorCode.CONFIG_MISSING)
 
 
 class ConfigPermissionError(BuilderError):
     """Raised when the builder configuration file does not exists"""
 
     def __post_init__(self) -> None:
-        super().__post_init__(ErrorCode.CONFIG_PERMISSION)
+        self._set_error_code(ErrorCode.CONFIG_PERMISSION)
 
 
 class ConfigInvalidTomlError(BuilderError):
     """Raised when the configuration file is not valid toml"""
 
     def __post_init__(self) -> None:
-        super().__post_init__(ErrorCode.CONFIG_INVALID)
+        self._set_error_code(ErrorCode.CONFIG_INVALID)
 
 
 class ConfigSectionError(BuilderError):
     """Raised for config section missing"""
 
     def __post_init__(self) -> None:
-        super().__post_init__(ErrorCode.CONFIG_SECTION)
+        self._set_error_code(ErrorCode.CONFIG_SECTION)
 
 
 class InvalidConfigError(Exception):
@@ -95,21 +102,21 @@ class RegistryError(BuilderError):
     """Raised for class registration issues"""
 
     def __post_init__(self) -> None:
-        super().__post_init__(ErrorCode.REGISTRY_INVALID)
+        self._set_error_code(ErrorCode.REGISTRY_INVALID)
 
 
 class RegistryParamError(BuilderError):
     """Raised for class instatioation with wrong params"""
 
     def __post_init__(self) -> None:
-        super().__post_init__(ErrorCode.REGISTRY_PARAM)
+        self._set_error_code(ErrorCode.REGISTRY_PARAM)
 
 
 class InstTypeError(BuilderError):
     """Raised when type in config not set"""
 
     def __post_init__(self) -> None:
-        super().__post_init__(ErrorCode.INST_TYPE)
+        self._set_error_code(ErrorCode.INST_TYPE)
 
 
 ## Execution

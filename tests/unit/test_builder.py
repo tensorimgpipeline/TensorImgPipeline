@@ -1,19 +1,11 @@
 from __future__ import annotations
 
 import ast
-import sys
 from pathlib import Path
+from tomllib import TOMLDecodeError
 from unittest.mock import mock_open, patch
 
 import pytest
-
-try:
-    from tomllib import TOMLDecodeError
-except ImportError:
-    try:
-        from tomli import TOMLDecodeError  # type: ignore  # noqa: PGH003
-    except ImportError:
-        sys.exit("Error: This program requires either tomllib or tomli but neither is available")
 
 from tipi.abstractions import Permanence, PipelineProcess
 from tipi.core.builder import PipelineBuilder, get_objects_for_pipeline

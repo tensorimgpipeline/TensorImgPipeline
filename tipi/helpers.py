@@ -1,5 +1,3 @@
-# type: ignore
-# ruff: noqa
 """Helper utilities for smooth transition from scripts to pipeline.
 
 This module provides simple, script-friendly functions that work standalone
@@ -23,13 +21,14 @@ the Free Software Foundation, either version 3 of the License, or
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Optional
+from collections.abc import Iterable
+from typing import Any
 
 import torch
 from rich.progress import track
 
 # Global context that pipeline can set
-_pipeline_context: Optional[dict[str, Any]] = None
+_pipeline_context: dict[str, Any] | None = None
 
 
 def set_pipeline_context(context: dict[str, Any]) -> None:
@@ -51,7 +50,7 @@ def clear_pipeline_context() -> None:
 def progress_bar(
     iterable: Iterable,
     desc: str = "Processing",
-    total: Optional[int] = None,
+    total: int | None = None,
 ) -> Iterable:
     """Progress bar that auto-integrates with pipeline or uses rich.track.
 
@@ -92,12 +91,12 @@ class Logger:
     - Pipeline: Uses pipeline's WandBManager if available
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._wandb_initialized = False
-        self._project = None
-        self._entity = None
+        self._project: str | None = None
+        self._entity: str | None = None
 
-    def init(self, project: str, entity: Optional[str] = None, name: Optional[str] = None, **kwargs) -> None:
+    def init(self, project: str, entity: str | None = None, name: str | None = None, **kwargs: Any) -> None:
         """Initialize logger (manual WandB setup or use pipeline's).
 
         Args:
@@ -125,7 +124,7 @@ class Logger:
         except ImportError:
             print("WandB not available, logging to console only")
 
-    def log(self, metrics: dict[str, Any], step: Optional[int] = None) -> None:
+    def log(self, metrics: dict[str, Any], step: int | None = None) -> None:
         """Log metrics to WandB or console.
 
         Args:
@@ -174,7 +173,7 @@ class DeviceManager:
         if _pipeline_context:
             device_perm = _pipeline_context.get("device")
             if device_perm:
-                return device_perm.device
+                return torch.device(device_perm.device)
 
         # Standalone: Select best device
         if torch.cuda.is_available():
@@ -189,9 +188,9 @@ device_manager = DeviceManager()
 
 
 __all__ = [
-    "progress_bar",
-    "logger",
-    "device_manager",
-    "set_pipeline_context",
     "clear_pipeline_context",
+    "device_manager",
+    "logger",
+    "progress_bar",
+    "set_pipeline_context",
 ]

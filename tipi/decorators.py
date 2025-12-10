@@ -97,7 +97,7 @@ def pipeline_process(
             def execute(self) -> None:
                 """Execute the wrapped function."""
                 # Set pipeline context so helpers work
-                from tipi.helpers import (  # type: ignore[attr-defined]
+                from tipi.helpers import (
                     clear_pipeline_context,
                     set_pipeline_context,
                 )
