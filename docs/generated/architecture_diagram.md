@@ -1,4 +1,4 @@
-# PytorchImagePipeline - Proposed Architecture
+# TensorImgPipeline - Proposed Architecture
 
 **Philosophy**: Progressive Enhancement - Start Simple, Scale When Needed
 
@@ -787,7 +787,7 @@ Level 5: Full Pipeline                   Changes: Config file + class wrapper
 │  params = { epochs = 10 }      │      ✓ Production ready
 │                                │      ✓ Team collaboration
 │  # Run via CLI                 │      ✓ CI/CD integration
-│  $ pytorchpipeline run exp     │
+│  $ tipi run exp     │
 └────────────────────────────────┘
 ```
 
@@ -830,5 +830,5 @@ No rewriting needed - just progressive wrapping!
 ## Documentation References
 
 - **Full Guide**: See `docs/progressive_enhancement.md`
-- **Helper API**: See `pytorchimagepipeline/helpers.py`
-- **Decorators**: See `pytorchimagepipeline/decorators.py`
+- **Helper API**: See `tipi/helpers.py`
+- **Decorators**: See `tipi/decorators.py`

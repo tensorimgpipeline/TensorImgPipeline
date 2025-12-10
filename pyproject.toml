@@ -1,7 +1,7 @@
 [project]
-name = "PytorchImagePipeline"
+name = "TensorImgPipeline"
 version = "0.0.1"
-description = "This is a repository for creating and running Pytorch Image Pipelines."
+description = "This is a repository for creating and running Tipi Pipelines."
 authors = [
     { name = "Matti Kaupenjohann", email = "matti.kaupenjohann@fh-dortmund.de" },
 ]
@@ -34,13 +34,13 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://makanu.github.io/PytorchImagePipeline/"
-Repository = "https://github.com/makanu/PytorchImagePipeline"
-Documentation = "https://makanu.github.io/PytorchImagePipeline/"
+Homepage = "https://tensorimgpipeline.github.io/TensorImgPipeline/"
+Repository = "https://github.com/tensorimgpipeline/TensorImgPipeline"
+Documentation = "https://tensorimgpipeline.github.io/TensorImgPipeline/"
 
 [project.scripts]
-tensorimgpipeline = "pytorchimagepipeline.cli:app"
-tipi = "pytorchimagepipeline.cli:app"
+tensorimgpipeline = "tipi.cli:app"
+tipi = "tipi.cli:app"
 
 [dependency-groups]
 dev = [
@@ -72,10 +72,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["pytorchimagepipeline"]
+packages = ["tipi"]
 
 [tool.mypy]
-files = ["pytorchimagepipeline"]
+files = ["tipi"]
 disallow_untyped_defs = true
 disallow_any_unimported = true
 no_implicit_optional = true
@@ -141,8 +141,8 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "S108"]
 "notebooks/*" = ["S314", "TRY003"]
-"pytorchimagepipeline/cli.py" = ["C901", "S603"]
-"pytorchimagepipeline/core/builder.py" = ["TRY003"]
+"tipi/cli.py" = ["C901", "S603"]
+"tipi/core/builder.py" = ["TRY003"]
 
 [tool.ruff.format]
 preview = true
@@ -152,7 +152,7 @@ skip_empty = true
 
 [tool.coverage.run]
 branch = true
-source = ["pytorchimagepipeline"]
+source = ["tipi"]
 
 [tool.deptry]
 extend_exclude = ["notebooks/*"]

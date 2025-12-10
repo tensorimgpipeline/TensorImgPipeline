@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
-from pytorchimagepipeline.abstractions import AbstractConfig
-from pytorchimagepipeline.errors import InvalidConfigError
+from tipi.abstractions import AbstractConfig
+from tipi.errors import InvalidConfigError
 
 
 @dataclass

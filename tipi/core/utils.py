@@ -1,4 +1,4 @@
-"""Core utility functions for PytorchImagePipeline."""
+"""Core utility functions for TensorImgPipeline."""
 
 import colorsys
 

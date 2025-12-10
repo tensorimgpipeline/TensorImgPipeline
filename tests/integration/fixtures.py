@@ -15,7 +15,7 @@ def mock_path_manager(tmp_path):
     configs_dir.mkdir()
     cache_dir.mkdir()
 
-    with patch("pytorchimagepipeline.cli.path_manager") as mock_pm:
+    with patch("tipi.cli.path_manager") as mock_pm:
         mock_pm.get_projects_dir.return_value = projects_dir
         mock_pm.get_configs_dir.return_value = configs_dir
         mock_pm.get_cache_dir.return_value = cache_dir
@@ -47,7 +47,7 @@ def fs_mock_path_manager(fs):
     configs_dir.mkdir(parents=True)
     cache_dir.mkdir(parents=True)
 
-    with patch("pytorchimagepipeline.cli.path_manager") as mock_pm:
+    with patch("tipi.cli.path_manager") as mock_pm:
         mock_pm.get_projects_dir.return_value = projects_dir
         mock_pm.get_configs_dir.return_value = configs_dir
         mock_pm.get_cache_dir.return_value = cache_dir

@@ -1,1 +1,1 @@
-::: pytorchimagepipeline.core.controller
+::: tipi.core.controller

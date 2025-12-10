@@ -21,4 +21,4 @@ ADD . /app
 # Sync the project
 RUN uv sync --frozen
 
-CMD [ "python", "pytorchpipeline/foo.py"]
+CMD [ "python", "tipi/foo.py"]

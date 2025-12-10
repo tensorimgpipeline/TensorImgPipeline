@@ -48,14 +48,13 @@ jobs:
 
       - name: Check typing
         run: uv run mypy
-        if: ${{ matrix.python-version == '3.11' || matrix.python-version == '3.12' }}
 
-      - name: Upload coverage reports to Codecov with GitHub Action on Python 3.11
+      - name: Upload coverage reports to Codecov with GitHub Action on Python 3.13
         uses: codecov/codecov-action@v5
-        if: ${{ matrix.python-version == '3.11' }}
+        if: ${{ matrix.python-version == '3.13' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: MaKaNu/PytorchPipeline
+          slug: tensorimgpipeline/TensorImgPipeline
 
   check-docs:
     runs-on: ubuntu-latest

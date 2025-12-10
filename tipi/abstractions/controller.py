@@ -1,4 +1,4 @@
-"""Controller abstractions for PytorchImagePipeline.
+"""Controller abstractions for TensorImgPipeline.
 
 Provides abstract base class for pipeline controllers that manage
 process execution and progress reporting.
@@ -24,7 +24,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pytorchimagepipeline.abstractions.process import PipelineProcess
+    from tipi.abstractions.process import PipelineProcess
 
 
 class AbstractController(ABC):

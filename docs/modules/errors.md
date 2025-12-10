@@ -1,1 +1,1 @@
-::: pytorchimagepipeline.errors
+::: tipi.errors

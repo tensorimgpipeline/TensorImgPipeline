@@ -1,4 +1,4 @@
-"""CLI tool for PytorchImagePipeline.
+"""CLI tool for TensorImgPipeline.
 
 Provides commands for running, inspecting, and managing ML pipelines.
 
@@ -22,10 +22,10 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.tree import Tree
 
-from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
-from pytorchimagepipeline.core.runner import PipelineRunner
-from pytorchimagepipeline.paths import get_path_manager
-from pytorchimagepipeline.template_manager import ProjectSetup, template_manager
+from tipi.abstractions import Permanence, PipelineProcess
+from tipi.core.runner import PipelineRunner
+from tipi.paths import get_path_manager
+from tipi.template_manager import ProjectSetup, template_manager
 
 
 def _exit_with_error(message: str, code: int = 1, err: Exception | None = None) -> None:
@@ -43,8 +43,8 @@ def _exit_with_error(message: str, code: int = 1, err: Exception | None = None) 
 
 
 app = typer.Typer(
-    name="pytorchpipeline",
-    help="PytorchImagePipeline CLI - From scripts to production pipelines",
+    name="tipi",
+    help="TensorImgPipeline CLI - From scripts to production pipelines",
     add_completion=False,
 )
 console = Console()
@@ -61,8 +61,8 @@ def run_pipeline(
     """Run a pipeline by name.
 
     Examples:
-        pytorchpipeline run DemoFull
-        pytorchpipeline run DemoFull --config custom.toml
+        tipi run DemoFull
+        tipi run DemoFull --config custom.toml
     """
 
     default_config = path_manager.get_config_path(pipeline_name)
@@ -85,9 +85,9 @@ def list_pipelines(
     Shows both built-in pipelines and linked subpackages.
 
     Examples:
-        pytorchpipeline list
-        pytorchpipeline list -v
-        pytorchpipeline list --no-links
+        tipi list
+        tipi list -v
+        tipi list --no-links
     """
     pipelines_dir = path_manager.get_projects_dir()
 
@@ -95,7 +95,7 @@ def list_pipelines(
         _exit_with_error(
             f"[yellow]No pipelines directory found at {pipelines_dir}[/yellow]\n"
             f"Mode: {path_manager.get_info()['mode']}\n"
-            "Create a pipeline with: [cyan]pytorchpipeline create my_pipeline[/cyan]"
+            "Create a pipeline with: [cyan]tipi create my_pipeline[/cyan]"
         )
 
     # Find all pipeline directories
@@ -171,8 +171,8 @@ def inspect_pipeline(
     Shows all permanences and processes registered for a pipeline.
 
     Examples:
-        pytorchpipeline inspect DemoFull
-        pytorchpipeline inspect DemoFull --docs
+        tipi inspect DemoFull
+        tipi inspect DemoFull --docs
     """
     try:
         # Use path manager to import module
@@ -248,10 +248,10 @@ def create_project(
     - ProcessDataProcess: Example process that processes data
 
     Examples:
-        pytorchpipeline create my_pipeline
-        pytorchpipeline create my_pipeline --location ./projects
-        pytorchpipeline create my_pipeline --example
-        pytorchpipeline create my_pipeline --example --description "My ML pipeline"
+        tipi create my_pipeline
+        tipi create my_pipeline --location ./projects
+        tipi create my_pipeline --example
+        tipi create my_pipeline --example --description "My ML pipeline"
     """
     # Determine project location
     base_dir = Path(location) / project_name if location else Path.cwd() / project_name
@@ -297,12 +297,12 @@ def create_project(
         f"  1. cd {base_dir}\n"
         + (
             f"  2. Review the example code in {project_name}/\n"
-            f"  3. Link to main pipeline: pytorchpipeline add {base_dir}\n"
-            f"  4. Run the pipeline: pytorchpipeline run {project_name}"
+            f"  3. Link to main pipeline: tipi add {base_dir}\n"
+            f"  4. Run the pipeline: tipi run {project_name}"
             if example != "basic"
             else f"  2. Edit {project_name}/permanences.py and processes.py\n"
             f"  3. Update configs/pipeline_config.toml\n"
-            f"  4. Link to main pipeline: pytorchpipeline add {base_dir}"
+            f"  4. Link to main pipeline: tipi add {base_dir}"
         ),
         title="Project Created",
         border_style="green",
@@ -329,13 +329,13 @@ def add_subpackage(
 
     Examples:
         # Link local project
-        pytorchpipeline add ./my_pipeline_project
-        pytorchpipeline add /path/to/project --name custom_name
+        tipi add ./my_pipeline_project
+        tipi add /path/to/project --name custom_name
 
         # Clone and link from git
-        pytorchpipeline add https://github.com/user/ml-pipeline.git
-        pytorchpipeline add git@github.com:user/pipeline.git --location ./external
-        pytorchpipeline add https://github.com/user/repo.git --branch dev
+        tipi add https://github.com/user/ml-pipeline.git
+        tipi add git@github.com:user/pipeline.git --location ./external
+        tipi add https://github.com/user/repo.git --branch dev
     """
 
     try:
@@ -452,9 +452,9 @@ def add_subpackage(
             f"Linked to: {link_path}"
             f"{config_msg}\n\n"
             f"Next steps:\n"
-            f"  1. Inspect: pytorchpipeline inspect {name}\n"
-            f"  2. Validate: pytorchpipeline validate {name}\n"
-            f"  3. Run: pytorchpipeline run {name}",
+            f"  1. Inspect: tipi inspect {name}\n"
+            f"  2. Validate: tipi validate {name}\n"
+            f"  3. Run: tipi run {name}",
             title="Package Added",
             border_style="green",
         )
@@ -479,8 +479,8 @@ def remove_subpackage(
     the source if it was cloned (in cache/).
 
     Examples:
-        pytorchpipeline remove my_pipeline
-        pytorchpipeline remove my_pipeline --delete-source
+        tipi remove my_pipeline
+        tipi remove my_pipeline --delete-source
     """
     projects_dir = path_manager.get_projects_dir()
     link_path = projects_dir / name
@@ -542,9 +542,9 @@ def clean_broken_symlinks(
     (links pointing to non-existent targets) and removes them.
 
     Examples:
-        pytorchpipeline clean                    # Remove broken symlinks
-        pytorchpipeline clean --dry-run          # Preview what would be removed
-        pytorchpipeline clean --verbose          # Show details of all symlinks
+        tipi clean                    # Remove broken symlinks
+        tipi clean --dry-run          # Preview what would be removed
+        tipi clean --verbose          # Show details of all symlinks
     """
     projects_dir = path_manager.get_projects_dir()
     configs_dir = path_manager.get_configs_dir()
@@ -618,7 +618,7 @@ def validate_pipeline(
     - Required sections are present
 
     Examples:
-        pytorchpipeline validate DemoFull
+        tipi validate DemoFull
     """
     issues = []
 
@@ -683,19 +683,19 @@ def validate_pipeline(
 
 @app.command(name="info")
 def show_info() -> None:
-    """Show information about the current PytorchImagePipeline installation.
+    """Show information about the current TensorImgPipeline installation.
 
     Displays the current operating mode (development vs production),
     directory paths for projects, configs, and cache, and other useful
     debugging information.
 
     Examples:
-        pytorchpipeline info
+        tipi info
     """
     info = path_manager.get_info()
 
     # Create table
-    table = Table(title="PytorchImagePipeline Configuration", show_header=True, header_style="bold magenta")
+    table = Table(title="TensorImgPipeline Configuration", show_header=True, header_style="bold magenta")
     table.add_column("Setting", style="cyan", no_wrap=True)
     table.add_column("Value", style="green")
 

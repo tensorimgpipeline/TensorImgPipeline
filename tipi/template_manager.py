@@ -90,7 +90,7 @@ class TemplateManager:
                 If the Datacontainer is used input validation is performed.
         """
         if project_data.description is None:
-            project_data.description = f"A PytorchImagePipeline project for {project_data.name}"
+            project_data.description = f"A TensorImgPipeline project for {project_data.name}"
 
         context = {
             "project_name": project_data.name,

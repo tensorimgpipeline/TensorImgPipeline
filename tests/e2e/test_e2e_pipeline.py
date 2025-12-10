@@ -1,4 +1,4 @@
-"""End-to-end tests for PytorchImagePipeline using fake filesystem."""
+"""End-to-end tests for TensorImgPipeline using fake filesystem."""
 
 import re
 from unittest.mock import patch
@@ -6,8 +6,8 @@ from unittest.mock import patch
 import pytest
 from git import Repo
 
-from pytorchimagepipeline.cli import app
 from tests.conftest import skip_no_network, skip_outside_container
+from tipi.cli import app
 
 # Apply skip_outside_container to all tests in this module
 pytestmark = skip_outside_container
@@ -139,7 +139,7 @@ class TestE2EInfo:
         result = cli_runner.invoke(app, ["info"])
 
         assert result.exit_code == 0
-        assert "PytorchImagePipeline Configuration" in result.stdout
+        assert "TensorImgPipeline Configuration" in result.stdout
 
         # Check paths use isolated temp directory
         assert str(tmp_path) in result.stdout
@@ -244,7 +244,7 @@ class TestE2ERemove:
     def test_remove_pipeline_remote_source(self, tmp_path, cli_runner):
         """Test removing pipeline which has remote backup"""
         # Add Pipeline via remote url
-        project_url = "https://github.com/MaKaNu-s-Things/DemoPipeline.git"
+        project_url = "https://github.com/tensorimgpipeline/DemoPipeline.git"
         cmd = ["add", project_url]
         create_result = cli_runner.invoke(app, cmd)
         assert create_result.exit_code == 0, f"Create failed: {create_result.output}"
@@ -544,11 +544,11 @@ class TestE2EEnvironmentOverrides:
 
     @pytest.mark.usefixtures("isolated_path_manager")
     def test_custom_projects_dir(self, tmp_path, cli_runner):
-        """Test PYTORCHPIPELINE_PROJECTS_DIR override."""
+        """Test TIPI_PROJECTS_DIR override."""
 
         custom_projects = tmp_path / "custom/projects"
 
-        with patch.dict("os.environ", {"PYTORCHPIPELINE_PROJECTS_DIR": str(custom_projects)}):
+        with patch.dict("os.environ", {"TIPI_PROJECTS_DIR": str(custom_projects)}):
             result = cli_runner.invoke(app, ["info"])
 
             assert result.exit_code == 0
@@ -556,11 +556,11 @@ class TestE2EEnvironmentOverrides:
 
     @pytest.mark.usefixtures("isolated_path_manager")
     def test_custom_config_dir(self, tmp_path, cli_runner):
-        """Test PYTORCHPIPELINE_CONFIG_DIR override."""
+        """Test TIPI_CONFIG_DIR override."""
 
         custom_config = tmp_path / "custom/configs"
 
-        with patch.dict("os.environ", {"PYTORCHPIPELINE_CONFIG_DIR": str(custom_config)}):
+        with patch.dict("os.environ", {"TIPI_CONFIG_DIR": str(custom_config)}):
             result = cli_runner.invoke(app, ["info"])
 
             assert result.exit_code == 0
@@ -568,11 +568,11 @@ class TestE2EEnvironmentOverrides:
 
     @pytest.mark.usefixtures("isolated_path_manager")
     def test_custom_cache_dir(self, tmp_path, cli_runner):
-        """Test PYTORCHPIPELINE_CACHE_DIR override."""
+        """Test TIPI_CACHE_DIR override."""
 
         custom_cache = tmp_path / "custom/cache"
 
-        with patch.dict("os.environ", {"PYTORCHPIPELINE_CACHE_DIR": str(custom_cache)}):
+        with patch.dict("os.environ", {"TIPI_CACHE_DIR": str(custom_cache)}):
             result = cli_runner.invoke(app, ["info"])
 
             assert result.exit_code == 0

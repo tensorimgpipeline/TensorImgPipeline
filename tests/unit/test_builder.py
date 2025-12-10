@@ -1,23 +1,15 @@
 from __future__ import annotations
 
 import ast
-import sys
 from pathlib import Path
+from tomllib import TOMLDecodeError
 from unittest.mock import mock_open, patch
 
 import pytest
 
-try:
-    from tomllib import TOMLDecodeError
-except ImportError:
-    try:
-        from tomli import TOMLDecodeError  # type: ignore  # noqa: PGH003
-    except ImportError:
-        sys.exit("Error: This program requires either tomllib or tomli but neither is available")
-
-from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
-from pytorchimagepipeline.core.builder import PipelineBuilder, get_objects_for_pipeline
-from pytorchimagepipeline.errors import (
+from tipi.abstractions import Permanence, PipelineProcess
+from tipi.core.builder import PipelineBuilder, get_objects_for_pipeline
+from tipi.errors import (
     ConfigInvalidTomlError,
     ConfigNotFoundError,
     ConfigPermissionError,
@@ -86,7 +78,7 @@ class TestPipelineBuilder:
             patch("os.access", return_value=readable),
             patch("builtins.open", mock_open(read_data=file_content) if file_content else None),
             patch(
-                "pytorchimagepipeline.core.builder.toml_load",
+                "tipi.core.builder.toml_load",
                 side_effect=TOMLDecodeError if file_content == "invalid_toml" else lambda f: ast.literal_eval(f.read()),
             ),
         ):
@@ -196,7 +188,7 @@ class TestPipelineBuilder:
             },
         )
 
-        with patch("pytorchimagepipeline.core.builder.importlib.import_module") as mock_import:
+        with patch("tipi.core.builder.importlib.import_module") as mock_import:
             if module_exists:
                 mock_import.return_value = mock_module
             else:

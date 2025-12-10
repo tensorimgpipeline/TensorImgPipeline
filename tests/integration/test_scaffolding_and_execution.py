@@ -1,8 +1,8 @@
 import pytest
 
-from pytorchimagepipeline.core.runner import PipelineRunner
-from pytorchimagepipeline.template_manager import ProjectSetup, template_manager
 from tests.conftest import skip_outside_container
+from tipi.core.runner import PipelineRunner
+from tipi.template_manager import ProjectSetup, template_manager
 
 # Apply skip_outside_container to all tests in this module
 pytestmark = skip_outside_container
@@ -56,7 +56,7 @@ class TestExampleScaffold:
         assert readme.exists()
         assert config.exists()
 
-        # Link the project to the isolated projects directory (simulating `pytorchpipeline add`)
+        # Link the project to the isolated projects directory (simulating `tipi add`)
         link_path = dirs.projects / project_name
         link_path.symlink_to(project_package)
 

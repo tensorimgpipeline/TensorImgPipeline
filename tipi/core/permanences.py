@@ -16,9 +16,9 @@ from rich.live import Live
 from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeRemainingColumn
 from wandb.wandb_run import Run
 
-from pytorchimagepipeline.abstractions import Permanence
-from pytorchimagepipeline.core.utils import create_color
-from pytorchimagepipeline.errors import ProgressNoMatch, SweepNoConfigError
+from tipi.abstractions import Permanence
+from tipi.core.utils import create_color
+from tipi.errors import ProgressNoMatch, SweepNoConfigError
 
 
 class VRAMUsageError(RuntimeError):

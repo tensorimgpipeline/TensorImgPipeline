@@ -6,8 +6,8 @@ Tests all CLI commands and their interactions with the PathManager.
 import pytest
 from typer.testing import CliRunner
 
-from pytorchimagepipeline.cli import app
 from tests.conftest import skip_outside_container
+from tipi.cli import app
 
 # Apply skip_outside_container to all tests in this module
 pytestmark = skip_outside_container
@@ -23,7 +23,7 @@ class TestCLIBasics:
         """Test that --help works."""
         result = runner.invoke(app, ["--help"])
         assert result.exit_code == 0
-        assert "PytorchImagePipeline CLI" in result.stdout
+        assert "TensorImgPipeline CLI" in result.stdout
         assert "run" in result.stdout
         assert "list" in result.stdout
         assert "info" in result.stdout
@@ -44,7 +44,7 @@ class TestInfoCommand:
         """Test info command shows configuration."""
         result = runner.invoke(app, ["info"])
         assert result.exit_code == 0
-        assert "PytorchImagePipeline Configuration" in result.stdout
+        assert "TensorImgPipeline Configuration" in result.stdout
 
 
 class TestListCommand:

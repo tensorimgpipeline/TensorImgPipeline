@@ -3,9 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from rich.console import Console
 
-from pytorchimagepipeline.core.permanences import ProgressManager
-
-# File: pytorchimagepipeline/core/test_permanences.py
+from tipi.core.permanences import ProgressManager
 
 
 @pytest.fixture

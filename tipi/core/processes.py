@@ -1,6 +1,3 @@
-# type: ignore
-# ruff: noqa
-
 # Random selected images for final result
 # Training: [tensor([28]), tensor([46]), tensor([60]), tensor([63]), tensor([90])]
 # Validation: [tensor([10]), tensor([18]), tensor([35]), tensor([57]), tensor([79]]]
@@ -14,12 +11,18 @@
 #   mask against GT if available, Difference of Mask with GT if available.
 
 from collections import OrderedDict
-from typing import Any
+from typing import Any, Protocol
 
 import torch
-
 import wandb
-from pytorchimagepipeline.abstractions import PipelineProcess
+
+from tipi.abstractions import PipelineProcess
+
+
+class ProgressTaskCallable(Protocol):
+    """Protocol for functions decorated with progress_task."""
+
+    def __call__(self, total: int) -> None: ...
 
 
 class ResultProcess(PipelineProcess):
@@ -76,26 +79,27 @@ class ResultProcess(PipelineProcess):
         self.valset = self.datasets.segnet_dataset_val
         self.testset = self.datasets.segnet_dataset_test
 
-    def execute(self):
+    def execute(self) -> None:
         train_image_log = self._get_log_train_images()
         val_image_log = self._get_log_val_images()
         test_image_log = self._get_log_test_images()
 
-        train_image_log(len(self.train_images_indices))
+        if self.train_images_indices:
+            train_image_log(len(self.train_images_indices))
         if self.datasets.val_available() and self.val_images_indices:
             val_image_log(len(self.val_images_indices))
         if self.datasets.test_available() and self.test_images_indices:
             test_image_log(len(self.test_images_indices))
 
-    def _get_log_train_images(self) -> callable:
+    def _get_log_train_images(self) -> ProgressTaskCallable:
         @self.progress_manager.progress_task("result", visible=False)
-        def _inner_log_image(total, task_id, progress):
+        def _inner_log_image(total: int, task_id: int, progress: Any) -> None:
             image_stack = []
             mask_stack = []
             pred_mask_stack = []
             for idx in range(total):
                 progress.advance(task_id)
-                selected_images = self.train_images_indices[idx]
+                selected_images = self.train_images_indices[idx]  # type: ignore[index]
                 image, mask = self.trainset[selected_images]
                 image_stack.append(image)
                 mask_stack.append(mask)
@@ -106,17 +110,17 @@ class ResultProcess(PipelineProcess):
             pred_masks = torch.cat(pred_mask_stack, 1)
             self._log_image(images, masks, pred_masks, "train")
 
-        return _inner_log_image
+        return _inner_log_image  # type: ignore[no-any-return]
 
-    def _get_log_val_images(self) -> callable:
+    def _get_log_val_images(self) -> ProgressTaskCallable:
         @self.progress_manager.progress_task("result", visible=False)
-        def _inner_log_image(total, task_id, progress):
+        def _inner_log_image(total: int, task_id: int, progress: Any) -> None:
             image_stack = []
             mask_stack = []
             pred_mask_stack = []
             for idx in range(total):
                 progress.advance(task_id)
-                selected_images = self.val_images_indices[idx]
+                selected_images = self.val_images_indices[idx]  # type: ignore[index]
                 image, mask = self.valset[selected_images]
                 image_stack.append(image)
                 mask_stack.append(mask)
@@ -127,17 +131,17 @@ class ResultProcess(PipelineProcess):
             pred_masks = torch.cat(pred_mask_stack, 1)
             self._log_image(images, masks, pred_masks, "val")
 
-        return _inner_log_image
+        return _inner_log_image  # type: ignore[no-any-return]
 
-    def _get_log_test_images(self) -> callable:
+    def _get_log_test_images(self) -> ProgressTaskCallable:
         @self.progress_manager.progress_task("result", visible=False)
-        def _inner_log_image(total, task_id, progress):
+        def _inner_log_image(total: int, task_id: int, progress: Any) -> None:
             image_stack = []
             mask_stack = []
             pred_mask_stack = []
             for idx in range(total):
                 progress.advance(task_id)
-                selected_images = self.test_images_indices[idx]
+                selected_images = self.test_images_indices[idx]  # type: ignore[index]
                 image, mask = self.testset[selected_images]
                 image_stack.append(image)
                 mask_stack.append(mask)
@@ -148,26 +152,26 @@ class ResultProcess(PipelineProcess):
             pred_masks = torch.cat(pred_mask_stack, 1)
             self._log_image(images, masks, pred_masks, "test")
 
-        return _inner_log_image
+        return _inner_log_image  # type: ignore[no-any-return]
 
-    def _inference_model(self, image):
+    def _inference_model(self, image: Any) -> Any:
         self.model.eval()
         with torch.no_grad():
             return self.model(image.unsqueeze(0).to(self.device))
 
-    def _get_pred_mask(self, pred):
+    def _get_pred_mask(self, pred: Any) -> Any:
         if isinstance(pred, OrderedDict):
             pred = pred["out"]
         return pred.argmax(dim=1).squeeze(0).cpu()
 
-    def _get_mask_difference(self, mask, pred_mask):
+    def _get_mask_difference(self, mask: Any, pred_mask: Any) -> Any:
         mask[mask == 255] = 0
         mask_difference = mask - pred_mask
         if mask_difference.min() < 0:
             mask_difference = mask_difference + mask_difference.min().abs()
         return mask_difference.to(torch.uint8)
 
-    def _log_image(self, image, mask, pred_mask, dataset):
+    def _log_image(self, image: Any, mask: Any, pred_mask: Any, dataset: str) -> None:
         class_labels = self._swap_labels(self.datasets.data_container.classes)
         just_image = wandb.Image(image, caption=f"{dataset} images")
         image_with_mask = wandb.Image(
@@ -186,8 +190,8 @@ class ResultProcess(PipelineProcess):
         wandb.log({f"{dataset}_images_with_mask": image_with_mask})
         wandb.log({f"{dataset}_mask_difference": mask_difference})
 
-    def _swap_labels(self, labels):
+    def _swap_labels(self, labels: dict[Any, Any]) -> dict[Any, Any]:
         return {v: k for k, v in labels.items()}
 
-    def skip(self):
+    def skip(self) -> bool:
         return False

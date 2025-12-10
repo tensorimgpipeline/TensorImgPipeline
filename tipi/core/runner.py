@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pytorchimagepipeline.core.builder import PipelineBuilder, get_objects_for_pipeline
-from pytorchimagepipeline.core.controller import PipelineController
-from pytorchimagepipeline.core.executor import PipelineExecutor
+from tipi.core.builder import PipelineBuilder, get_objects_for_pipeline
+from tipi.core.controller import PipelineController
+from tipi.core.executor import PipelineExecutor
 
 
 class PipelineRunner:

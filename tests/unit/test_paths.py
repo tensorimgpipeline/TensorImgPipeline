@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pytorchimagepipeline.paths import PathManager, get_path_manager
+from tipi.paths import PathManager, get_path_manager
 
 
 class TestPathManagerDirectories:
@@ -43,23 +43,23 @@ class TestPathManagerEnvironmentOverrides:
     """Test environment variable overrides."""
 
     def test_projects_dir_override(self, tmp_path):
-        """Test PYTORCHPIPELINE_PROJECTS_DIR override."""
+        """Test TIPI_PROJECTS_DIR override."""
         custom_dir = tmp_path / "custom_projects"
-        with patch.dict(os.environ, {"PYTORCHPIPELINE_PROJECTS_DIR": str(custom_dir)}):
+        with patch.dict(os.environ, {"TIPI_PROJECTS_DIR": str(custom_dir)}):
             pm = PathManager()
             assert pm.get_projects_dir() == custom_dir
 
     def test_configs_dir_override(self, tmp_path):
-        """Test PYTORCHPIPELINE_CONFIG_DIR override."""
+        """Test TIPI_CONFIG_DIR override."""
         custom_dir = tmp_path / "custom_configs"
-        with patch.dict(os.environ, {"PYTORCHPIPELINE_CONFIG_DIR": str(custom_dir)}):
+        with patch.dict(os.environ, {"TIPI_CONFIG_DIR": str(custom_dir)}):
             pm = PathManager()
             assert pm.get_configs_dir() == custom_dir
 
     def test_cache_dir_override(self, tmp_path):
-        """Test PYTORCHPIPELINE_CACHE_DIR override."""
+        """Test TIPI_CACHE_DIR override."""
         custom_dir = tmp_path / "custom_cache"
-        with patch.dict(os.environ, {"PYTORCHPIPELINE_CACHE_DIR": str(custom_dir)}):
+        with patch.dict(os.environ, {"TIPI_CACHE_DIR": str(custom_dir)}):
             pm = PathManager()
             assert pm.get_cache_dir() == custom_dir
 
@@ -111,7 +111,7 @@ class TestPathManagerModuleImport:
         (test_module_dir / "__init__.py").write_text("test_var = 'test'")
 
         # Mock the projects directory to point to our temp location
-        with patch.dict(os.environ, {"PYTORCHPIPELINE_PROJECTS_DIR": str(tmp_path)}):
+        with patch.dict(os.environ, {"TIPI_PROJECTS_DIR": str(tmp_path)}):
             pm = PathManager()
             # Try to import (may fail due to sys.path, but tests the attempt)
             _ = pm.import_project_module("test_module")
@@ -226,7 +226,7 @@ class TestPathManagerEdgeCases:
     def test_unicode_in_paths(self, tmp_path):
         """Test handles unicode characters in paths."""
         unicode_dir = tmp_path / "проект_тест"
-        with patch.dict(os.environ, {"PYTORCHPIPELINE_PROJECTS_DIR": str(unicode_dir)}):
+        with patch.dict(os.environ, {"TIPI_PROJECTS_DIR": str(unicode_dir)}):
             pm = PathManager()
             projects_dir = pm.get_projects_dir()
             assert projects_dir == unicode_dir
@@ -234,7 +234,7 @@ class TestPathManagerEdgeCases:
     def test_very_long_paths(self, tmp_path):
         """Test handles very long paths."""
         long_dir = tmp_path / ("a" * 100) / ("b" * 100)
-        with patch.dict(os.environ, {"PYTORCHPIPELINE_PROJECTS_DIR": str(long_dir)}):
+        with patch.dict(os.environ, {"TIPI_PROJECTS_DIR": str(long_dir)}):
             pm = PathManager()
             projects_dir = pm.get_projects_dir()
             assert projects_dir == long_dir

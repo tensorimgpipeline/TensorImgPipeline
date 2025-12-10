@@ -35,7 +35,7 @@ Researchers can:
 Provides script-level utilities that work **standalone OR with pipeline**:
 
 ```python
-from pytorchimagepipeline.helpers import progress_bar, logger, device_manager
+from tipi.helpers import progress_bar, logger, device_manager
 
 # Works in plain scripts!
 for epoch in progress_bar(range(10)):
@@ -61,7 +61,7 @@ for epoch in progress_bar(range(10)):
 Makes functions pipeline-ready with zero code changes:
 
 ```python
-from pytorchimagepipeline.decorators import pipeline_process
+from tipi.decorators import pipeline_process
 
 @pipeline_process
 def train(epochs: int = 10):
@@ -163,7 +163,7 @@ The `PipelineExecutor` sets context before running processes:
 class PipelineExecutor:
     def _run_processes(self):
         # Set context for helpers
-        from pytorchimagepipeline.helpers import set_pipeline_context
+        from tipi.helpers import set_pipeline_context
 
         context = {
             "progress_manager": self.controller.get_permanence("progress_manager", None),
@@ -261,7 +261,7 @@ for epoch in range(10):
     print(loss)
 
 # After (add 3 lines)
-from pytorchimagepipeline.helpers import progress_bar, logger
+from tipi.helpers import progress_bar, logger
 logger.init(project="exp")
 
 for epoch in progress_bar(range(10)):
@@ -311,7 +311,7 @@ params = { epochs = 10 }
 
 ```python
 # quick_test.py
-from pytorchimagepipeline.helpers import progress_bar
+from tipi.helpers import progress_bar
 for epoch in progress_bar(range(5)):
     print(train())
 ```
@@ -320,7 +320,7 @@ for epoch in progress_bar(range(5)):
 
 ```python
 # experiment_v1.py
-from pytorchimagepipeline.helpers import progress_bar, logger
+from tipi.helpers import progress_bar, logger
 logger.init(project="new_idea")
 for epoch in progress_bar(range(10)):
     logger.log({"loss": train()})

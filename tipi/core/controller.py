@@ -25,14 +25,14 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
-from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
-from pytorchimagepipeline.errors import (
+from tipi.abstractions import Permanence, PipelineProcess
+from tipi.errors import (
     ErrorCode,
     PermanenceKeyError,
 )
 
 if TYPE_CHECKING:
-    from pytorchimagepipeline.core.builder import ProcessWithParams
+    from tipi.core.builder import ProcessWithParams
 
 # Sentinel value for get_permanence to distinguish between "no default provided" and "default is None"
 _MISSING = object()

@@ -1,5 +1,5 @@
-from pytorchimagepipeline.abstractions import Permanence, PipelineProcess
-from pytorchimagepipeline.core.permanences import (
+from tipi.abstractions import Permanence, PipelineProcess
+from tipi.core.permanences import (
     Device,
     ProgressManager,
     WandBManager,

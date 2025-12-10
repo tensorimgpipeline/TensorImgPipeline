@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from pytorchimagepipeline.template_manager import ProjectSetup
+from tipi.template_manager import ProjectSetup
 
 
 @pytest.fixture

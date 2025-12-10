@@ -1,4 +1,4 @@
-"""Process abstractions for PytorchImagePipeline.
+"""Process abstractions for TensorImgPipeline.
 
 Provides abstract base class for pipeline processes that define
 units of work within the pipeline.
