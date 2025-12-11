@@ -1,0 +1,1839 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="This is a repository for creating and running Tipi Pipelines.">
+      
+      
+        <meta name="author" content="Matti Kaupenjohann">
+      
+      
+        <link rel="canonical" href="https://tensorimgpipeline.github.io/TensorImgPipeline/generated/cli_reference/">
+      
+      
+        <link rel="prev" href="../cli_enhancements/">
+      
+      
+        <link rel="next" href="../improvements_summary/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
+    
+    
+      
+        <title>CLI Reference - TensorImgPipeline</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.a40c8224.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cli-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="TensorImgPipeline" class="md-header__button md-logo" aria-label="TensorImgPipeline" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TensorImgPipeline
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CLI Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tensorimgpipeline/TensorImgPipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tensorimgpipeline/TensorImgPipeline
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="TensorImgPipeline" class="md-nav__button md-logo" aria-label="TensorImgPipeline" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    TensorImgPipeline
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tensorimgpipeline/TensorImgPipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tensorimgpipeline/TensorImgPipeline
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pipelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Modules
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Modules
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/builder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    builder.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/controller/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    controller.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/abstractions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    abstractions.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/errors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    errors.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Generated
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Generated
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_diagram/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli_enhancements/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI Enhancement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    CLI Reference
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    CLI Reference
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-execute-a-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      run - Execute a Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-list-available-pipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      list - List Available Pipelines
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inspect-inspect-pipeline-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      inspect - Inspect Pipeline Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-create-new-pipeline-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      create - Create New Pipeline Project
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-link-or-clone-pipeline-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      add - Link or Clone Pipeline Package
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove-remove-linked-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      remove - Remove Linked Package
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate-validate-pipeline-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      validate - Validate Pipeline Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#info-show-installation-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      info - Show Installation Information
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-workflow-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Workflow Example
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complete Workflow Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#starting-from-scratch" class="md-nav__link">
+    <span class="md-ellipsis">
+      Starting from Scratch
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-an-existing-git-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using an Existing Git Repository
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-multiple-pipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Multiple Pipelines
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Files
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Project Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-file-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration File Format
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips-tricks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tips &amp; Tricks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tips & Tricks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Inspection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development Workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-git-repos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working with Git Repos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Batch Operations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Pipeline not found"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missing-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Missing config"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invalid-toml" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Invalid TOML"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Module not found"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git-clone-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Git clone fails
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../improvements_summary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Improvements Summary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../path_management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Path Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../progressive_enhancement/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Progressive Enhancement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ideas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ideas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-execute-a-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      run - Execute a Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-list-available-pipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      list - List Available Pipelines
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inspect-inspect-pipeline-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      inspect - Inspect Pipeline Components
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-create-new-pipeline-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      create - Create New Pipeline Project
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-link-or-clone-pipeline-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      add - Link or Clone Pipeline Package
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove-remove-linked-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      remove - Remove Linked Package
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate-validate-pipeline-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      validate - Validate Pipeline Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#info-show-installation-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      info - Show Installation Information
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-workflow-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complete Workflow Example
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complete Workflow Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#starting-from-scratch" class="md-nav__link">
+    <span class="md-ellipsis">
+      Starting from Scratch
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-an-existing-git-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using an Existing Git Repository
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-multiple-pipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Multiple Pipelines
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Files
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Project Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-file-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration File Format
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tips-tricks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tips &amp; Tricks
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tips & Tricks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Inspection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development Workflow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-git-repos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working with Git Repos
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Batch Operations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Pipeline not found"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#missing-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Missing config"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invalid-toml" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Invalid TOML"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      "Module not found"
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git-clone-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Git clone fails
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="cli-reference">CLI Reference<a class="headerlink" href="#cli-reference" title="Permanent link">&para;</a></h1>
+<p>Complete reference for the <code>tipi</code> command-line tool.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The <code>tipi</code> CLI supports the complete workflow from creating new pipeline projects to running them in production.</p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span><span class="o">[</span>COMMAND<span class="o">]</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<h3 id="run-execute-a-pipeline"><code>run</code> - Execute a Pipeline<a class="headerlink" href="#run-execute-a-pipeline" title="Permanent link">&para;</a></h3>
+<p>Run a pipeline by name.</p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span>run<span class="w"> </span>PIPELINE_NAME<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>PIPELINE_NAME</code> - Name of the pipeline to run (e.g., 'sam2segnet')</li>
+</ul>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--config</code>, <code>-c</code> - Path to custom config file (relative to configs/)</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Run default pipeline</span>
+tipi<span class="w"> </span>run<span class="w"> </span>sam2segnet
+
+<span class="c1"># Run with custom config</span>
+tipi<span class="w"> </span>run<span class="w"> </span>my_pipeline<span class="w"> </span>--config<span class="w"> </span>custom.toml
+</code></pre></div>
+<hr />
+<h3 id="list-list-available-pipelines"><code>list</code> - List Available Pipelines<a class="headerlink" href="#list-list-available-pipelines" title="Permanent link">&para;</a></h3>
+<p>Show all available pipelines including linked subpackages.</p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--verbose</code>, <code>-v</code> - Show detailed information (permanences and processes count)</li>
+<li><code>--links/--no-links</code> - Show/hide symlink source paths (default: show)</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Simple list</span>
+tipi<span class="w"> </span>list
+
+<span class="c1"># Detailed view</span>
+tipi<span class="w"> </span>list<span class="w"> </span>-v
+
+<span class="c1"># Hide link sources</span>
+tipi<span class="w"> </span>list<span class="w"> </span>--no-links
+</code></pre></div>
+<p><strong>Output:</strong></p>
+<ul>
+<li>Pipeline name</li>
+<li>Type (Built-in or Linked)</li>
+<li>Config status</li>
+<li>Status (Ready or Missing config)</li>
+<li>Permanences count (with <code>-v</code>)</li>
+<li>Processes count (with <code>-v</code>)</li>
+<li>Source path (for linked packages, with <code>--links</code>)</li>
+</ul>
+<hr />
+<h3 id="inspect-inspect-pipeline-components"><code>inspect</code> - Inspect Pipeline Components<a class="headerlink" href="#inspect-inspect-pipeline-components" title="Permanent link">&para;</a></h3>
+<p>Show detailed information about a pipeline's permanences and processes.</p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span>inspect<span class="w"> </span>PIPELINE_NAME<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>PIPELINE_NAME</code> - Name of the pipeline to inspect</li>
+</ul>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--docs</code>, <code>-d</code> - Show docstrings for components</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Basic inspection</span>
+tipi<span class="w"> </span>inspect<span class="w"> </span>sam2segnet
+
+<span class="c1"># With docstrings</span>
+tipi<span class="w"> </span>inspect<span class="w"> </span>sam2segnet<span class="w"> </span>--docs
+</code></pre></div>
+<p><strong>Output:</strong></p>
+<ul>
+<li>Tree view of permanences and processes</li>
+<li>Class names and registration names</li>
+<li>Docstrings (with <code>--docs</code>)</li>
+<li>Config file location and status</li>
+</ul>
+<hr />
+<h3 id="create-create-new-pipeline-project"><code>create</code> - Create New Pipeline Project<a class="headerlink" href="#create-create-new-pipeline-project" title="Permanent link">&para;</a></h3>
+<p>Create a new standalone pipeline project with complete scaffolding.</p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span>create<span class="w"> </span>PROJECT_NAME<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>PROJECT_NAME</code> - Name for the new pipeline project</li>
+</ul>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--location</code>, <code>-l</code> - Directory to create project in (default: current directory)</li>
+<li><code>--example</code>, <code>-e</code> - Include example permanence and process implementations</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create in current directory</span>
+tipi<span class="w"> </span>create<span class="w"> </span>my_pipeline
+
+<span class="c1"># Create in specific location</span>
+tipi<span class="w"> </span>create<span class="w"> </span>my_pipeline<span class="w"> </span>--location<span class="w"> </span>./projects
+
+<span class="c1"># Create with examples</span>
+tipi<span class="w"> </span>create<span class="w"> </span>my_pipeline<span class="w"> </span>--example
+</code></pre></div>
+<p><strong>Creates:</strong></p>
+<div class="highlight"><pre><span></span><code>my_pipeline/
+├── my_pipeline/
+│   ├── __init__.py           # Component registration
+│   ├── permanences.py        # Permanence implementations
+│   └── processes.py          # Process implementations
+├── configs/
+│   └── pipeline_config.toml  # Configuration file
+├── pyproject.toml            # Package metadata
+├── README.md                 # Documentation
+└── .gitignore               # Git ignore rules
+</code></pre></div>
+<hr />
+<h3 id="add-link-or-clone-pipeline-package"><code>add</code> - Link or Clone Pipeline Package<a class="headerlink" href="#add-link-or-clone-pipeline-package" title="Permanent link">&para;</a></h3>
+<p>Link an existing local project or clone from a git repository as a subpackage.</p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span>add<span class="w"> </span>SOURCE<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>SOURCE</code> - Local path to project OR git repository URL</li>
+</ul>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--name</code>, <code>-n</code> - Name for the linked pipeline (defaults to directory name)</li>
+<li><code>--location</code>, <code>-l</code> - Location to clone git repos (default: ./submodules)</li>
+<li><code>--branch</code>, <code>-b</code> - Git branch to checkout when cloning</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Link local project</span>
+tipi<span class="w"> </span>add<span class="w"> </span>./my_pipeline_project
+tipi<span class="w"> </span>add<span class="w"> </span>/path/to/project<span class="w"> </span>--name<span class="w"> </span>custom_name
+
+<span class="c1"># Clone from git (HTTPS)</span>
+tipi<span class="w"> </span>add<span class="w"> </span>https://github.com/user/ml-pipeline.git
+
+<span class="c1"># Clone from git (SSH)</span>
+tipi<span class="w"> </span>add<span class="w"> </span>git@github.com:user/pipeline.git
+
+<span class="c1"># Clone specific branch</span>
+tipi<span class="w"> </span>add<span class="w"> </span>https://github.com/user/repo.git<span class="w"> </span>--branch<span class="w"> </span>dev
+
+<span class="c1"># Clone to custom location</span>
+tipi<span class="w"> </span>add<span class="w"> </span>https://github.com/user/pipeline.git<span class="w"> </span>--location<span class="w"> </span>./external
+</code></pre></div>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li><strong>Local path</strong>: Creates a symlink in the projects directory (development: <code>tipi/pipelines/</code>, production: <code>~/.config/tipi/projects/</code>)</li>
+<li><strong>Git URL</strong>: Clones to specified location (or cache directory), then creates symlink</li>
+<li>Validates package structure (must have <code>__init__.py</code>)</li>
+<li>Checks for naming conflicts</li>
+<li>Confirms before overwriting existing links</li>
+</ul>
+<hr />
+<h3 id="remove-remove-linked-package"><code>remove</code> - Remove Linked Package<a class="headerlink" href="#remove-remove-linked-package" title="Permanent link">&para;</a></h3>
+<p>Remove a linked subpackage from the pipeline system.</p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span>remove<span class="w"> </span>PIPELINE_NAME<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>PIPELINE_NAME</code> - Name of the linked pipeline to remove</li>
+</ul>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--delete-source</code> - Also delete the source directory (only safe for cloned repos in submodules/)</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Just remove the link</span>
+tipi<span class="w"> </span>remove<span class="w"> </span>my_pipeline
+
+<span class="c1"># Remove link and delete source (if in submodules/)</span>
+tipi<span class="w"> </span>remove<span class="w"> </span>my_pipeline<span class="w"> </span>--delete-source
+</code></pre></div>
+<p><strong>Safety:</strong></p>
+<ul>
+<li>Built-in pipelines cannot be removed</li>
+<li>Source deletion only works for packages in cache directory</li>
+<li>Confirms before deleting source directories</li>
+</ul>
+<hr />
+<h3 id="validate-validate-pipeline-configuration"><code>validate</code> - Validate Pipeline Configuration<a class="headerlink" href="#validate-validate-pipeline-configuration" title="Permanent link">&para;</a></h3>
+<p>Check that a pipeline is properly configured and ready to run.</p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span>validate<span class="w"> </span>PIPELINE_NAME
+</code></pre></div>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>PIPELINE_NAME</code> - Name of the pipeline to validate</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span>validate<span class="w"> </span>sam2segnet
+</code></pre></div>
+<p><strong>Checks:</strong></p>
+<ul>
+<li>✓ Pipeline module exists and is importable</li>
+<li>✓ Permanences and processes are registered</li>
+<li>✓ Registered classes inherit from correct base classes</li>
+<li>✓ Config file exists and is valid TOML</li>
+<li>✓ Config has required sections (permanences/processes)</li>
+</ul>
+<p><strong>Output:</strong></p>
+<ul>
+<li>Green panel if all checks pass</li>
+<li>Red panel with issues if validation fails</li>
+</ul>
+<hr />
+<h3 id="info-show-installation-information"><code>info</code> - Show Installation Information<a class="headerlink" href="#info-show-installation-information" title="Permanent link">&para;</a></h3>
+<p>Display information about the current TensorImgPipeline installation and configuration.</p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span>info
+</code></pre></div>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code>tipi<span class="w"> </span>info
+</code></pre></div>
+<p><strong>Output:</strong></p>
+<ul>
+<li>Projects directory path (where pipelines are loaded from)</li>
+<li>Configs directory path (where configuration files are stored)</li>
+<li>Cache directory path (for cloned repositories)</li>
+<li>User config directory (~/.config/tipi)</li>
+<li>Directory existence status</li>
+</ul>
+<p><strong>Default Paths:</strong></p>
+<ul>
+<li>Projects: <code>~/.config/tipi/projects/</code></li>
+<li>Configs: <code>~/.config/tipi/configs/</code></li>
+<li>Cache: <code>~/.cache/tipi/</code></li>
+</ul>
+<p><strong>Use Cases:</strong></p>
+<ul>
+<li>Debugging path issues</li>
+<li>Understanding where to place pipeline projects</li>
+<li>Checking directory structure before adding pipelines</li>
+</ul>
+<hr />
+<h2 id="complete-workflow-example">Complete Workflow Example<a class="headerlink" href="#complete-workflow-example" title="Permanent link">&para;</a></h2>
+<h3 id="starting-from-scratch">Starting from Scratch<a class="headerlink" href="#starting-from-scratch" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Create a new pipeline project</span>
+tipi<span class="w"> </span>create<span class="w"> </span>my_ml_pipeline<span class="w"> </span>--example
+
+
+<span class="c1"># 2. Navigate to the project</span>
+<span class="nb">cd</span><span class="w"> </span>my_ml_pipeline
+
+<span class="c1"># 3. Edit components (in your editor)</span>
+<span class="c1"># - Edit my_ml_pipeline/permanences.py</span>
+<span class="c1"># - Edit my_ml_pipeline/processes.py</span>
+<span class="c1"># - Update configs/pipeline_config.toml</span>
+
+<span class="c1"># 4. Go back to main pipeline directory</span>
+<span class="nb">cd</span><span class="w"> </span>/path/to/TensorImgPipeline
+
+<span class="c1"># 5. Link your project</span>
+tipi<span class="w"> </span>add<span class="w"> </span>../my_ml_pipeline
+
+<span class="c1"># 6. Validate configuration</span>
+tipi<span class="w"> </span>validate<span class="w"> </span>my_ml_pipeline
+
+<span class="c1"># 7. Run the pipeline</span>
+tipi<span class="w"> </span>run<span class="w"> </span>my_ml_pipeline
+</code></pre></div>
+<h3 id="using-an-existing-git-repository">Using an Existing Git Repository<a class="headerlink" href="#using-an-existing-git-repository" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. Clone and link a pipeline from GitHub</span>
+tipi<span class="w"> </span>add<span class="w"> </span>https://github.com/user/awesome-pipeline.git
+
+<span class="c1"># 2. Check what was added</span>
+tipi<span class="w"> </span>list<span class="w"> </span>-v
+
+<span class="c1"># 3. Inspect the components</span>
+tipi<span class="w"> </span>inspect<span class="w"> </span>awesome-pipeline<span class="w"> </span>--docs
+
+<span class="c1"># 4. Validate before running</span>
+tipi<span class="w"> </span>validate<span class="w"> </span>awesome-pipeline
+
+<span class="c1"># 5. Run it</span>
+tipi<span class="w"> </span>run<span class="w"> </span>awesome-pipeline
+</code></pre></div>
+<h3 id="managing-multiple-pipelines">Managing Multiple Pipelines<a class="headerlink" href="#managing-multiple-pipelines" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># List all pipelines</span>
+tipi<span class="w"> </span>list<span class="w"> </span>-v
+
+<span class="c1"># Inspect each one</span>
+tipi<span class="w"> </span>inspect<span class="w"> </span>pipeline1
+tipi<span class="w"> </span>inspect<span class="w"> </span>pipeline2
+
+<span class="c1"># Run specific ones</span>
+tipi<span class="w"> </span>run<span class="w"> </span>pipeline1
+tipi<span class="w"> </span>run<span class="w"> </span>pipeline2<span class="w"> </span>--config<span class="w"> </span>custom.toml
+
+<span class="c1"># Remove one that&#39;s no longer needed</span>
+tipi<span class="w"> </span>remove<span class="w"> </span>old_pipeline
+</code></pre></div>
+<hr />
+<h2 id="configuration-files">Configuration Files<a class="headerlink" href="#configuration-files" title="Permanent link">&para;</a></h2>
+<h3 id="project-structure">Project Structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h3>
+<p>When you create a pipeline with <code>create</code>, you get this structure:</p>
+<div class="highlight"><pre><span></span><code>my_pipeline/
+├── my_pipeline/              # Python package
+│   ├── __init__.py          # Registers components
+│   ├── permanences.py       # Permanence classes
+│   └── processes.py         # Process classes
+├── configs/                 # Configuration directory
+│   └── pipeline_config.toml # Pipeline configuration
+├── pyproject.toml           # Package metadata
+├── README.md               # Documentation
+└── .gitignore             # Git ignore rules
+</code></pre></div>
+<h3 id="configuration-file-format">Configuration File Format<a class="headerlink" href="#configuration-file-format" title="Permanent link">&para;</a></h3>
+<p><code>configs/pipeline_config.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Define permanences</span>
+<span class="k">[permanences.device]</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Device&quot;</span><span class="w">  </span><span class="c1"># Class name from __init__.py</span>
+
+<span class="k">[permanences.network]</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Network&quot;</span>
+<span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;resnet50&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">num_classes</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1"># Define processes</span>
+<span class="k">[processes.training]</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;TrainingProcess&quot;</span>
+<span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">epochs</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">learning_rate</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.001</span><span class="w"> </span><span class="p">}</span>
+
+<span class="k">[processes.validation]</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ValidationProcess&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>TIPI_CONFIG_DIR</code> - Override configs directory</li>
+<li><code>TIPI_PROJECTS_DIR</code> - Override projects directory</li>
+<li><code>TIPI_CACHE_DIR</code> - Override cache directory</li>
+</ul>
+<p><strong>Note:</strong> Environment variables are primarily for testing and creating isolated test scenarios.</p>
+<hr />
+<h2 id="tips-tricks">Tips &amp; Tricks<a class="headerlink" href="#tips-tricks" title="Permanent link">&para;</a></h2>
+<h3 id="quick-inspection">Quick Inspection<a class="headerlink" href="#quick-inspection" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Combine list and inspect for quick overview</span>
+tipi<span class="w"> </span>list<span class="w"> </span>-v<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>tipi<span class="w"> </span>inspect<span class="w"> </span>sam2segnet
+</code></pre></div>
+<h3 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># During development, frequently validate</span>
+tipi<span class="w"> </span>validate<span class="w"> </span>my_pipeline<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>tipi<span class="w"> </span>run<span class="w"> </span>my_pipeline
+</code></pre></div>
+<h3 id="working-with-git-repos">Working with Git Repos<a class="headerlink" href="#working-with-git-repos" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Clone, inspect, then run</span>
+tipi<span class="w"> </span>add<span class="w"> </span>https://github.com/user/pipeline.git<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tipi<span class="w"> </span>inspect<span class="w"> </span>pipeline<span class="w"> </span>--docs<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tipi<span class="w"> </span>validate<span class="w"> </span>pipeline
+</code></pre></div>
+<h3 id="batch-operations">Batch Operations<a class="headerlink" href="#batch-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Validate all pipelines</span>
+<span class="k">for</span><span class="w"> </span>pipeline<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>tipi<span class="w"> </span>list<span class="w"> </span>--no-links<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-n<span class="w"> </span>+3<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Validating </span><span class="nv">$pipeline</span><span class="s2">...&quot;</span>
+<span class="w">    </span>tipi<span class="w"> </span>validate<span class="w"> </span><span class="nv">$pipeline</span>
+<span class="k">done</span>
+</code></pre></div>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="pipeline-not-found">"Pipeline not found"<a class="headerlink" href="#pipeline-not-found" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Check <code>tipi list</code> to see available pipelines</li>
+<li>Use <code>tipi info</code> to verify your paths</li>
+<li>Check that pipelines are in <code>~/.config/tipi/projects/</code></li>
+<li>For linked packages, verify the symlink exists in the projects directory</li>
+</ul>
+<h3 id="missing-config">"Missing config"<a class="headerlink" href="#missing-config" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Create or update configs in the configs directory (use <code>tipi info</code> to see path)</li>
+<li>Default location: <code>~/.config/tipi/configs/&lt;pipeline_name&gt;/pipeline_config.toml</code></li>
+<li>Check the config file path with <code>tipi inspect &lt;pipeline&gt;</code></li>
+</ul>
+<h3 id="invalid-toml">"Invalid TOML"<a class="headerlink" href="#invalid-toml" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Validate your TOML syntax</li>
+<li>Ensure proper quoting of strings</li>
+<li>Check for matching braces in inline tables</li>
+</ul>
+<h3 id="module-not-found">"Module not found"<a class="headerlink" href="#module-not-found" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Ensure package has <code>__init__.py</code></li>
+<li>Check that permanences/processes are properly imported in <code>__init__.py</code></li>
+<li>Verify the symlink points to the correct directory</li>
+</ul>
+<h3 id="git-clone-fails">Git clone fails<a class="headerlink" href="#git-clone-fails" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Check your internet connection</li>
+<li>Verify repository URL</li>
+<li>Ensure you have access rights (for private repos)</li>
+<li>Try SSH if HTTPS fails (or vice versa)</li>
+</ul>
+<hr />
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../progressive_enhancement/">Progressive Enhancement Guide</a> - From scripts to pipelines</li>
+<li><a href="../architecture_diagram/">Architecture Diagram</a> - System architecture</li>
+<li><a href="../../getting_started/">Getting Started</a> - First steps with the pipeline</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Maintained by <a href="https://github.com/orgs/tensorimgpipeline">TensorImgPipeline</a>.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/tensorimgpipeline/TensorImgPipeline" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/TensorImgPipeline" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1125 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="This is a repository for creating and running Tipi Pipelines.">
+      
+      
+        <meta name="author" content="Matti Kaupenjohann">
+      
+      
+        <link rel="canonical" href="https://tensorimgpipeline.github.io/TensorImgPipeline/getting_started/">
+      
+      
+        <link rel="prev" href="../usage/">
+      
+      
+        <link rel="next" href="../modules/builder/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
+    
+    
+      
+        <title>Getting Started - TensorImgPipeline</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.a40c8224.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#getting-started" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="TensorImgPipeline" class="md-header__button md-logo" aria-label="TensorImgPipeline" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TensorImgPipeline
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Getting Started
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tensorimgpipeline/TensorImgPipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tensorimgpipeline/TensorImgPipeline
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="TensorImgPipeline" class="md-nav__button md-logo" aria-label="TensorImgPipeline" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    TensorImgPipeline
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tensorimgpipeline/TensorImgPipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tensorimgpipeline/TensorImgPipeline
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#internal-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Internal logic
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create Config
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Create Config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-initial_pipelinetoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      The initial_pipeline.toml
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-execute_pipelinetoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      The execute_pipeline.toml
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-pipeline-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create Pipeline Library
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execute-or-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execute or testing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pipelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Modules
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Modules
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/builder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    builder.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/controller/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    controller.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/abstractions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    abstractions.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modules/errors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    errors.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Generated
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Generated
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generated/architecture_diagram/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generated/cli_enhancements/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI Enhancement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generated/cli_reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generated/improvements_summary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Improvements Summary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generated/path_management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Path Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generated/progressive_enhancement/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Progressive Enhancement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ideas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ideas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#internal-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Internal logic
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create Config
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Create Config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-initial_pipelinetoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      The initial_pipeline.toml
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-execute_pipelinetoml" class="md-nav__link">
+    <span class="md-ellipsis">
+      The execute_pipeline.toml
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-pipeline-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create Pipeline Library
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execute-or-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execute or testing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>If you want to study how to execute already implemented pipelines, please refer <a href="../usage/">Usage</a></p>
+</blockquote>
+<p>This document will teach how to create a new Pipeline, with all necessary parts.</p>
+<p>The document is written under the Assumption a developer has already created strong ideas, that should flow into a pipeline.
+This could be done on paper, script or notebook, but the final product should already kind of manifested.
+Better in text, but in mind is also no issue.</p>
+<p>As described in the <a href="../#overview">Overview</a>, the first step is to decide if a part of the pipeline is a <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a> or a <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.PipelineProcess"><code>PipelineProcess</code></a>.</p>
+<h2 id="internal-logic">Internal logic<a class="headerlink" href="#internal-logic" title="Permanent link">&para;</a></h2>
+<p>In detail the following image provides some information how the Pipeline is structured.
+If you do not want to read the internal logic jump straight to <a href="#create-config">Create Config</a></p>
+<figure>
+<p><img alt="UML" src="../assets/TensorImgPipeline.svg" /></p>
+<figcaption>
+<p>UML Diagram sketch of <code>TensorImgPipeline</code></p>
+</figcaption>
+</figure>
+<p>In the diagram are the three main components of the TensorImgPipeline depicted.
+The <a class="autorefs autorefs-internal" href="../modules/controller/#tipi.core.controller.PipelineController"><code>PipelineController</code></a> class is central part of the pipeline, storing and providing all the necessary components of the pipeline.
+The <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a> abstract class is used to create new implementations for objects which hold permanent information about the pipeline.
+As example a <code>Dataset</code> is a kind of information, which a process needs to access, but could be created without the flow of the pipeline.
+Compared to a script a <code>Dataset</code> is mostly an instance which is in the global scope.
+The <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.PipelineProcess"><code>PipelineProcess</code></a> abstract class is the opposite to a <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a>.
+As example a <code>Visualization</code> creates a figure, which displays given batch of images as subplots with certain config.
+Of course, we could extract further parts of the <code>Visualization</code> as new <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a> implementations, as example the parameters of the figure.</p>
+<p>The <a class="autorefs autorefs-internal" href="../modules/controller/#tipi.core.controller.PipelineController"><code>PipelineController</code></a> is instantiated with a dictionary of zero <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a> or more.
+This step is displayed as the aggregation<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.
+Afterwards one <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.PipelineProcess"><code>PipelineProcesse</code></a> or more are added to the <a class="autorefs autorefs-internal" href="../modules/controller/#tipi.core.controller.PipelineController"><code>PipelineController</code></a>.
+This step is displayed as the composition<sup id="fnref2:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.
+The run method of the <a class="autorefs autorefs-internal" href="../modules/controller/#tipi.core.controller.PipelineController"><code>PipelineController</code></a> class iterates over each <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.PipelineProcess"><code>PipelineProcess</code></a> and calls it <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.PipelineProcess.execute"><code>execute</code></a> method, which uses (displayed as association<sup id="fnref3:1"><a class="footnote-ref" href="#fn:1">1</a></sup>) the controller itself to access the <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a> if needed.</p>
+<p>Since doing this by hand is cumbersome and error-prone, a <a class="autorefs autorefs-internal" href="../modules/builder/#tipi.core.builder.PipelineBuilder"><code>PipelineBuilder</code></a> class is provided, which executes this behavior.</p>
+<h2 id="create-config">Create Config<a class="headerlink" href="#create-config" title="Permanent link">&para;</a></h2>
+<p>After the decision which Parts fall into either the <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a> or the <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.PipelineProcess"><code>PipelineProcess</code></a> category, the creation of the config files begins.</p>
+<blockquote>
+<p>It is not necessary to complete the configs at this point. The goal is to create a structure to begin with and complete later.</p>
+</blockquote>
+<p>Following steps are necessary to create the config structure:</p>
+<ol>
+<li>Create new folder under configs with the name of the Pipeline.</li>
+<li>Create <code>execute_pipeline.toml</code> file inside this folder.</li>
+<li>Create <code>initial_pipeline.toml</code> file inside this folder.</li>
+</ol>
+<h3 id="the-initial_pipelinetoml">The <code>initial_pipeline.toml</code><a class="headerlink" href="#the-initial_pipelinetoml" title="Permanent link">&para;</a></h3>
+<p>Since not all components of a Pipeline should be part of the repository, it is necessary to provide such information.</p>
+<p>Following components of a Pipeline needed to be defined inside this config:</p>
+<ul>
+<li>Dependencies</li>
+<li>Dataset locations</li>
+<li>Model locations</li>
+</ul>
+<p>An Example config could look like the following:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[dependencies.submodules.sam]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;segment_anything&quot;</span>
+<span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/facebookresearch/segment-anything.git&quot;</span>
+<span class="n">commit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;dca509fe&quot;</span>
+
+<span class="k">[data.datasets.pascal]</span>
+<span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/mnt/data1/datasets/image/voc/VOCdevkit/VOC2012/&quot;</span>
+<span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pascalvoc&quot;</span>
+
+<span class="k">[data.models.sam]</span>
+<span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/mnt/data1/models/sam/sam_vit_h_4b8939.pth&quot;</span>
+<span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pth&quot;</span>
+</code></pre></div>
+<p>The dependency is in this case a git submodule, but could be also a pip package.
+The dependencies will be installed via <code>uv pip install</code>, so it will not interfere with <code>pyproject.toml</code>.</p>
+<p>A dataset and a model are always provided with a key (<code>pascal</code> or <code>sam</code> in this case), a location and a format.
+The key will be used to create the symlink below <code>data/dataset</code> or <code>data/models</code> based on location.
+The format helps to reduce Boilerplate for dataset creation.</p>
+<h3 id="the-execute_pipelinetoml">The <code>execute_pipeline.toml</code><a class="headerlink" href="#the-execute_pipelinetoml" title="Permanent link">&para;</a></h3>
+<p>This config file is used to provide the different <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a> and <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.PipelineProcess"><code>PipelineProcess</code></a> object configurations.</p>
+<p>An example config could look like the following:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[permanences.data]</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Datasets&quot;</span>
+<span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;pascalvoc&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="k">[processes.viz]</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Visualization&quot;</span>
+</code></pre></div>
+<p>Here are one <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a> and one <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.PipelineProcess"><code>PipelineProcess</code></a> object provided.
+The <code>params</code> field is always Optional.
+The <code>type</code> field provides the classes of the Pipeline, which we need to create inside our <a href="#create-pipeline-library">Pipeline Library</a>.
+The <code>params</code> need to match accordingly to the <code>__init__</code> method of the Implementation.</p>
+<p>Additional configuration for provided <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a> or <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.PipelineProcess"><code>PipelineProcess</code></a> classes could here be provided.
+As example from the core package the <code>Visualization</code> process is defined in the config.
+The <a class="autorefs autorefs-internal" href="../modules/builder/#tipi.core.builder.PipelineBuilder"><code>Builder</code></a> will first register the <code>Visualization</code> class from core package.
+It is also possible to override the <code>Visualization</code> class inside the pipeline library.</p>
+<h2 id="create-pipeline-library">Create Pipeline Library<a class="headerlink" href="#create-pipeline-library" title="Permanent link">&para;</a></h2>
+<p>With the initiation of the config files we can begin creating the actual pipeline library.
+It is necessary to create for every entry in the config its implementation, but we have the freedom to provide additional pipeline internal structure.
+The structure of a new pipeline subpackage looks the following:</p>
+<div class="highlight"><pre><span></span><code>📦tipi
+ ┗ 📦pipelines
+    ┗ 📦node_modules
+       ┣ 📜__init__.py
+       ┣ 📜permanences.py
+       ┗ 📜processes.py
+</code></pre></div>
+<p>Following the structure the implementations should be provided dependent on the config either inside the <code>permanences.py</code> or <code>processes.py</code> module.
+This is just a recommendation to follow the pattern of the package, but a developer can decide against the pattern.
+The only necessary part is the announcement of the <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.Permanence"><code>Permanence</code></a> and the <a class="autorefs autorefs-internal" href="../modules/abstractions/#tipi.abstractions.PipelineProcess"><code>PipelineProcess</code></a> inside the subpackage <code>__init__.py</code> module.</p>
+<p>For the previous example the <code>__init__.py</code> module looks the following:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">permaneces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Datasets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">processes</span><span class="w"> </span><span class="kn">import</span> <span class="n">DummyProcess</span>
+
+<span class="n">permanences_to_register</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Datasets&quot;</span><span class="p">:</span> <span class="n">Datasets</span><span class="p">}</span>
+<span class="n">processes_to_register</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Visualization&quot;</span><span class="p">:</span> <span class="n">Visualization</span><span class="p">}</span>
+</code></pre></div>
+<h2 id="execute-or-testing">Execute or testing<a class="headerlink" href="#execute-or-testing" title="Permanent link">&para;</a></h2>
+<p>From that point there are initial two possible ways to proceed.</p>
+<ol>
+<li>Execute the Pipeline directly</li>
+</ol>
+<p>This could be a good start point to get familiar how the pipeline works and looks as the final product.
+It is good practice to follow this approach if the developer works first time with this project.
+Nevertheless, the second way is an absolute recommendation, to create the final pipeline.</p>
+<ol>
+<li>Creating test cases</li>
+</ol>
+<p>The creation of test cases is a recommended approach, since at the end multiple small components of the pipeline are provided.
+Instead of running all the time the complete pipeline, checking each bit with artificial and abstract test cases could provide spare time.
+Not only this, after iterating through changes in the pipeline library, we are able to verify the correctness of the step in the Pipeline.
+In a certain situation it might be necessary to extend the test case to fulfil new challenges, which were not thought about at the beginning of the Pipeline development.</p>
+<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<p>As the last step or in parallel while developing a new pipeline, documenting the pipeline is a key feature of this package.</p>
+<ul>
+<li>Create a new markdown file with the name of the pipeline under <code>docs/pipelines</code>.</li>
+<li>Fill the markdown with the description, goal and results of the pipeline.</li>
+<li>As example the <code>Visualization</code> could directly output images for documentation to the <code>docs/assets</code> location.</li>
+<li>Add the markdown file to navigation in <code>mkdocs.yml</code>:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gu">@@ -12,7 +12,8 @@ nav:</span>
+<span class="w"> </span>  - Installation: installation.md
+<span class="w"> </span>  - Usage: usage.md
+<span class="w"> </span>  - Getting Started: getting_started.md
+<span class="w"> </span>  - Pipelines:
+<span class="gi">+      - new_pipeline: pipelines/new_pipeline.md</span>
+<span class="w"> </span>  - Modules:
+<span class="w"> </span>      - builder.py: modules/builder.md
+<span class="w"> </span>      - controller.py: modules/controller.md
+</code></pre></div>
+<p>Additional also extending the module section is possible.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>A short explanation between an <a href="https://www.visual-paradigm.com/guide/uml-unified-modeling-language/uml-aggregation-vs-composition/">aggregation vs. composition vs. association</a>.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Maintained by <a href="https://github.com/orgs/tensorimgpipeline">TensorImgPipeline</a>.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/tensorimgpipeline/TensorImgPipeline" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/TensorImgPipeline" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.60a45f97.min.js"></script>
+      
+    
+  </body>
+</html>
