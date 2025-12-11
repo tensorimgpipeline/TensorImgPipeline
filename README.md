@@ -1,5 +1,9 @@
 # TensorImgPipeline
 
+> [!CAUTION]
+> The Project has moved. It is now available at:
+> [TensorImgPipeline](https://pypi.org/project/TensorImgPipeline/)
+
 ![LOGO](docs/assets/logos/tipi_logo_text.v2.png)
 
 [![Release](https://img.shields.io/github/v/release/tensorimgpipeline/TensorImgPipeline)](https://img.shields.io/github/v/release/tensorimgpipeline/TensorImgPipeline)
