@@ -1,6 +1,6 @@
 [project]
 name = "PytorchImagePipeline"
-version = "final"
+version = "0.0.5.final-pytorchimagepipeline"
 description = "This is a repository for creating and running Tipi Pipelines."
 authors = [
     { name = "Matti Kaupenjohann", email = "matti.kaupenjohann@fh-dortmund.de" },
