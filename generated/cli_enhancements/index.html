@@ -1,0 +1,1915 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="This is a repository for creating and running Tipi Pipelines.">
+      
+      
+        <meta name="author" content="Matti Kaupenjohann">
+      
+      
+        <link rel="canonical" href="https://tensorimgpipeline.github.io/TensorImgPipeline/generated/cli_enhancements/">
+      
+      
+        <link rel="prev" href="../architecture_diagram/">
+      
+      
+        <link rel="next" href="../cli_reference/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
+    
+    
+      
+        <title>CLI Enhancement - TensorImgPipeline</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.a40c8224.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cli-enhancement-summary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="TensorImgPipeline" class="md-header__button md-logo" aria-label="TensorImgPipeline" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TensorImgPipeline
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CLI Enhancement
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tensorimgpipeline/TensorImgPipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tensorimgpipeline/TensorImgPipeline
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="TensorImgPipeline" class="md-nav__button md-logo" aria-label="TensorImgPipeline" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    TensorImgPipeline
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tensorimgpipeline/TensorImgPipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tensorimgpipeline/TensorImgPipeline
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pipelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Modules
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Modules
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/builder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    builder.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/controller/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    controller.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/abstractions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    abstractions.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/errors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    errors.py
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Generated
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Generated
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_diagram/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    CLI Enhancement
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    CLI Enhancement
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="New Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-run-updated" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. run (Updated)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-list-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. list (New)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-inspect-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. inspect (New)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-create-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. create (New)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-add-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. add (New)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-remove-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. remove (New)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-validate-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. validate (New)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow Support
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workflow Support">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-new-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating New Projects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Projects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Projects
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-generators" class="md-nav__link">
+    <span class="md-ellipsis">
+      File Generators
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Generators">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_generate_project_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_project_init()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_permanence_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_permanence_file()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_processes_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_processes_file()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_config_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_config_file()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_readme" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_readme()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_pyproject" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_pyproject()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_gitignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_gitignore()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rich-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rich Formatting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#safety-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Safety Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Safety Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#link-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Link Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-deletion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Source Deletion
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-progressive-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration with Progressive Enhancement
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Workflows
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#researcher-creates-new-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Researcher Creates New Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#team-member-uses-existing-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Team Member Uses Existing Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleanup-old-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cleanup Old Projects
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Future Enhancements
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#technical-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Technical Details
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symlink-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symlink Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Git Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Module Loading
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      File Generation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli_reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CLI Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../improvements_summary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Improvements Summary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../path_management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Path Management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../progressive_enhancement/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Progressive Enhancement
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ideas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ideas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="New Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-run-updated" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. run (Updated)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-list-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. list (New)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-inspect-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. inspect (New)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-create-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. create (New)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-add-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. add (New)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-remove-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. remove (New)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-validate-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. validate (New)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workflow Support
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workflow Support">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-new-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating New Projects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Projects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Projects
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-generators" class="md-nav__link">
+    <span class="md-ellipsis">
+      File Generators
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Generators">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_generate_project_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_project_init()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_permanence_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_permanence_file()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_processes_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_processes_file()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_config_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_config_file()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_readme" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_readme()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_pyproject" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_pyproject()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_generate_gitignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      _generate_gitignore()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rich-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rich Formatting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#safety-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Safety Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Safety Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#link-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Link Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-deletion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Source Deletion
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Validation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-progressive-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration with Progressive Enhancement
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Workflows
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#researcher-creates-new-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Researcher Creates New Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#team-member-uses-existing-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Team Member Uses Existing Pipeline
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleanup-old-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cleanup Old Projects
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Future Enhancements
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#technical-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Technical Details
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symlink-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symlink Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Git Integration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Module Loading
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      File Generation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="cli-enhancement-summary">CLI Enhancement Summary<a class="headerlink" href="#cli-enhancement-summary" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The CLI has been significantly enhanced to support the research-to-production workflow with modular pipeline projects.</p>
+<h2 id="new-commands">New Commands<a class="headerlink" href="#new-commands" title="Permanent link">&para;</a></h2>
+<h3 id="1-run-updated">1. <strong><code>run</code></strong> (Updated)<a class="headerlink" href="#1-run-updated" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Renamed from <code>build_pipeline</code> to <code>run</code></li>
+<li>Added <code>--config</code> option for custom config files</li>
+<li>Better error messages with Rich formatting</li>
+</ul>
+<h3 id="2-list-new">2. <strong><code>list</code></strong> (New)<a class="headerlink" href="#2-list-new" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Lists all available pipelines</li>
+<li>Shows pipeline type (Built-in vs Linked)</li>
+<li>Displays config status</li>
+<li>Optional verbose mode (<code>-v</code>) shows component counts</li>
+<li>Optional <code>--links</code> flag shows symlink sources</li>
+<li>Rich table formatting</li>
+</ul>
+<h3 id="3-inspect-new">3. <strong><code>inspect</code></strong> (New)<a class="headerlink" href="#3-inspect-new" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Detailed component inspection</li>
+<li>Shows all permanences and processes</li>
+<li>Tree view visualization</li>
+<li>Optional docstring display (<code>--docs</code>)</li>
+<li>Shows config file location and status</li>
+</ul>
+<h3 id="4-create-new">4. <strong><code>create</code></strong> (New)<a class="headerlink" href="#4-create-new" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Creates standalone pipeline projects</li>
+<li>Generates complete project structure</li>
+<li>Includes pyproject.toml, README, .gitignore</li>
+<li>Optional example implementations (<code>--example</code>)</li>
+<li>Custom location support (<code>--location</code>)</li>
+</ul>
+<h3 id="5-add-new">5. <strong><code>add</code></strong> (New)<a class="headerlink" href="#5-add-new" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Links local projects as subpackages</li>
+<li>Clones from git repositories</li>
+<li>Creates symlinks in pipelines directory</li>
+<li>Supports SSH and HTTPS git URLs</li>
+<li>Branch selection for git repos (<code>--branch</code>)</li>
+<li>Custom clone location (<code>--location</code>)</li>
+<li>Validates package structure</li>
+</ul>
+<h3 id="6-remove-new">6. <strong><code>remove</code></strong> (New)<a class="headerlink" href="#6-remove-new" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Removes linked subpackages</li>
+<li>Safely unlinks symlinks</li>
+<li>Optional source deletion (<code>--delete-source</code>)</li>
+<li>Safety checks for built-in pipelines</li>
+<li>Only deletes cloned repos in submodules/</li>
+</ul>
+<h3 id="7-validate-new">7. <strong><code>validate</code></strong> (New)<a class="headerlink" href="#7-validate-new" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Validates pipeline configuration</li>
+<li>Checks module imports</li>
+<li>Validates class inheritance</li>
+<li>Checks TOML syntax</li>
+<li>Verifies config sections</li>
+<li>Clear success/failure reporting</li>
+</ul>
+<h2 id="workflow-support">Workflow Support<a class="headerlink" href="#workflow-support" title="Permanent link">&para;</a></h2>
+<h3 id="creating-new-projects">Creating New Projects<a class="headerlink" href="#creating-new-projects" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create standalone project</span>
+tipi<span class="w"> </span>create<span class="w"> </span>my_pipeline<span class="w"> </span>--example
+
+<span class="c1"># Project structure created:</span>
+my_pipeline/
+├──<span class="w"> </span>my_pipeline/<span class="w">              </span><span class="c1"># Package</span>
+│<span class="w">   </span>├──<span class="w"> </span>__init__.py
+│<span class="w">   </span>├──<span class="w"> </span>permanences.py
+│<span class="w">   </span>└──<span class="w"> </span>processes.py
+├──<span class="w"> </span>configs/
+│<span class="w">   </span>└──<span class="w"> </span>pipeline_config.toml
+├──<span class="w"> </span>pyproject.toml
+├──<span class="w"> </span>README.md
+└──<span class="w"> </span>.gitignore
+</code></pre></div>
+<h3 id="adding-projects">Adding Projects<a class="headerlink" href="#adding-projects" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Link local project</span>
+tipi<span class="w"> </span>add<span class="w"> </span>./my_pipeline
+
+<span class="c1"># Clone from git</span>
+tipi<span class="w"> </span>add<span class="w"> </span>https://github.com/user/pipeline.git
+
+<span class="c1"># Creates symlink:</span>
+<span class="c1"># tipi/pipelines/my_pipeline -&gt; source</span>
+</code></pre></div>
+<h3 id="managing-projects">Managing Projects<a class="headerlink" href="#managing-projects" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># List all</span>
+tipi<span class="w"> </span>list<span class="w"> </span>-v
+
+<span class="c1"># Inspect specific</span>
+tipi<span class="w"> </span>inspect<span class="w"> </span>my_pipeline<span class="w"> </span>--docs
+
+<span class="c1"># Validate</span>
+tipi<span class="w"> </span>validate<span class="w"> </span>my_pipeline
+
+<span class="c1"># Run</span>
+tipi<span class="w"> </span>run<span class="w"> </span>my_pipeline
+
+<span class="c1"># Remove</span>
+tipi<span class="w"> </span>remove<span class="w"> </span>my_pipeline
+</code></pre></div>
+<h2 id="file-generators">File Generators<a class="headerlink" href="#file-generators" title="Permanent link">&para;</a></h2>
+<h3 id="_generate_project_init"><code>_generate_project_init()</code><a class="headerlink" href="#_generate_project_init" title="Permanent link">&para;</a></h3>
+<p>Creates package <code>__init__.py</code> with:</p>
+<ul>
+<li>Component registration dictionaries</li>
+<li>Version information</li>
+<li>Proper imports</li>
+</ul>
+<h3 id="_generate_permanence_file"><code>_generate_permanence_file()</code><a class="headerlink" href="#_generate_permanence_file" title="Permanent link">&para;</a></h3>
+<p>Creates <code>permanences.py</code> with:</p>
+<ul>
+<li>Base imports</li>
+<li>Example permanence class (optional)</li>
+<li>Template comments</li>
+<li>Lifecycle methods</li>
+</ul>
+<h3 id="_generate_processes_file"><code>_generate_processes_file()</code><a class="headerlink" href="#_generate_processes_file" title="Permanent link">&para;</a></h3>
+<p>Creates <code>processes.py</code> with:</p>
+<ul>
+<li>Base imports</li>
+<li>Example process class (optional)</li>
+<li>Template comments</li>
+<li>Execute and skip methods</li>
+</ul>
+<h3 id="_generate_config_file"><code>_generate_config_file()</code><a class="headerlink" href="#_generate_config_file" title="Permanent link">&para;</a></h3>
+<p>Creates TOML config with:</p>
+<ul>
+<li>Permanence definitions</li>
+<li>Process definitions</li>
+<li>Example configurations (optional)</li>
+<li>Inline comments</li>
+</ul>
+<h3 id="_generate_readme"><code>_generate_readme()</code><a class="headerlink" href="#_generate_readme" title="Permanent link">&para;</a></h3>
+<p>Creates project README with:</p>
+<ul>
+<li>Structure overview</li>
+<li>Installation instructions</li>
+<li>Usage examples</li>
+<li>Development guide</li>
+</ul>
+<h3 id="_generate_pyproject"><code>_generate_pyproject()</code><a class="headerlink" href="#_generate_pyproject" title="Permanent link">&para;</a></h3>
+<p>Creates <code>pyproject.toml</code> with:</p>
+<ul>
+<li>Package metadata</li>
+<li>Dependencies</li>
+<li>Development dependencies</li>
+<li>Ruff configuration</li>
+<li>Build system setup</li>
+</ul>
+<h3 id="_generate_gitignore"><code>_generate_gitignore()</code><a class="headerlink" href="#_generate_gitignore" title="Permanent link">&para;</a></h3>
+<p>Creates <code>.gitignore</code> with:</p>
+<ul>
+<li>Python artifacts</li>
+<li>Virtual environments</li>
+<li>IDE files</li>
+<li>Testing artifacts</li>
+<li>OS files</li>
+</ul>
+<h2 id="rich-formatting">Rich Formatting<a class="headerlink" href="#rich-formatting" title="Permanent link">&para;</a></h2>
+<p>All commands use Rich library for beautiful output:</p>
+<ul>
+<li><strong>Tables</strong>: List command with colored columns</li>
+<li><strong>Trees</strong>: Inspect command with hierarchical view</li>
+<li><strong>Panels</strong>: Success/error messages with borders</li>
+<li><strong>Colors</strong>: Semantic coloring (green=success, red=error, yellow=warning)</li>
+<li><strong>Console</strong>: Consistent formatting throughout</li>
+</ul>
+<h2 id="safety-features">Safety Features<a class="headerlink" href="#safety-features" title="Permanent link">&para;</a></h2>
+<h3 id="link-management">Link Management<a class="headerlink" href="#link-management" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Validates package structure before linking</li>
+<li>Checks for naming conflicts</li>
+<li>Confirms before overwriting links</li>
+<li>Distinguishes between built-in and linked pipelines</li>
+</ul>
+<h3 id="source-deletion">Source Deletion<a class="headerlink" href="#source-deletion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Only deletes sources in <code>submodules/</code> directory</li>
+<li>Requires explicit <code>--delete-source</code> flag</li>
+<li>Interactive confirmation before deletion</li>
+<li>Prevents accidental deletion of external projects</li>
+</ul>
+<h3 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Module import checking</li>
+<li>Class inheritance validation</li>
+<li>TOML syntax verification</li>
+<li>Config section requirements</li>
+<li>Detailed error reporting</li>
+</ul>
+<h2 id="integration-with-progressive-enhancement">Integration with Progressive Enhancement<a class="headerlink" href="#integration-with-progressive-enhancement" title="Permanent link">&para;</a></h2>
+<p>The CLI now supports the Level 5 workflow:</p>
+<div class="highlight"><pre><span></span><code>Level 4: Functions          Level 5: Full Pipeline
+─────────────────────      ────────────────────────
+@pipeline_process     →    tipi create my_pipeline
+def train():          →    Edit permanences.py &amp; processes.py
+    ...               →    Update config.toml
+                      →    tipi add ./my_pipeline
+Run as script         →    tipi run my_pipeline
+</code></pre></div>
+<h2 id="example-workflows">Example Workflows<a class="headerlink" href="#example-workflows" title="Permanent link">&para;</a></h2>
+<h3 id="researcher-creates-new-pipeline">Researcher Creates New Pipeline<a class="headerlink" href="#researcher-creates-new-pipeline" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Day 1: Create project</span>
+tipi<span class="w"> </span>create<span class="w"> </span>research_pipeline<span class="w"> </span>--example
+<span class="nb">cd</span><span class="w"> </span>research_pipeline
+
+<span class="c1"># Day 2-7: Develop (edit files)</span>
+<span class="c1"># Edit research_pipeline/permanences.py</span>
+<span class="c1"># Edit research_pipeline/processes.py</span>
+<span class="c1"># Edit configs/pipeline_config.toml</span>
+
+<span class="c1"># Week 2: Link to main pipeline</span>
+<span class="nb">cd</span><span class="w"> </span>/path/to/TensorImgPipeline
+tipi<span class="w"> </span>add<span class="w"> </span>../research_pipeline
+
+<span class="c1"># Validate and run</span>
+tipi<span class="w"> </span>validate<span class="w"> </span>research_pipeline
+tipi<span class="w"> </span>run<span class="w"> </span>research_pipeline
+</code></pre></div>
+<h3 id="team-member-uses-existing-pipeline">Team Member Uses Existing Pipeline<a class="headerlink" href="#team-member-uses-existing-pipeline" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Clone from team repo</span>
+tipi<span class="w"> </span>add<span class="w"> </span>https://github.com/team/ml-pipeline.git
+
+<span class="c1"># Inspect what it does</span>
+tipi<span class="w"> </span>inspect<span class="w"> </span>ml-pipeline<span class="w"> </span>--docs
+
+<span class="c1"># Run it</span>
+tipi<span class="w"> </span>validate<span class="w"> </span>ml-pipeline
+tipi<span class="w"> </span>run<span class="w"> </span>ml-pipeline
+</code></pre></div>
+<h3 id="cleanup-old-projects">Cleanup Old Projects<a class="headerlink" href="#cleanup-old-projects" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># List all pipelines</span>
+tipi<span class="w"> </span>list<span class="w"> </span>-v
+
+<span class="c1"># Remove old one (keep source)</span>
+tipi<span class="w"> </span>remove<span class="w"> </span>old_pipeline
+
+<span class="c1"># Remove cloned repo (delete source)</span>
+tipi<span class="w"> </span>remove<span class="w"> </span>temp_pipeline<span class="w"> </span>--delete-source
+</code></pre></div>
+<h2 id="benefits">Benefits<a class="headerlink" href="#benefits" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Modular</strong>: Projects are self-contained and reusable</li>
+<li><strong>Flexible</strong>: Link local projects or clone from git</li>
+<li><strong>Safe</strong>: Multiple validation and confirmation steps</li>
+<li><strong>User-friendly</strong>: Rich formatting and clear messages</li>
+<li><strong>Complete</strong>: Full project scaffolding</li>
+<li><strong>Discoverable</strong>: List and inspect commands</li>
+<li><strong>Maintainable</strong>: Easy to add/remove projects</li>
+</ol>
+<h2 id="future-enhancements">Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<p>Possible future additions:</p>
+<ul>
+<li><code>tipi update &lt;name&gt;</code> - Update git-cloned packages</li>
+<li><code>tipi test &lt;name&gt;</code> - Run pipeline tests</li>
+<li><code>tipi export &lt;name&gt;</code> - Export pipeline as standalone package</li>
+<li><code>tipi template list</code> - Show available templates</li>
+<li><code>tipi template create &lt;name&gt;</code> - Create custom templates</li>
+<li>Auto-completion support</li>
+<li>Configuration validation with JSON schema</li>
+<li>Pipeline dependency resolution</li>
+<li>Version management</li>
+</ul>
+<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<p>Created documentation:</p>
+<ul>
+<li><code>docs/cli_reference.md</code> - Complete CLI reference</li>
+<li>Updated <code>docs/architecture_diagram.md</code> - Architecture overview</li>
+<li>Updated <code>docs/progressive_enhancement.md</code> - Level 5 workflow</li>
+</ul>
+<h2 id="technical-details">Technical Details<a class="headerlink" href="#technical-details" title="Permanent link">&para;</a></h2>
+<h3 id="symlink-management">Symlink Management<a class="headerlink" href="#symlink-management" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Uses <code>Path.symlink_to()</code> for cross-platform compatibility</li>
+<li>Resolves symlinks with <code>Path.resolve()</code></li>
+<li>Checks symlink status with <code>Path.is_symlink()</code></li>
+</ul>
+<h3 id="git-integration">Git Integration<a class="headerlink" href="#git-integration" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Uses <code>subprocess.run()</code> for git commands</li>
+<li>Supports HTTPS and SSH URLs</li>
+<li>Branch selection with <code>--branch</code> flag</li>
+<li>Error handling with stderr capture</li>
+</ul>
+<h3 id="module-loading">Module Loading<a class="headerlink" href="#module-loading" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Uses <code>importlib.import_module()</code> for dynamic loading</li>
+<li>Handles ImportError gracefully</li>
+<li>Validates class inheritance with <code>issubclass()</code></li>
+<li>Accesses module attributes with <code>getattr()</code></li>
+</ul>
+<h3 id="file-generation">File Generation<a class="headerlink" href="#file-generation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Template strings with f-strings</li>
+<li>Conditional content based on flags</li>
+<li>Consistent formatting and style</li>
+<li>Includes comments and documentation</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Maintained by <a href="https://github.com/orgs/tensorimgpipeline">TensorImgPipeline</a>.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/tensorimgpipeline/TensorImgPipeline" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/TensorImgPipeline" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+      
+    
+  </body>
+</html>
