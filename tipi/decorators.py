@@ -27,6 +27,8 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any, Protocol, cast
 
+from rich.progress import Progress
+
 from tipi import helpers as _tipi_helpers
 from tipi.abstractions import PipelineProcess
 
@@ -278,6 +280,26 @@ def progress_task(
     return decorator
 
 
+def _core_progress_runner(
+    func: Callable[..., Any],
+    bound: inspect.BoundArguments,
+    iterable: Any,
+    iterable_param: str,
+    setup_task: Callable[[], Any],
+    advance_task: Callable[[Any], None],
+) -> Any:
+    """The core logic for wrapping an iterable and executing a function."""
+    task_id = setup_task()
+
+    def advancing_iter() -> Any:
+        for item in iterable:
+            yield item
+            advance_task(task_id)
+
+    bound.arguments[iterable_param] = advancing_iter()
+    return func(*bound.args, **bound.kwargs)
+
+
 def _run_with_rich_progress(
     func: Callable[..., Any],
     bound: inspect.BoundArguments,
@@ -287,21 +309,15 @@ def _run_with_rich_progress(
     total: int | None,
 ) -> Any:
     """Run function with standalone Rich Progress."""
-    from rich.progress import Progress
-
     with Progress() as progress:
-        task_id = progress.add_task(desc, total=total)
-
-        def advancing_iter() -> Any:
-            for item in iterable:
-                yield item
-                progress.advance(task_id, 1)
-
-        # Replace iterable in bound arguments
-        bound.arguments[iterable_param] = advancing_iter()
-
-        # Call function with modified arguments
-        return func(*bound.args, **bound.kwargs)
+        return _core_progress_runner(
+            func,
+            bound,
+            iterable,
+            iterable_param,
+            setup_task=lambda: progress.add_task(desc, total=total),
+            advance_task=lambda tid: progress.advance(tid, 1),
+        )
 
 
 def _run_with_progress_manager(
@@ -315,19 +331,14 @@ def _run_with_progress_manager(
     total: int | None,
 ) -> Any:
     """Run function with pipeline ProgressManager."""
-    # Add task to the named progress bar
-    task_id = progress_mgr.add_task_to_progress(desc, total=total or 0, visible=True)
-
-    def advancing_iter() -> Any:
-        for item in iterable:
-            yield item
-            progress_mgr.advance(progress_name, task_id, step=1.0)
-
-    # Replace iterable in bound arguments
-    bound.arguments[iterable_param] = advancing_iter()
-
-    # Call function with modified arguments
-    return func(*bound.args, **bound.kwargs)
+    return _core_progress_runner(
+        func,
+        bound,
+        iterable,
+        iterable_param,
+        setup_task=lambda: progress_mgr.add_task_to_progress(desc, total=total or 0, visible=True),
+        advance_task=lambda tid: progress_mgr.advance(progress_name, tid, step=1.0),
+    )
 
 
 __all__ = [
