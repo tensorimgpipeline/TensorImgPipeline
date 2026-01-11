@@ -51,6 +51,7 @@ def progress_bar(
     iterable: Iterable,
     desc: str = "Processing",
     total: int | None = None,
+    progress_name: str = "overall",
 ) -> Iterable:
     """Progress bar that auto-integrates with pipeline or uses rich.track.
 
@@ -62,6 +63,7 @@ def progress_bar(
         iterable: The iterable to track progress for.
         desc: Description for the progress bar.
         total: Total items (auto-detected if not provided).
+        progress_name: Which ProgressManager bar to use in pipeline mode (default: "overall").
 
     Yields:
         Items from the iterable.
@@ -70,14 +72,33 @@ def progress_bar(
         # Standalone script
         for epoch in progress_bar(range(10), desc="Epochs"):
             train()
+
+        # Pipeline mode (automatically uses ProgressManager)
+        for batch in progress_bar(dataloader, desc="Training", progress_name="train"):
+            process(batch)
     """
     # Check if running in pipeline context
     if _pipeline_context:
         progress_manager = _pipeline_context.get("progress_manager")
         if progress_manager:
-            # Use pipeline's progress manager
-            # TODO: Implement pipeline progress integration
-            pass
+            # Use pipeline's ProgressManager
+            # Auto-detect total if not provided
+            if total is None:
+                try:
+                    total = len(iterable)  # type: ignore[arg-type]
+                except (TypeError, AttributeError):
+                    total = 0  # Unknown total
+
+            # Add task to progress manager
+            task_id = progress_manager.add_task_to_progress(desc, total=total, visible=True)
+
+            # Return auto-advancing iterator
+            def advancing_iter() -> Iterable:
+                for item in iterable:
+                    yield item
+                    progress_manager.advance(progress_name, task_id, step=1.0)
+
+            return advancing_iter()
 
     # Fallback to rich.track (tqdm-like)
     return track(iterable, description=desc, total=total)
