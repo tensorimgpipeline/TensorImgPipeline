@@ -15,10 +15,27 @@ check: ## Run code quality tools.
 	@echo "🚀 Checking for obsolete dependencies: Running deptry"
 	@uv run deptry .
 
-.PHONY: test
-test: ## Test the code with pytest
-	@echo "🚀 Testing code: Running pytest"
+.PHONY: test test-fast test-full
+test: test-full ## Run full test suite
+
+test-fast: ## Run unit-focused tests (exclude integration and e2e)
+	@echo "🚀 Testing code: Running fast pytest suite"
+	@uv run python -m pytest -m "not integration and not e2e" --cov --cov-config=pyproject.toml --cov-report=xml
+
+test-full: ## Test the code with full pytest suite
+	@echo "🚀 Testing code: Running full pytest suite"
 	@uv run python -m pytest --cov --cov-config=pyproject.toml --cov-report=xml
+
+.PHONY: bench-post-base
+bench-post-base:
+	@echo "🚀 Benchmarking: Create Plot"
+	@uv run python benchmarks/plot_current_results.py
+
+.PHONY: bench-progressbar-decorators
+bench-progressbar-decorators:
+	@echo "🚀 Benchmarking: Benchmark progressbar decorator"
+	@uv run python benchmarks/bench_progressbar_decorators.py -o benchmarks/results.json
+	@$(MAKE) bench-post-base
 
 .PHONY: build
 build: clean-build ## Build wheel file

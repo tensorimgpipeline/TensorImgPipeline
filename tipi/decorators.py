@@ -1,17 +1,18 @@
-"""Decorators for smooth script-to-pipeline transition.
+"""Decorators for automatic progress tracking in pipeline functions.
 
-This module provides decorators that allow regular Python functions to
-become pipeline processes with minimal code changes.
+This module provides the @progress_task decorator that automatically wraps
+iterables with progress tracking, working seamlessly in both standalone
+and pipeline modes.
 
 Usage:
-    @pipeline_process
-    def train(epochs: int = 10):
-        '''This function can run standalone OR as a pipeline process!'''
-        for epoch in range(epochs):
-            loss = train_epoch()
+    @progress_task(desc="Training Epoch")
+    def train_epoch(dataloader, model):
+        '''Automatically tracks progress over dataloader!'''
+        for batch in dataloader:  # ← automatically wrapped with progress
+            loss = train_step(batch, model)
         return loss
 
-Copyright (C) 2025 Matti Kaupenjohann
+Copyright (C) 2026 Matti Kaupenjohann
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,166 +26,11 @@ import contextlib
 import inspect
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, Protocol, cast
+from typing import Any
 
-from rich.progress import Progress
+from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
 
 from tipi import helpers as _tipi_helpers
-from tipi.abstractions import PipelineProcess
-
-
-class ProcessWrapper(Protocol):
-    """Protocol for wrapped functions that have a PipelineProcess class attached."""
-
-    PipelineProcess: type[PipelineProcess]
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        """Allow the wrapper to be called as a normal function."""
-        ...
-
-
-def pipeline_process(
-    name: str | None = None,
-    skip_if: Callable[[], bool] | None = None,
-) -> Callable[[Callable[..., Any]], ProcessWrapper]:
-    """Decorator to convert a function into a pipeline process.
-
-    The decorated function can run standalone or as part of a pipeline.
-    When used in a pipeline, it automatically gets access to permanences.
-
-    Args:
-        name: Optional name for the process (defaults to function name).
-        skip_if: Optional function that returns True if process should skip.
-
-    Example:
-        @pipeline_process
-        def train(epochs: int = 10):
-            '''Can run standalone or in pipeline!'''
-            device = helpers.device_manager.get_device()
-            model = MyModel().to(device)
-
-            for epoch in helpers.progress_bar(range(epochs), desc="Training"):
-                loss = train_step(model)
-                helpers.logger.log({"loss": loss})
-
-            return loss
-
-        # Run standalone
-        if __name__ == "__main__":
-            train(epochs=5)
-
-        # Or register in pipeline config:
-        # [processes.training]
-        # type = "train"  # Uses function name
-        # params = { epochs = 10 }
-    """
-
-    def decorator(func: Callable[..., Any]) -> ProcessWrapper:
-        process_name = name or func.__name__
-
-        # Get function signature for parameter handling
-        sig = inspect.signature(func)
-        params = {
-            name: param.default if param.default != inspect.Parameter.empty else None
-            for name, param in sig.parameters.items()
-        }
-
-        # Create a PipelineProcess class dynamically
-        class FunctionProcess(PipelineProcess):
-            def __init__(self, controller: Any, force: bool = False, **kwargs: Any) -> None:
-                self.controller = controller
-                self.force = force
-                # Store function parameters
-                for param_name, default_value in params.items():
-                    setattr(self, param_name, kwargs.get(param_name, default_value))
-
-            def execute(self) -> None:
-                """Execute the wrapped function."""
-                try:
-                    # Provide permanences to helpers
-                    context = {
-                        "progress_manager": self.controller.get_permanence("progress_manager", None),
-                        "wandb_logger": self.controller.get_permanence("wandb_logger", None),
-                        "device": self.controller.get_permanence("device", None),
-                    }
-                    _tipi_helpers.set_pipeline_context(context)
-
-                    # Call the original function with stored parameters
-                    func_params = {name: getattr(self, name) for name in params}
-                    func(**func_params)
-                finally:
-                    _tipi_helpers.clear_pipeline_context()
-
-            def skip(self) -> bool:
-                """Check if process should be skipped."""
-                if skip_if:
-                    return skip_if()
-                return False
-
-        # Preserve function metadata
-        FunctionProcess.__name__ = process_name
-        FunctionProcess.__doc__ = func.__doc__
-
-        # Allow function to still be called normally
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            return func(*args, **kwargs)
-
-        # Attach the process class for pipeline registration
-        wrapper.PipelineProcess = FunctionProcess  # type: ignore[attr-defined]
-
-        return cast(ProcessWrapper, wrapper)
-
-    return decorator
-
-
-def pipeline_script(
-    project: str | None = None,
-    config_file: str | None = None,
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    """Decorator to make a script runnable as standalone or pipeline.
-
-    This decorator allows an entire script to be run either:
-    1. Directly: python my_script.py
-    2. As pipeline: tipi run my_pipeline
-
-    Args:
-        project: Project name for WandB (if using).
-        config_file: Optional config file path.
-
-    Example:
-        @pipeline_script(project="my_project")
-        def main():
-            '''Main training script'''
-            helpers.logger.init(project="my_project")
-
-            model = MyModel()
-            for epoch in helpers.progress_bar(range(10)):
-                train_step(model)
-
-        if __name__ == "__main__":
-            main()
-    """
-
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            # Check if running in pipeline mode
-            import sys
-
-            if "--pipeline-mode" in sys.argv:
-                # Running as part of pipeline
-                # Pipeline will handle initialization
-                pass
-            else:
-                # Running standalone
-                print(f"Running {func.__name__} in standalone mode...")
-
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
 
 
 def progress_task(
@@ -196,12 +42,17 @@ def progress_task(
     with a progress bar. It seamlessly switches between standalone Rich progress
     and pipeline ProgressManager based on context.
 
-    Standalone mode: Creates a Rich Progress context manager
+    Standalone mode: Creates a Rich Progress context manager with status support
     Pipeline mode: Uses ProgressManager from _pipeline_context
 
     The decorator inspects the function's parameters to find an iterable (DataLoader,
     range, list, etc.) and wraps it with an auto-advancing iterator that updates
     the progress bar on each iteration.
+
+    Status Updates (Optional):
+        Functions can provide status updates by yielding tuples of (item, status_string):
+        - yield batch  # Regular iteration, no status
+        - yield batch, f"Loss: {loss:.4f}"  # With status update
 
     Args:
         desc: Task description. If None, uses the function name converted to title case.
@@ -212,18 +63,19 @@ def progress_task(
         Decorated function that automatically tracks progress.
 
     Example:
-        # Standalone usage
+        # Basic usage without status
         @progress_task(desc="Training Epoch")
         def train_epoch(self, dataloader, model):
             for batch in dataloader:  # ← automatically wrapped with progress
                 loss = train_step(batch, model)
             return loss
 
-        # Pipeline usage (same code, automatically uses ProgressManager)
+        # With status updates (works in both standalone and pipeline mode)
         @progress_task(desc="Training Epoch", progress_name="train")
         def train_epoch(self, dataloader, model):
-            for batch in dataloader:  # ← uses ProgressManager from pipeline
+            for batch in dataloader:
                 loss = train_step(batch, model)
+                yield batch, f"Loss: {loss:.4f}"  # ← Status appears in progress bar
             return loss
     """
 
@@ -286,16 +138,27 @@ def _core_progress_runner(
     iterable: Any,
     iterable_param: str,
     setup_task: Callable[[], Any],
-    advance_task: Callable[[Any], None],
+    advance_task: Callable[[Any, str], None],
 ) -> Any:
     """The core logic for wrapping an iterable and executing a function."""
     task_id = setup_task()
 
     def advancing_iter() -> Any:
         for item in iterable:
-            yield item
-            advance_task(task_id)
+            # Support optional status via tuple unpacking
+            # User can yield: (data, "status") or just: data
+            if isinstance(item, tuple) and len(item) == 2 and isinstance(item[1], str):
+                actual_item, status = item
+                yield actual_item
+                advance_task(task_id, status)
+            else:
+                yield item
+                advance_task(task_id, "")
 
+    # Here happens the magic!
+    # we replace the iterable of the decorated function with a generator.
+    # This way we are able to plant the advance_task method at the end of the loop.
+    # This doesn't touch the original for loop.
     bound.arguments[iterable_param] = advancing_iter()
     return func(*bound.args, **bound.kwargs)
 
@@ -309,14 +172,31 @@ def _run_with_rich_progress(
     total: int | None,
 ) -> Any:
     """Run function with standalone Rich Progress."""
-    with Progress() as progress:
+
+    def advance_task(task_id: Any, status: str) -> None:
+        progress.advance(task_id, 1)
+        if status:
+            progress.update(task_id, status=status)
+
+    # Create progress with status column for standalone mode
+    progress = Progress(
+        TextColumn("{task.description}"),
+        BarColumn(),
+        TextColumn("({task.completed}/{task.total})"),
+        TextColumn("•"),
+        TextColumn("{task.fields[status]}"),
+        "•",
+        TimeRemainingColumn(),
+    )
+
+    with progress:
         return _core_progress_runner(
             func,
             bound,
             iterable,
             iterable_param,
-            setup_task=lambda: progress.add_task(desc, total=total),
-            advance_task=lambda tid: progress.advance(tid, 1),
+            setup_task=lambda: progress.add_task(desc, total=total, status=""),
+            advance_task=advance_task,
         )
 
 
@@ -337,12 +217,10 @@ def _run_with_progress_manager(
         iterable,
         iterable_param,
         setup_task=lambda: progress_mgr.add_task_to_progress(desc, total=total or 0, visible=True),
-        advance_task=lambda tid: progress_mgr.advance(progress_name, tid, step=1.0),
+        advance_task=lambda tid, status: progress_mgr.advance(progress_name, tid, step=1.0, status=status),
     )
 
 
 __all__ = [
-    "pipeline_process",
-    "pipeline_script",
     "progress_task",
 ]

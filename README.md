@@ -21,12 +21,16 @@ Since some tests involve creating demo projects, which could lead to tampering w
 If your contribution does not involve in certain actions, you might also execute run tests on a local test environment.
 For Example: Your tests includes only backend actions, which do not interact with the app config or create new scaffolding projects.
 
-If you change files, which may interact with certain files, please execute all tests inside devcontainer and extend tests if necessary.
+If you change files that interact with project scaffolding or CLI flows, run the full suite (preferably in devcontainer) and extend tests if necessary.
 
-> To run all tests local execute the test like this (WARNING: this interacts with files outside this project):
+Use explicit test scopes locally:
 
 ```bash
-IS_IN_CONTAINER=true uv run pytest
+# Fast feedback (unit-focused)
+make test-fast
+
+# Full suite (unit + integration + e2e)
+make test-full
 ```
 
 ### Setup devcontainer
