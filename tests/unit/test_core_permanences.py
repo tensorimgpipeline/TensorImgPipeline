@@ -11,6 +11,7 @@ from tipi.errors import ProgressNoMatch
 @pytest.fixture
 def mock_torch_cuda():
     with (
+        patch("torch.cuda.is_available", return_value=True),
         patch("torch.cuda.device_count", return_value=2),
         patch("torch.cuda.memory_reserved", side_effect=[100, 200]),
         patch(
@@ -20,9 +21,32 @@ def mock_torch_cuda():
         yield
 
 
-def test_calculate_best_device(mock_torch_cuda):
+@pytest.fixture
+def mock_torch_xpu():
+    with (
+        patch("torch.xpu.is_available", return_value=True),
+        patch("torch.xpu.device_count", return_value=2),
+        patch("torch.xpu.memory_reserved", side_effect=[100, 200]),
+        patch(
+            "torch.xpu.get_device_properties", side_effect=[MagicMock(total_memory=1000), MagicMock(total_memory=1000)]
+        ),
+    ):
+        yield
+
+
+def test_calculate_best_device_no_cuda():
+    device = Device()
+    assert device.device == torch.device("cpu")
+
+
+def test_calculate_best_device_cuda(mock_torch_cuda):
     device = Device()
     assert device.device == torch.device("cuda:0")
+
+
+def test_calculate_best_device_xpu(mock_torch_xpu):
+    device = Device()
+    assert device.device == torch.device("xpu:0")
 
 
 def test_calculate_best_device_vram_usage_error(mock_torch_cuda):

@@ -60,9 +60,40 @@ class Device(Permanence):
         """
         Initializes the instance and calculates the best device for computation.
         """
-        self._calculate_best_device()
+        devices = self._gather_device_statitics()
+        self.device = self._calculate_best_device(devices)
 
-    def _calculate_best_device(self) -> None:
+    def _gather_device_statitics(self) -> list[DeviceWithVRAM]:
+        """Gather device statistics using the official supported Accelerator stats.
+
+        Returns:
+            list[DeviceWithVRAM]: list of DeviceWithVRAM objects containing device and VRAM usage information.
+        """
+        supported_accelerators = [
+            torch.cuda,
+            torch.xpu,
+            # torch.mtia, ## Planned but not implemented yet due to lack of access to hardware
+            # torch.mps, ## Planned but not implemented yet due to lack of access to hardware
+        ]
+
+        devices = []
+
+        for backend in supported_accelerators:
+            if backend.is_available():
+                backend_name = backend.__name__.split(".")[-1]
+                backend_devices = [torch.device(f"{backend_name}:{i}") for i in range(backend.device_count())]
+                devices.extend([
+                    DeviceWithVRAM(
+                        device,
+                        backend.memory_reserved(device) / backend.get_device_properties(device).total_memory,
+                    )
+                    for device in backend_devices
+                ])
+        if not devices:
+            devices.append(DeviceWithVRAM(torch.device("cpu"), 0.0))
+        return devices
+
+    def _calculate_best_device(self, devices: list[DeviceWithVRAM]) -> torch.device:
         """
         Calculate and set the best available CUDA device based on VRAM usage.
 
@@ -76,21 +107,12 @@ class Device(Permanence):
         Attributes:
             device (torch.device): The CUDA device with the lowest VRAM usage.
         """
-        devices = [torch.device(f"cuda:{i}") for i in range(torch.cuda.device_count())]
-        vram_usage = [
-            DeviceWithVRAM(
-                device,
-                torch.cuda.memory_reserved(device) / torch.cuda.get_device_properties(device).total_memory,
-            )
-            for device in devices
-        ]
-
-        best_device = min(vram_usage, key=lambda x: x.vram_usage)
+        best_device = min(devices, key=lambda x: x.vram_usage)
 
         if best_device.vram_usage > 0.8:
             raise VRAMUsageError()
 
-        self.device = best_device.device
+        return best_device.device
 
     def cleanup(self) -> None:
         """
