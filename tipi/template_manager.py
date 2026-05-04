@@ -52,7 +52,7 @@ class ProjectSetup(BaseModel):
         if not v.parent.is_dir():
             # In V2, the error message often doesn't need to include 'v'
             # as Pydantic handles context better, but it's safe to keep.
-            raise ValueError(f"Parent of base directory does not exist or is not a directory: {v}")  # noqa: TRY003
+            raise ValueError(f"Parent of base directory does not exist or is not a directory: {v}")
         return v
 
 
