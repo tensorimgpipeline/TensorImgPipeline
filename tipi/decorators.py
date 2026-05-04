@@ -28,7 +28,7 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any
 
-from rich.progress import Progress
+from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
 
 from tipi import helpers as _tipi_helpers
 
@@ -172,7 +172,11 @@ def _run_with_rich_progress(
     total: int | None,
 ) -> Any:
     """Run function with standalone Rich Progress."""
-    from rich.progress import BarColumn, TextColumn, TimeRemainingColumn
+
+    def advance_task(task_id: Any, status: str) -> None:
+        progress.advance(task_id, 1)
+        if status:
+            progress.update(task_id, status=status)
 
     # Create progress with status column for standalone mode
     progress = Progress(
@@ -192,10 +196,7 @@ def _run_with_rich_progress(
             iterable,
             iterable_param,
             setup_task=lambda: progress.add_task(desc, total=total, status=""),
-            advance_task=lambda tid, status: (
-                progress.advance(tid, 1),
-                progress.update(tid, status=status) if status else None,
-            ),
+            advance_task=advance_task,
         )
 
 

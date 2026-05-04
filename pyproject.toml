@@ -92,6 +92,10 @@ show_error_codes = true
 module = ["torchvision.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["tipi.benchmarks.*"]
+ignore_errors = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["--html=test_reports/report.html"]
@@ -165,5 +169,5 @@ branch = true
 source = ["tipi"]
 
 [tool.deptry]
-extend_exclude = ["notebooks/*"]
+extend_exclude = ["notebooks/*", "benchmarks/*"]
 ignore = ["DEP002"]
