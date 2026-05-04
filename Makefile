@@ -20,6 +20,17 @@ test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"
 	@uv run python -m pytest --cov --cov-config=pyproject.toml --cov-report=xml
 
+.PHONY: bench-post-base
+bench-post-base:
+	@echo "🚀 Benchmarking: Create Plot"
+	@uv run python benchmarks/plot_current_results.py
+
+.PHONY: bench-progressbar-decorators
+bench-progressbar-decorators:
+	@echo "🚀 Benchmarking: Benchmark progressbar decorator"
+	@uv run python benchmarks/bench_progressbar_decorators.py -o benchmarks/results.json
+	@$(MAKE) bench-post-base
+
 .PHONY: build
 build: clean-build ## Build wheel file
 	@echo "🚀 Creating wheel file"
