@@ -271,7 +271,7 @@ class TestProgressTaskWithPipeline:
         for call in self.mock_progress_mgr.advance.call_args_list:
             args, kwargs = call
             assert args == ("train", 456)
-            assert kwargs == {"step": 1.0}
+            assert kwargs == {"status": "", "step": 1.0}
 
         assert result == 15
 
