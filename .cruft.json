@@ -1,7 +1,7 @@
 {
   "template": "https://github.com/fpgmaas/cookiecutter-uv.git",
   "commit": "d7123d2885830bcabfe3f2d9e1b1e57b840d7874",
-  "checkout": "main",
+  "checkout": null,
   "context": {
     "cookiecutter": {
       "author": "Matti Kaupenjohann",
@@ -14,7 +14,7 @@
       "include_github_actions": "y",
       "publish_to_pypi": "y",
       "deptry": "y",
-      "docs_tool": "mkdocs",
+      "docs_tool": "zensical",
       "codecov": "y",
       "dockerfile": "y",
       "devcontainer": "y",
