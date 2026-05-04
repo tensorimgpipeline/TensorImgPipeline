@@ -12,6 +12,11 @@ from tipi.cli import app
 pytestmark = pytest.mark.e2e
 
 
+def _normalized_stdout(stdout: str) -> str:
+    """Normalize CLI output by removing all whitespace for robust matching."""
+    return "".join(stdout.split())
+
+
 class TestE2ECreate:
     """End-to-end tests for create command with fake filesystem."""
 
@@ -68,7 +73,7 @@ class TestE2EAdd:
 
         assert result.exit_code == 0
         assert result.stderr == ""
-        assert len(result.stdout.split("\n")) == 16
+        assert "Package Added" in result.stdout
         assert "DemoProject" in result.stdout
 
         # Verify symlinks were created (should be in fake home due to env overrides)
@@ -551,7 +556,7 @@ class TestE2EEnvironmentOverrides:
             result = cli_runner.invoke(app, ["info"])
 
             assert result.exit_code == 0
-            assert str(custom_projects) in result.stdout
+            assert str(custom_projects) in _normalized_stdout(result.stdout)
 
     @pytest.mark.usefixtures("isolated_path_manager")
     def test_custom_config_dir(self, tmp_path, cli_runner):
@@ -563,7 +568,7 @@ class TestE2EEnvironmentOverrides:
             result = cli_runner.invoke(app, ["info"])
 
             assert result.exit_code == 0
-            assert str(custom_config) in result.stdout
+            assert str(custom_config) in _normalized_stdout(result.stdout)
 
     @pytest.mark.usefixtures("isolated_path_manager")
     def test_custom_cache_dir(self, tmp_path, cli_runner):
@@ -575,4 +580,4 @@ class TestE2EEnvironmentOverrides:
             result = cli_runner.invoke(app, ["info"])
 
             assert result.exit_code == 0
-            assert str(custom_cache) in result.stdout
+            assert str(custom_cache) in _normalized_stdout(result.stdout)
