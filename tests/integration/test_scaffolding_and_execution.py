@@ -1,11 +1,9 @@
 import pytest
 
-from tests.conftest import skip_outside_container
 from tipi.core.runner import PipelineRunner
 from tipi.template_manager import ProjectSetup, template_manager
 
-# Apply skip_outside_container to all tests in this module
-pytestmark = skip_outside_container
+pytestmark = pytest.mark.integration
 
 
 class TestExampleScaffold:

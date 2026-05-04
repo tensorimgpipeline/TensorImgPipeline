@@ -15,9 +15,15 @@ check: ## Run code quality tools.
 	@echo "🚀 Checking for obsolete dependencies: Running deptry"
 	@uv run deptry .
 
-.PHONY: test
-test: ## Test the code with pytest
-	@echo "🚀 Testing code: Running pytest"
+.PHONY: test test-fast test-full
+test: test-full ## Run full test suite
+
+test-fast: ## Run unit-focused tests (exclude integration and e2e)
+	@echo "🚀 Testing code: Running fast pytest suite"
+	@uv run python -m pytest -m "not integration and not e2e" --cov --cov-config=pyproject.toml --cov-report=xml
+
+test-full: ## Test the code with full pytest suite
+	@echo "🚀 Testing code: Running full pytest suite"
 	@uv run python -m pytest --cov --cov-config=pyproject.toml --cov-report=xml
 
 .PHONY: bench-post-base

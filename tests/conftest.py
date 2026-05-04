@@ -1,6 +1,5 @@
 import base64
 import io
-import os
 import socket
 import sys
 
@@ -10,33 +9,6 @@ import pytest
 from PIL import Image
 
 from tipi import paths
-
-
-def is_running_in_container() -> bool:
-    """
-    Checks if the code is running inside a known container environment.
-    """
-    # Check for Custom Environment Variable
-    if os.environ.get("IS_IN_CONTAINER", "").lower() in ("true", "1", "yes"):
-        return True
-
-    # GitHub Actions sets GITHUB_ACTIONS to 'true'
-    if os.environ.get("GITHUB_ACTIONS") == "true":
-        return True
-
-    # Check for Codespaces/DevContainer environment variables
-    if os.environ.get("CODESPACES") == "true":
-        return True
-
-    # Check for VS Code Remote Container environment variable
-    return os.environ.get("REMOTE_CONTAINERS") == "true"
-
-
-# Pytest marker to skip tests when not running in container/CI environment
-skip_outside_container = pytest.mark.skipif(
-    not is_running_in_container(),
-    reason="Test only runs in container/CI environment (set IS_IN_CONTAINER=true to run locally)",
-)
 
 
 def is_connected_to_github() -> bool:
@@ -58,7 +30,11 @@ def pytest_configure(config):
     """Register custom markers."""
     config.addinivalue_line(
         "markers",
-        "skip_outside_container: mark test to only run in container/CI environment",
+        "integration: mark test as integration",
+    )
+    config.addinivalue_line(
+        "markers",
+        "e2e: mark test as end-to-end",
     )
 
 

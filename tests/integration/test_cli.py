@@ -6,11 +6,9 @@ Tests all CLI commands and their interactions with the PathManager.
 import pytest
 from typer.testing import CliRunner
 
-from tests.conftest import skip_outside_container
 from tipi.cli import app
 
-# Apply skip_outside_container to all tests in this module
-pytestmark = skip_outside_container
+pytestmark = pytest.mark.integration
 
 # Create CLI runner
 runner = CliRunner()

@@ -6,11 +6,10 @@ from unittest.mock import patch
 import pytest
 from git import Repo
 
-from tests.conftest import skip_no_network, skip_outside_container
+from tests.conftest import skip_no_network
 from tipi.cli import app
 
-# Apply skip_outside_container to all tests in this module
-pytestmark = skip_outside_container
+pytestmark = pytest.mark.e2e
 
 
 class TestE2ECreate:
