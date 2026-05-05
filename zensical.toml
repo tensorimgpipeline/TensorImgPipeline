@@ -1,20 +1,49 @@
 [project]
 site_name = "TensorImgPipeline"
-repo_url = "https://github.com/makanu/TensorImgPipeline"
-site_url = "https://makanu.github.io/TensorImgPipeline"
+repo_url = "https://github.com/tensorimgpipeline/TensorImgPipeline"
+site_url = "https://tensorimgpipeline.github.io/TensorImgPipeline"
 site_description = "This is a repository for creating and running Tipi Pipelines."
 site_author = "Matti Kaupenjohann"
 edit_uri = "edit/main/docs/"
-repo_name = "makanu/TensorImgPipeline"
-copyright = 'Maintained by <a href="https://makanu.com">makanu</a>.'
+repo_name = "tensorimgpipeline/TensorImgPipeline"
+copyright = 'Maintained by <a href="https://github.com/orgs/tensorimgpipeline">TensorImgPipeline</a>.'
 
 nav = [
     { "Home" = "index.md" },
-    { "Modules" = "modules.md" },
+    { "Installation" = "installation.md" },
+    { "Usage" = "usage.md" },
+    { "Getting Started" = "getting_started.md" },
+    { "Core" = [
+        { "Permanence" = "core/permanence.md" },
+        { "Process" = "core/process.md" },
+    ] },
+    { "Modules" = [
+        { "core.builder" = "modules/builder.md" },
+        { "core.controller" = "modules/controller.md" },
+        { "core.permanences" = "modules/permanences.md" },
+        { "core.processes" = "modules/processes.md" },
+        { "abstractions" = "modules/abstractions.md" },
+        { "errors" = "modules/errors.md" },
+
+    ] },
+    { "Generated" = [
+        { "Architecture" = "generated/architecture_diagram.md" },
+        { "CLI Enhancement" = "generated/cli_enhancements.md" },
+        { "CLI Reference" = "generated/cli_reference.md" },
+        { "Improvements Summary" = "generated/improvements_summary.md" },
+        { "Path Management" = "generated/path_management.md" },
+        { "Progressive Enhancement" = "generated/progressive_enhancement.md" },
+    ] },
+    { "Ideas" = "ideas.md" },
 ]
 
-[project.plugins.mkdocstrings.handlers.python]
-paths = ["tensorimgpipeline"]
+[project.plugins.mkdocstrings]
+handlers.python.paths = ["."]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+inherited_members = true
+show_source = false
 
 [project.theme]
 language = "en"
@@ -39,6 +68,16 @@ features = [
     "search.highlight",
 ]
 
+# Enable/Disable Validation based Warning level
+[project.validation]
+unresolved_references = false
+unresolved_footnotes = true
+unused_definitions = true
+unused_footnotes = true
+shadowed_definitions = true
+shadowed_footnotes = true
+invalid_links = true
+invalid_link_anchors = true
 
 [project.theme.icon]
 previous = "fontawesome/solid/angle-left"
@@ -67,16 +106,22 @@ toggle.name = "Switch to system preference"
 
 [[project.extra.social]]
 icon = "fontawesome/brands/github"
-link = "https://github.com/makanu/TensorImgPipeline"
+link = "https://github.com/tensorimgpipeline/TensorImgPipeline"
 
 [[project.extra.social]]
 icon = "fontawesome/brands/python"
 link = "https://pypi.org/project/TensorImgPipeline"
 
 [project.markdown_extensions.pymdownx.superfences]
+[project.markdown_extensions.pymdownx.tabbed]
+alternate_style = true
 
 [project.markdown_extensions.pymdownx.arithmatex]
 generic = true
+
+[project.markdown_extensions.pymdownx.blocks.caption]
+
+[project.markdown_extensions.footnotes]
 
 [project.markdown_extensions.toc]
 permalink = true
