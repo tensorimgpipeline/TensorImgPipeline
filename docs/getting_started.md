@@ -4,8 +4,8 @@
 
 This document will teach how to create a new Pipeline, with all necessary parts.
 
-The document is written under the Assumption a developer has already created strong ideas, that should flow into a pipeline.
-This could be done on paper, script or notebook, but the final product should already kind of manifested.
+The document is written under the assumption that a developer has already created strong ideas that should flow into a pipeline.
+This could be done on paper, script or notebook, but the final product should already kind of be manifested.
 Better in text, but in mind is also no issue.
 
 As described in the [Overview](index.md/#overview), the first step is to decide if a part of the pipeline is a [`Permanence`][tipi.abstractions.permanence.Permanence] or a [`PipelineProcess`][tipi.abstractions.process.PipelineProcess].
@@ -33,7 +33,7 @@ The [`PipelineController`][tipi.core.controller.PipelineController] is instantia
 This step is displayed as the aggregation[^1].
 Afterwards one [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] or more are added to the [`PipelineController`][tipi.core.controller.PipelineController].
 This step is displayed as the composition[^1].
-The run method of the [`PipelineController`][tipi.core.controller.PipelineController] class iterates over each [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] and calls it `execute` method, which uses (displayed as association[^1]) the controller itself to access the [`Permanence`][tipi.abstractions.permanence.Permanence] if needed.
+The run method of the [`PipelineController`][tipi.core.controller.PipelineController] class iterates over each [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] and calls its `execute` method, which uses (displayed as association[^1]) the controller itself to access the [`Permanence`][tipi.abstractions.permanence.Permanence] if needed.
 
 [^1]: A short explanation between an [aggregation vs. composition vs. association](https://www.visual-paradigm.com/guide/uml-unified-modeling-language/uml-aggregation-vs-composition/).
 
@@ -41,7 +41,7 @@ Since doing this by hand is cumbersome and error-prone, a [`PipelineBuilder`][ti
 
 ## Create Config
 
-After the decision which Parts fall into either the [`Permanence`][tipi.abstractions.permanence.Permanence] or the [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] category, the creation of the config files begins.
+After deciding which parts fall into either the [`Permanence`][tipi.abstractions.permanence.Permanence] or the [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] category, the creation of the config files begins.
 
 > It is not necessary to complete the configs at this point. The goal is to create a structure to begin with and complete later.
 
@@ -127,12 +127,12 @@ The structure of a new pipeline subpackage looks the following:
 
 Following the structure the implementations should be provided dependent on the config either inside the `permanences.py` or `processes.py` module.
 This is just a recommendation to follow the pattern of the package, but a developer can decide against the pattern.
-The only necessary part is the announcement of the [`Permanences`][tipi.abstractions.permanence.Permanence] and the [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] inside the subpackage `__init__.py` module.
+The only necessary part is the registration of the [`Permanences`][tipi.abstractions.permanence.Permanence] and the [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] inside the subpackage `__init__.py` module.
 
 For the previous example the `__init__.py` module looks the following:
 
 ```python
-from permaneces import Datasets
+from permanences import Datasets
 from processes import DummyProcess
 
 permanences_to_register = {"Datasets": Datasets}
@@ -141,7 +141,7 @@ processes_to_register = {"Visualization": Visualization}
 
 ## Execute or testing
 
-From that point there are initial two possible ways to proceed.
+From that point there are initially two possible ways to proceed.
 
 1. Execute the Pipeline directly
 
@@ -152,7 +152,7 @@ Nevertheless, the second way is an absolute recommendation, to create the final 
 2. Creating test cases
 
 The creation of test cases is a recommended approach, since at the end multiple small components of the pipeline are provided.
-Instead of running all the time the complete pipeline, checking each bit with artificial and abstract test cases could provide spare time.
+Instead of running the complete pipeline all the time, checking each bit with artificial and abstract test cases could save time.
 Not only this, after iterating through changes in the pipeline library, we are able to verify the correctness of the step in the Pipeline.
 In a certain situation it might be necessary to extend the test case to fulfil new challenges, which were not thought about at the beginning of the Pipeline development.
 
