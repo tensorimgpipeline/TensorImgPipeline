@@ -4,11 +4,11 @@
 
 This document will teach how to create a new Pipeline, with all necessary parts.
 
-The document is written under the Assumption a developer has already created strong ideas, that should flow into a pipeline.
-This could be done on paper, script or notebook, but the final product should already kind of manifested.
+The document is written under the assumption that a developer has already created strong ideas that should flow into a pipeline.
+This could be done on paper, script or notebook, but the final product should already kind of be manifested.
 Better in text, but in mind is also no issue.
 
-As described in the [Overview](index.md/#overview), the first step is to decide if a part of the pipeline is a [`Permanence`][{{ permanence }}] or a [`PipelineProcess`][{{ process }}].
+As described in the [Overview](index.md/#overview), the first step is to decide if a part of the pipeline is a [`Permanence`][tipi.abstractions.permanence.Permanence] or a [`PipelineProcess`][tipi.abstractions.process.PipelineProcess].
 
 ## Internal logic
 
@@ -21,27 +21,27 @@ UML Diagram sketch of `TensorImgPipeline`
 ///
 
 In the diagram are the three main components of the TensorImgPipeline depicted.
-The [`PipelineController`][{{ controller }}] class is central part of the pipeline, storing and providing all the necessary components of the pipeline.
-The [`Permanence`][{{ permanence }}] abstract class is used to create new implementations for objects which hold permanent information about the pipeline.
+The [`PipelineController`][tipi.core.controller.PipelineController] class is central part of the pipeline, storing and providing all the necessary components of the pipeline.
+The [`Permanence`][tipi.abstractions.permanence.Permanence] abstract class is used to create new implementations for objects which hold permanent information about the pipeline.
 As example a `Dataset` is a kind of information, which a process needs to access, but could be created without the flow of the pipeline.
 Compared to a script a `Dataset` is mostly an instance which is in the global scope.
-The [`PipelineProcess`][{{ process }}] abstract class is the opposite to a [`Permanence`][{{ permanence }}].
+The [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] abstract class is the opposite to a [`Permanence`][tipi.abstractions.permanence.Permanence].
 As example a `Visualization` creates a figure, which displays given batch of images as subplots with certain config.
-Of course, we could extract further parts of the `Visualization` as new [`Permanence`][{{ permanence }}] implementations, as example the parameters of the figure.
+Of course, we could extract further parts of the `Visualization` as new [`Permanence`][tipi.abstractions.permanence.Permanence] implementations, as example the parameters of the figure.
 
-The [`PipelineController`][{{ controller }}] is instantiated with a dictionary of zero [`Permanence`][{{ permanence }}] or more.
+The [`PipelineController`][tipi.core.controller.PipelineController] is instantiated with a dictionary of zero [`Permanence`][tipi.abstractions.permanence.Permanence] or more.
 This step is displayed as the aggregation[^1].
-Afterwards one [`PipelineProcesse`][{{ process }}] or more are added to the [`PipelineController`][{{ controller }}].
+Afterwards one [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] or more are added to the [`PipelineController`][tipi.core.controller.PipelineController].
 This step is displayed as the composition[^1].
-The run method of the [`PipelineController`][{{ controller }}] class iterates over each [`PipelineProcess`][{{ process }}] and calls it [`execute`][{{ process_execute }}] method, which uses (displayed as association[^1]) the controller itself to access the [`Permanence`][{{ permanence }}] if needed.
+The run method of the [`PipelineController`][tipi.core.controller.PipelineController] class iterates over each [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] and calls its `execute` method, which uses (displayed as association[^1]) the controller itself to access the [`Permanence`][tipi.abstractions.permanence.Permanence] if needed.
 
 [^1]: A short explanation between an [aggregation vs. composition vs. association](https://www.visual-paradigm.com/guide/uml-unified-modeling-language/uml-aggregation-vs-composition/).
 
-Since doing this by hand is cumbersome and error-prone, a [`PipelineBuilder`][{{ builder }}] class is provided, which executes this behavior.
+Since doing this by hand is cumbersome and error-prone, a [`PipelineBuilder`][tipi.core.builder.PipelineBuilder] class is provided, which executes this behavior.
 
 ## Create Config
 
-After the decision which Parts fall into either the [`Permanence`][{{ permanence }}] or the [`PipelineProcess`][{{ process }}] category, the creation of the config files begins.
+After deciding which parts fall into either the [`Permanence`][tipi.abstractions.permanence.Permanence] or the [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] category, the creation of the config files begins.
 
 > It is not necessary to complete the configs at this point. The goal is to create a structure to begin with and complete later.
 
@@ -87,7 +87,7 @@ The format helps to reduce Boilerplate for dataset creation.
 
 ### The `execute_pipeline.toml`
 
-This config file is used to provide the different [`Permanence`][{{ permanence }}] and [`PipelineProcess`][{{ process }}] object configurations.
+This config file is used to provide the different [`Permanence`][tipi.abstractions.permanence.Permanence] and [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] object configurations.
 
 An example config could look like the following:
 
@@ -100,14 +100,14 @@ params = { root = "localhost", format = "pascalvoc" }
 type = "Visualization"
 ```
 
-Here are one [`Permanence`][{{ permanence }}] and one [`PipelineProcess`][{{ process }}] object provided.
+Here are one [`Permanence`][tipi.abstractions.permanence.Permanence] and one [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] object provided.
 The `params` field is always Optional.
 The `type` field provides the classes of the Pipeline, which we need to create inside our [Pipeline Library](#create-pipeline-library).
 The `params` need to match accordingly to the `__init__` method of the Implementation.
 
-Additional configuration for provided [`Permanence`][{{ permanence }}] or [`PipelineProcess`][{{ process }}] classes could here be provided.
+Additional configuration for provided [`Permanence`][tipi.abstractions.permanence.Permanence] or [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] classes could here be provided.
 As example from the core package the `Visualization` process is defined in the config.
-The [`Builder`][{{ builder }}] will first register the `Visualization` class from core package.
+The [`Builder`][tipi.core.builder] will first register the `Visualization` class from core package.
 It is also possible to override the `Visualization` class inside the pipeline library.
 
 ## Create Pipeline Library
@@ -127,12 +127,12 @@ The structure of a new pipeline subpackage looks the following:
 
 Following the structure the implementations should be provided dependent on the config either inside the `permanences.py` or `processes.py` module.
 This is just a recommendation to follow the pattern of the package, but a developer can decide against the pattern.
-The only necessary part is the announcement of the [`Permanence`][{{ permanence }}] and the [`PipelineProcess`][{{ process }}] inside the subpackage `__init__.py` module.
+The only necessary part is the registration of the [`Permanences`][tipi.abstractions.permanence.Permanence] and the [`PipelineProcess`][tipi.abstractions.process.PipelineProcess] inside the subpackage `__init__.py` module.
 
 For the previous example the `__init__.py` module looks the following:
 
 ```python
-from permaneces import Datasets
+from permanences import Datasets
 from processes import DummyProcess
 
 permanences_to_register = {"Datasets": Datasets}
@@ -141,7 +141,7 @@ processes_to_register = {"Visualization": Visualization}
 
 ## Execute or testing
 
-From that point there are initial two possible ways to proceed.
+From that point there are initially two possible ways to proceed.
 
 1. Execute the Pipeline directly
 
@@ -152,7 +152,7 @@ Nevertheless, the second way is an absolute recommendation, to create the final 
 2. Creating test cases
 
 The creation of test cases is a recommended approach, since at the end multiple small components of the pipeline are provided.
-Instead of running all the time the complete pipeline, checking each bit with artificial and abstract test cases could provide spare time.
+Instead of running the complete pipeline all the time, checking each bit with artificial and abstract test cases could save time.
 Not only this, after iterating through changes in the pipeline library, we are able to verify the correctness of the step in the Pipeline.
 In a certain situation it might be necessary to extend the test case to fulfil new challenges, which were not thought about at the beginning of the Pipeline development.
 

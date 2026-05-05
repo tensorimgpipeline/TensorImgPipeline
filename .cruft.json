@@ -1,0 +1,28 @@
+{
+  "template": "https://github.com/fpgmaas/cookiecutter-uv.git",
+  "commit": "d7123d2885830bcabfe3f2d9e1b1e57b840d7874",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "author": "Matti Kaupenjohann",
+      "email": "matti.kaupenjohann@fh-dortmund.de",
+      "author_github_handle": "makanu",
+      "project_name": "TensorImgPipeline",
+      "project_slug": "tensorimgpipeline",
+      "project_description": "This is a repository for creating and running Tipi Pipelines.",
+      "layout": "flat",
+      "include_github_actions": "y",
+      "publish_to_pypi": "y",
+      "deptry": "y",
+      "docs_tool": "zensical",
+      "codecov": "y",
+      "dockerfile": "y",
+      "devcontainer": "y",
+      "type_checker": "ty",
+      "open_source_license": "GNU General Public License v3",
+      "_template": "https://github.com/fpgmaas/cookiecutter-uv.git",
+      "_commit": "d7123d2885830bcabfe3f2d9e1b1e57b840d7874"
+    }
+  },
+  "directory": null
+}

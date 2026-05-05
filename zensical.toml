@@ -1,0 +1,127 @@
+[project]
+site_name = "TensorImgPipeline"
+repo_url = "https://github.com/tensorimgpipeline/TensorImgPipeline"
+site_url = "https://tensorimgpipeline.github.io/TensorImgPipeline"
+site_description = "This is a repository for creating and running Tipi Pipelines."
+site_author = "Matti Kaupenjohann"
+edit_uri = "edit/main/docs/"
+repo_name = "tensorimgpipeline/TensorImgPipeline"
+copyright = 'Maintained by <a href="https://github.com/orgs/tensorimgpipeline">TensorImgPipeline</a>.'
+
+nav = [
+    { "Home" = "index.md" },
+    { "Installation" = "installation.md" },
+    { "Usage" = "usage.md" },
+    { "Getting Started" = "getting_started.md" },
+    { "Core" = [
+        { "Permanence" = "core/permanence.md" },
+        { "Process" = "core/process.md" },
+    ] },
+    { "Modules" = [
+        { "core.builder" = "modules/builder.md" },
+        { "core.controller" = "modules/controller.md" },
+        { "core.permanences" = "modules/permanences.md" },
+        { "core.processes" = "modules/processes.md" },
+        { "abstractions" = "modules/abstractions.md" },
+        { "errors" = "modules/errors.md" },
+
+    ] },
+    { "Generated" = [
+        { "Architecture" = "generated/architecture_diagram.md" },
+        { "CLI Enhancement" = "generated/cli_enhancements.md" },
+        { "CLI Reference" = "generated/cli_reference.md" },
+        { "Improvements Summary" = "generated/improvements_summary.md" },
+        { "Path Management" = "generated/path_management.md" },
+        { "Progressive Enhancement" = "generated/progressive_enhancement.md" },
+    ] },
+    { "Ideas" = "ideas.md" },
+]
+
+[project.plugins.mkdocstrings]
+handlers.python.paths = ["."]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+inherited_members = true
+show_source = false
+
+[project.theme]
+language = "en"
+features = [
+    "announce.dismiss",
+    "content.code.annotate",
+    "content.action.edit",
+    "content.action.view",
+    "content.code.copy",
+    "content.code.select",
+    "content.footnote.tooltips",
+    "content.tabs.link",
+    "content.tooltips",
+    "navigation.footer",
+    "navigation.indexes",
+    "navigation.instant",
+    "navigation.instant.prefetch",
+    "navigation.path",
+    "navigation.prune",
+    "navigation.top",
+    "navigation.tracking",
+    "search.highlight",
+]
+
+# Enable/Disable Validation based Warning level
+[project.validation]
+unresolved_references = false
+unresolved_footnotes = true
+unused_definitions = true
+unused_footnotes = true
+shadowed_definitions = true
+shadowed_footnotes = true
+invalid_links = true
+invalid_link_anchors = true
+
+[project.theme.icon]
+previous = "fontawesome/solid/angle-left"
+next = "fontawesome/solid/angle-right"
+repo = "fontawesome/brands/github"
+
+#[project.theme.font]
+#text = "Inter"
+#code = "Jetbrains Mono"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "white"
+accent = "deep orange"
+toggle.icon =  "material/brightness-7"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "black"
+accent = "deep orange"
+toggle.icon =  "material/brightness-4"
+toggle.name = "Switch to system preference"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/tensorimgpipeline/TensorImgPipeline"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/python"
+link = "https://pypi.org/project/TensorImgPipeline"
+
+[project.markdown_extensions.pymdownx.superfences]
+[project.markdown_extensions.pymdownx.tabbed]
+alternate_style = true
+
+[project.markdown_extensions.pymdownx.arithmatex]
+generic = true
+
+[project.markdown_extensions.pymdownx.blocks.caption]
+
+[project.markdown_extensions.footnotes]
+
+[project.markdown_extensions.toc]
+permalink = true

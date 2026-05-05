@@ -191,7 +191,7 @@ class ProgressManager(Permanence):
         Also re-initializes the live attribute.
 
         Args:
-            names (dict): A dictionary of task names and their visibility status.
+            progresses (list[dict[str, Any]]): Progress definitions to add.
         """
         for progress in progresses:
             self.add_progress(**progress)
@@ -202,8 +202,9 @@ class ProgressManager(Permanence):
         Add a progress object to the progress_dict.
 
         Args:
+            name (str): Name key under which the progress object is stored.
             with_status (bool): Whether to include a status column. Defaults to False.
-            color (str): The color to use for the progress bar. Default is "#F55500".
+                Bar color is assigned automatically via the centralized palette logic.
 
         Returns:
             Progress: A Progress object configured with the specified color.

@@ -3,9 +3,9 @@
 This Chapter describes Ideas to enhance the project.
 It can be interpreted as lists of TODOS.
 
-## Nested Process Bars
+## Nested Progress Bars
 
-Since a pipeline does have various steps we want an informative way to show the status of the current running pipeline.
+Since a pipeline has various steps we want an informative way to show the status of the currently running pipeline.
 
 Here are two approaches for nested progress bars:
 
@@ -45,7 +45,7 @@ Here are two approaches for nested progress bars:
             time.sleep(0.02)
     ```
 
-### Ansolved Questions:
+### Unsolved Questions:
 
 - How to handle monitoring of internal loops?
 
@@ -55,12 +55,12 @@ A core Tensorboard process which based on config creates different visualization
 
 ## Wandb Process
 
-A core Wandb process which based on config creates different visualizations and perform hyperparam trainings.
+A core Wandb process which based on config creates different visualizations and perform hyperparameter training.
 
 ## PreRun Validation
 
-Since we create mostly everything dynamic from the config and only checking that the general structure of the config is correct, also validating the actual run before executing, would be beneficial.
-Since most Processes will access Permanences of the PipelineController, we could before the final execution check that every call of controller.used_permanence of every process doesn't result in a `NameError` (if `Permanence` is not defined), `AttributeError` (if `Permanence` does not have given Attribute) or `TypeError` (if `Permanece` method got not the correct Attributes).
+Since we create almost everything dynamically from the config and only check that the general structure of the config is correct, validating the actual run before executing it would also be beneficial.
+Since most Processes will access Permanences of the PipelineController, we could before the final execution check that every call of controller.used_permanence of every process doesn't result in a `NameError` (if `Permanence` is not defined), `AttributeError` (if `Permanence` does not have given Attribute) or `TypeError` (if a `Permanence` method did not receive the correct attributes).
 
 The Pipeline can still crash caused by internal other errors, but we ensure, that the Process will not fail caused by issue in the config.
 
