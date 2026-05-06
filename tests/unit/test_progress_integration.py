@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from tipi.decorators import progress_task
+from tipi.decorators import Update, progress_task
 from tipi.helpers import clear_pipeline_context, progress_bar, set_pipeline_context
 
 if TYPE_CHECKING:
@@ -143,6 +143,7 @@ class TestProgressTaskDecoratorStandalone:
             total = 0
             for item in items:
                 total += item
+                yield Update()
             return total
 
         items = [1, 2, 3, 4, 5]
@@ -162,6 +163,7 @@ class TestProgressTaskDecoratorStandalone:
             result = []
             for i in count:
                 result.append(i * 2)
+                yield Update()
             return result
 
         result = process_range(range(5))
@@ -176,7 +178,11 @@ class TestProgressTaskDecoratorStandalone:
 
         @progress_task()  # No desc provided
         def train_model(data: list[int]) -> int:
-            return sum(data)
+            total = 0
+            for item in data:
+                total += item
+                yield Update()
+            return total
 
         # Should use "Train Model" as description
         result = train_model([1, 2, 3])
@@ -197,6 +203,7 @@ class TestProgressTaskDecoratorStandalone:
             def train_epoch(self, dataloader: list[int]) -> int:
                 for batch in dataloader:
                     self.total += batch
+                    yield Update()
                 return self.total
 
         trainer = Trainer()
@@ -228,6 +235,7 @@ class TestProgressTaskDecoratorStandalone:
             result = []
             for idx, value in data_enum:
                 result.append((idx, value * 2))
+                yield Update(f"{idx}")
             return result
 
         data = [10, 20, 30]
@@ -258,15 +266,18 @@ class TestProgressTaskWithPipeline:
             total = 0
             for item in items:
                 total += item
+                yield Update()
             return total
 
         items = [1, 2, 3, 4, 5]
         result = process_data(items)
 
         # Verify task was added
-        self.mock_progress_mgr.add_task_to_progress.assert_called_once_with("Pipeline Task", total=5, visible=True)
+        self.mock_progress_mgr.add_task_to_progress.assert_called_once_with(
+            "Pipeline Task", total=5, visible=True, progress_name="train"
+        )
 
-        # Verify advance was called for each item
+        # Verify advance was called for each yield
         assert self.mock_progress_mgr.advance.call_count == 5
         for call in self.mock_progress_mgr.advance.call_args_list:
             args, kwargs = call
@@ -282,7 +293,11 @@ class TestProgressTaskWithPipeline:
         class Trainer:
             @progress_task(desc="Training", progress_name="overall")
             def train(self, data: list[int]) -> int:
-                return sum(data)
+                total = 0
+                for item in data:
+                    total += item
+                    yield Update()
+                return total
 
         trainer = Trainer()
         result = trainer.train([10, 20, 30])
@@ -298,7 +313,11 @@ class TestProgressTaskWithPipeline:
 
         @progress_task(desc="Switchable")
         def process(items: list[int]) -> int:
-            return sum(items)
+            total = 0
+            for item in items:
+                total += item
+                yield Update()
+            return total
 
         result1 = process([1, 2, 3])
         assert result1 == 6
@@ -351,6 +370,7 @@ class TestProgressTaskAndProgressBarIntegration:
                 # Inner progress_bar will conflict with outer decorator's Progress
                 for i in progress_bar(range(5), desc=f"Epoch {epoch}"):
                     total += i
+                yield Update()
             return total
 
         # In standalone mode, nested progress contexts raise LiveError
@@ -374,6 +394,7 @@ class TestProgressTaskAndProgressBarIntegration:
                 # Inner progress_bar shares the same ProgressManager
                 for i in progress_bar(range(5), desc="Inner", progress_name="batch"):
                     total += i
+                yield Update()
             return total
 
         result = outer_process(range(3))
@@ -399,6 +420,7 @@ class TestProgressTaskAndProgressBarIntegration:
                 # Use progress_bar inside decorated function
                 for i in progress_bar([1, 2, 3], desc="Inner", progress_name="batch"):
                     total += i
+                yield Update()
             return total
 
         result = process_with_helper([1, 2])

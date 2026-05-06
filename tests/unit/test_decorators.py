@@ -11,13 +11,14 @@ The tests are organized as:
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from typing import TYPE_CHECKING
 
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from tipi.decorators import progress_task
+from tipi.decorators import Update, progress_task
 from tipi.helpers import clear_pipeline_context, set_pipeline_context
 
 if TYPE_CHECKING:
@@ -251,7 +252,11 @@ class TestProgressTaskStandalone:
 
         @progress_task()
         def process_data_items(items: list[int]) -> list[int]:
-            return [i * 2 for i in items]
+            result = []
+            for i in items:
+                result.append(i * 2)
+                yield
+            return result
 
         # Should not raise an error and should use "Process Data Items" as description
         result = process_data_items([1, 2, 3])
@@ -280,7 +285,7 @@ class TestProgressTaskStandalone:
         This test validates the internal mechanism of how the decorator integrates with Rich:
         - Progress context manager is created and used correctly
         - Task is registered once via add_task()
-        - Progress is advanced once per iteration
+        - Progress is advanced once per yield
 
         Serves as a diagnostic test: if stdout tests fail but this passes, the issue is
         with Rich output formatting, not the decorator's context manager usage.
@@ -291,6 +296,7 @@ class TestProgressTaskStandalone:
             result = []
             for item in items:
                 result.append(item * 2)
+                yield
             return result
 
         result = process_items([1, 2, 3])
@@ -298,11 +304,11 @@ class TestProgressTaskStandalone:
 
         # Verify Progress was created and task was added
         mock_rich_progress.add_task.assert_called_once()
-        # Verify advance was called for each item
+        # Verify advance was called for each yield
         assert mock_rich_progress.advance.call_count == 3
 
     def test_decorator_with_nested_iteration(self, mock_rich_progress):
-        """Test decorator with nested iteration (only outer should be tracked)."""
+        """Test decorator with nested iteration: yield controls what is tracked."""
 
         @progress_task(desc="Nested Test")
         def process_nested(outer: list[list[int]]) -> list[int]:
@@ -310,6 +316,7 @@ class TestProgressTaskStandalone:
             for inner_list in outer:
                 for item in inner_list:
                     result.append(item)
+                yield  # one advance per outer iteration
             return result
 
         result = process_nested([[1, 2], [3, 4], [5, 6]])
@@ -323,7 +330,11 @@ class TestProgressTaskStandalone:
 
         @progress_task(desc="Custom Progress Task")
         def process_items(items: list[int]) -> list[int]:
-            return [i * 2 for i in items]
+            result = []
+            for i in items:
+                result.append(i * 2)
+                yield
+            return result
 
         result = process_items([1, 2, 3, 4, 5])
         assert result == [2, 4, 6, 8, 10]
@@ -341,7 +352,11 @@ class TestProgressTaskStandalone:
 
         @progress_task()  # No explicit description
         def train_model_epoch(batches: list[int]) -> int:
-            return sum(batches)
+            total = 0
+            for b in batches:
+                total += b
+                yield
+            return total
 
         result = train_model_epoch([10, 20, 30])
         assert result == 60
@@ -358,7 +373,11 @@ class TestProgressTaskStandalone:
 
         @progress_task(desc="Counting Items")
         def process_items(items: list[int]) -> list[int]:
-            return [i * 2 for i in items]
+            result = []
+            for i in items:
+                result.append(i * 2)
+                yield
+            return result
 
         items = list(range(10))
         process_items(items)
@@ -371,60 +390,45 @@ class TestProgressTaskStandalone:
         assert "(10/10)" in captured.out
 
     def test_status_updates_in_standalone_mode(self, mock_rich_progress):
-        """Test that status updates are passed to Rich Progress when yielding tuples."""
+        """Test that status strings from Step are shown in Rich Progress."""
 
         @progress_task(desc="Status Test")
         def process_with_status(items: list[int]) -> list[int]:
             result = []
-            for item in items:
-                computed = item * 2
-                result.append(computed)
-                # Yield item with status - this is how users provide status updates
-                # The decorator's advancing_iter will detect this tuple and extract status
-            return result
-
-        # We need to modify the iterable to yield tuples with status
-        # Let's create a generator that yields tuples
-        def items_with_status():
-            for i in [1, 2, 3]:
-                yield (i, f"Processing item {i}")
-
-        @progress_task(desc="Status Test")
-        def process_with_status_generator(items):
-            result = []
-            for item in items:
+            for i, item in enumerate(items):
                 result.append(item * 2)
+                yield Update(f"Processing item {i + 1}")
             return result
 
-        result = process_with_status_generator(items_with_status())
+        result = process_with_status([1, 2, 3])
         assert result == [2, 4, 6]
 
-        # Verify that update was called with status for each item
+        # Verify that update was called with status for each yield
         update_calls = list(mock_rich_progress.update.call_args_list)
         assert len(update_calls) == 3
 
-        # Check that status was passed in each update call
         for i, call in enumerate(update_calls):
             _, kwargs = call
             assert "status" in kwargs
             assert f"Processing item {i + 1}" in kwargs["status"]
 
     def test_status_updates_without_status_string(self, mock_rich_progress):
-        """Test that items without status still work (status defaults to empty string)."""
+        """Test that bare Step() (no status) still advances the bar silently."""
 
         @progress_task(desc="No Status Test")
         def process_without_status(items: list[int]) -> list[int]:
             result = []
             for item in items:
                 result.append(item * 2)
+                yield Update()  # advance with no status text
             return result
 
         result = process_without_status([1, 2, 3])
         assert result == [2, 4, 6]
 
-        # Verify advance was called but update might not be called with status
-        # (or called with empty status)
+        # Verify advance was called for each Step, update never called (no status)
         assert mock_rich_progress.advance.call_count == 3
+        mock_rich_progress.update.assert_not_called()
 
 
 # ============================================================================
@@ -448,18 +452,21 @@ class TestProgressTaskWithProgressManager:
         set_pipeline_context({"progress_manager": mock_progress_manager})
 
         @progress_task(desc="PM Test")
-        def process_items(items: list[int]) -> list[int]:
+        def process_items(items: list[int]) -> Generator[Update, None, list[int]]:
             result = []
             for item in items:
                 result.append(item * 2)
+                yield Update()
             return result
 
         result = process_items([1, 2, 3, 4, 5])
         assert result == [2, 4, 6, 8, 10]
 
         # Verify ProgressManager was used
-        mock_progress_manager.add_task_to_progress.assert_called_once_with("PM Test", total=5, visible=True)
-        # Verify advance was called for each item
+        mock_progress_manager.add_task_to_progress.assert_called_once_with(
+            "PM Test", total=5, visible=True, progress_name="overall"
+        )
+        # Verify advance was called for each yield
         assert mock_progress_manager.advance.call_count == 5
 
     def test_decorator_calls_progress_manager_advance_correctly(self, mock_progress_manager):
@@ -467,16 +474,16 @@ class TestProgressTaskWithProgressManager:
         set_pipeline_context({"progress_manager": mock_progress_manager})
 
         @progress_task(desc="Advance Test", progress_name="custom")
-        def process_items(items: list[int]) -> list[int]:
+        def process_items(items: list[int]) -> Generator[Update, None, list[int]]:
             result = []
             for item in items:
                 result.append(item * 2)
+                yield Update()
             return result
 
         process_items([1, 2, 3])
 
         # Verify advance was called with correct parameters
-        # progress_name="custom", task_id=42 (from mock), step=1.0
         calls = mock_progress_manager.advance.call_args_list
         assert len(calls) == 3
         for call in calls:
@@ -489,10 +496,11 @@ class TestProgressTaskWithProgressManager:
         set_pipeline_context({"progress_manager": mock_progress_manager})
 
         @progress_task(desc="Unknown Length")
-        def process_generator(gen: Iterator[int]) -> list[int]:
+        def process_generator(gen: Iterator[int]) -> Generator[Update, None, list[int]]:
             result = []
             for item in gen:
                 result.append(item)
+                yield Update()
             return result
 
         def number_gen():
@@ -500,7 +508,6 @@ class TestProgressTaskWithProgressManager:
 
         result = process_generator(number_gen())
 
-        # Should still work, but total might be 0 or unknown
         mock_progress_manager.add_task_to_progress.assert_called_once()
         assert result == [1, 2, 3, 4, 5]
 
@@ -513,6 +520,7 @@ class TestProgressTaskWithProgressManager:
             total = 0
             for batch in batches:
                 total += batch
+                yield Update()
             return total
 
         result = train_step([10, 20, 30])
@@ -529,7 +537,7 @@ class TestProgressTaskWithProgressManager:
         set_pipeline_context({"progress_manager": mock_progress_manager})
 
         @progress_task(desc="Result Test")
-        def process_items(items: list[int]) -> list[int]:
+        def process_items(items: list[int]) -> Generator[Update, None, list[int]]:
             return [item * 3 for item in items]
 
         result = process_items(sample_data["small_list"])
@@ -540,7 +548,7 @@ class TestProgressTaskWithProgressManager:
         set_pipeline_context({"other_key": "value"})  # No progress_manager
 
         @progress_task(desc="No PM")
-        def process_items(items: list[int]) -> list[int]:
+        def process_items(items: list[int]) -> Generator[Update, None, list[int]]:
             return [i * 2 for i in items]
 
         # Should fall back to Rich Progress
@@ -552,80 +560,103 @@ class TestProgressTaskWithProgressManager:
         set_pipeline_context({"progress_manager": mock_progress_manager})
 
         @progress_task(desc="Large Dataset")
-        def process_large(items: list[int]) -> int:
+        def process_large(items: list[int]) -> Generator[Update, None, int]:
             total = 0
             for item in items:
                 total += item
+                yield Update()
             return total
 
         result = process_large(sample_data["large_list"])
 
         # Verify task was added with correct total
-        mock_progress_manager.add_task_to_progress.assert_called_once_with("Large Dataset", total=100, visible=True)
+        mock_progress_manager.add_task_to_progress.assert_called_once_with(
+            "Large Dataset", total=100, visible=True, progress_name="overall"
+        )
         # Verify advance was called 100 times
         assert mock_progress_manager.advance.call_count == 100
         assert result == sum(sample_data["large_list"])
 
     def test_status_updates_with_progress_manager(self, mock_progress_manager):
-        """Test that status updates are passed to ProgressManager.advance() when yielding tuples."""
+        """Test that status strings from Step are forwarded to ProgressManager.advance()."""
         set_pipeline_context({"progress_manager": mock_progress_manager})
 
-        # Create a generator that yields tuples with status
-        def items_with_status():
-            for i in [1, 2, 3]:
-                yield (i, f"Processing {i}")
-
         @progress_task(desc="Status PM Test", progress_name="custom")
-        def process_with_status(items):
+        def process_with_status(items: list[int]) -> Generator[Update, None, list[int]]:
             result = []
-            for item in items:
+            for i, item in enumerate(items):
                 result.append(item * 2)
+                yield Update(f"Processing {i + 1}")
             return result
 
-        result = process_with_status(items_with_status())
+        result = process_with_status([1, 2, 3])
         assert result == [2, 4, 6]
 
-        # Verify advance was called with status for each item
         calls = mock_progress_manager.advance.call_args_list
         assert len(calls) == 3
 
         for i, call in enumerate(calls):
             args, kwargs = call
-            assert args[0] == "custom"  # progress_name
-            assert args[1] == 42  # task_id from mock
+            assert args[0] == "custom"
+            assert args[1] == 42
             assert kwargs.get("step") == 1.0
             assert kwargs.get("status") == f"Processing {i + 1}"
 
     def test_mixed_status_updates_with_progress_manager(self, mock_progress_manager):
-        """Test that some items can have status and others don't in ProgressManager mode."""
+        """Test that Step with and without status both work in ProgressManager mode."""
         set_pipeline_context({"progress_manager": mock_progress_manager})
 
-        # Create a generator with mixed status updates
-        def items_mixed_status():
-            yield (1, "First item")  # With status
-            yield 2  # Without status
-            yield (3, "Third item")  # With status
-            yield 4  # Without status
-
         @progress_task(desc="Mixed Status Test")
-        def process_mixed(items):
+        def process_mixed(items: list[int]) -> Generator[Update, None, list[int]]:
             result = []
-            for item in items:
+            for i, item in enumerate(items):
                 result.append(item * 2)
+                if i % 2 == 0:
+                    yield Update(f"Item {i + 1}")
+                else:
+                    yield Update()  # no status
             return result
 
-        result = process_mixed(items_mixed_status())
+        result = process_mixed([1, 2, 3, 4])
         assert result == [2, 4, 6, 8]
 
-        # Verify advance was called 4 times
         calls = mock_progress_manager.advance.call_args_list
         assert len(calls) == 4
 
-        # Check status values: should be present for items 1 and 3, empty for 2 and 4
-        assert calls[0][1]["status"] == "First item"
+        assert calls[0][1]["status"] == "Item 1"
         assert calls[1][1]["status"] == ""
-        assert calls[2][1]["status"] == "Third item"
+        assert calls[2][1]["status"] == "Item 3"
         assert calls[3][1]["status"] == ""
+
+    def test_task_reused_on_repeated_calls(self, mock_progress_manager):
+        """Test that repeated calls reuse and reset the same task instead of creating new ones."""
+        set_pipeline_context({"progress_manager": mock_progress_manager})
+
+        @progress_task(desc="Epoch", progress_name="overall")
+        def run_epoch(items: list[int]) -> Generator[Update, None, int]:
+            total = 0
+            for item in items:
+                total += item
+                yield Update()
+            return total
+
+        result1 = run_epoch([1, 2, 3])
+        result2 = run_epoch([4, 5, 6])
+
+        assert result1 == 6
+        assert result2 == 15
+
+        # add_task_to_progress must only be called on the first invocation
+        mock_progress_manager.add_task_to_progress.assert_called_once_with(
+            "Epoch", total=3, visible=True, progress_name="overall"
+        )
+
+        # The second call resets the task via progress_dict[progress_name].reset(...)
+        task_id = mock_progress_manager.add_task_to_progress.return_value
+        mock_progress_manager.progress_dict["overall"].reset.assert_called_once_with(task_id, total=3)
+
+        # advance called 3 times per epoch = 6 total
+        assert mock_progress_manager.advance.call_count == 6
 
 
 # ============================================================================
@@ -683,7 +714,11 @@ class TestProgressTaskProperties:
 
         @progress_task(desc="Count Test")
         def process(lst: list[int]) -> list[int]:
-            return [x * 2 for x in lst]
+            result = []
+            for x in lst:
+                result.append(x * 2)
+                yield Update()
+            return result
 
         process(items)
 
@@ -740,7 +775,11 @@ class TestProgressTaskProperties:
 
         @progress_task(desc="Total Test")
         def process(lst: list[int]) -> list[int]:
-            return [x * 2 for x in lst]
+            result = []
+            for x in lst:
+                result.append(x * 2)
+                yield Update()
+            return result
 
         process(items)
 

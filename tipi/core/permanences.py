@@ -258,22 +258,32 @@ class ProgressManager(Permanence):
         group = Group(*self.progress_dict.values())
         self.live = Live(group, console=self.console)
 
-    def add_task_to_progress(self, task_description: str, total: int, visible: bool = False) -> int:
+    def add_task_to_progress(
+        self,
+        task_description: str,
+        total: int,
+        visible: bool = False,
+        progress_name: str | None = None,
+    ) -> int:
         """
         Add a task to the specified progress object.
-        The string `task_description` will be evaluated by `_get_progress_for_task` to determine a
-            matching progress
 
         Args:
             task_description (str): Description of the task to be added.
-                This must match with a progress object name or a split of a progress object name.
+                When ``progress_name`` is omitted, the description is matched
+                against bar names via fuzzy lookup.
             total (int): The total number of steps for the task.
             visible (bool): Define if the task is visible at creation. DEFAULT: False
+            progress_name (str | None): Explicit bar name. When provided the bar is
+                looked up directly instead of using fuzzy matching.
 
         Returns:
             int: The task_id of the added task.
         """
-        progress = self._get_progress_for_task(task_description)
+        if progress_name is not None and progress_name in self.progress_dict:
+            progress = self.progress_dict[progress_name]
+        else:
+            progress = self._get_progress_for_task(task_description)
         return progress.add_task(task_description, total=total, status="", visible=visible)
 
     def _toogle_visability(self, progress: Progress, task_id: int) -> None:
@@ -286,6 +296,27 @@ class ProgressManager(Permanence):
         progress = self.progress_dict[progress_name]
         self._toogle_visability(progress, task_id)
         progress.advance(TaskID(task_id), step)
+        progress.update(TaskID(task_id), status=status)
+        self._toogle_visability(progress, task_id)
+
+    def update(self, progress_name: str, task_id: int, status: str = "", advance: bool = False) -> None:
+        """Update a task's status text, optionally advancing the bar by one step.
+
+        Unlike ``advance()``, this method defaults to a pure status update (no movement).
+        Pass ``advance=True`` to move the bar forward one step at the same time.
+
+        Args:
+            progress_name: Key of the progress bar in ``progress_dict``.
+            task_id: Task identifier returned by ``add_task_to_progress``.
+            status: Text to display in the status column.
+            advance: When ``True``, advance the bar by one step alongside the status update.
+        """
+        if progress_name not in self.progress_dict:
+            raise ValueError(f"{progress_name=}")
+        progress = self.progress_dict[progress_name]
+        self._toogle_visability(progress, task_id)
+        if advance:
+            progress.advance(TaskID(task_id), 1.0)
         progress.update(TaskID(task_id), status=status)
         self._toogle_visability(progress, task_id)
 

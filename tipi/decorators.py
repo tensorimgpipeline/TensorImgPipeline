@@ -1,15 +1,14 @@
 """Decorators for automatic progress tracking in pipeline functions.
 
-This module provides the @progress_task decorator that automatically wraps
-iterables with progress tracking, working seamlessly in both standalone
-and pipeline modes.
+This module provides the @progress_task decorator that wraps generator functions
+with a progress bar. Signal progress by yielding an ``Update`` object::
 
-Usage:
     @progress_task(desc="Training Epoch")
     def train_epoch(dataloader, model):
-        '''Automatically tracks progress over dataloader!'''
-        for batch in dataloader:  # ← automatically wrapped with progress
+        for batch in dataloader:
+            yield Update("forward pass…", advance=0)   # status only
             loss = train_step(batch, model)
+            yield Update(f"Loss: {loss:.4f}")          # advance + status
         return loss
 
 Copyright (C) 2026 Matti Kaupenjohann
@@ -25,6 +24,7 @@ from __future__ import annotations
 import contextlib
 import inspect
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from functools import wraps
 from typing import Any
 
@@ -33,152 +33,117 @@ from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
 from tipi import helpers as _tipi_helpers
 
 
+@dataclass
+class Update:
+    """Progress signal yielded from a ``@progress_task`` generator function.
+
+    Controls both the status message and how far the bar advances.
+
+    Args:
+        status: Message shown next to the progress bar. Defaults to no update.
+        advance: How many steps to advance the bar. Use ``0`` to update the
+                 status without moving the bar forward. Defaults to ``1``.
+
+    Examples::
+
+        yield Update()                          # tick bar, no message
+        yield Update(f"loss={loss:.4f}")        # tick bar + show status
+        yield Update("forward pass…", advance=0) # status only, bar stays
+        yield Update("chunk done", advance=512) # advance by 512 steps
+    """
+
+    status: str = ""
+    advance: int = field(default=1)
+
+
 def progress_task(
     desc: str | None = None, progress_name: str = "overall"
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    """Auto-advancing progress decorator that works standalone or with pipeline.
+    """Progress-tracking decorator for generator functions.
 
-    This decorator automatically wraps the first iterable parameter of a function
-    with a progress bar. It seamlessly switches between standalone Rich progress
-    and pipeline ProgressManager based on context.
+    Wraps a generator function so that each ``yield`` advances a progress bar.
+    An optional string value emitted by ``yield`` is shown as the status message.
+    The ``return`` value of the generator is transparently returned to the caller.
 
-    Standalone mode: Creates a Rich Progress context manager with status support
-    Pipeline mode: Uses ProgressManager from _pipeline_context
+    Non-generator functions are executed unchanged (no progress bar).
 
-    The decorator inspects the function's parameters to find an iterable (DataLoader,
-    range, list, etc.) and wraps it with an auto-advancing iterator that updates
-    the progress bar on each iteration.
-
-    Status Updates (Optional):
-        Functions can provide status updates by yielding tuples of (item, status_string):
-        - yield batch  # Regular iteration, no status
-        - yield batch, f"Loss: {loss:.4f}"  # With status update
+    Works in both standalone mode (Rich Progress) and pipeline mode (ProgressManager).
 
     Args:
-        desc: Task description. If None, uses the function name converted to title case.
-        progress_name: Which ProgressManager bar to use in pipeline mode (default: "overall").
-                      Only used when running in pipeline context.
-
-    Returns:
-        Decorated function that automatically tracks progress.
+        desc: Task description. Defaults to the function name in title case.
+        progress_name: ProgressManager bar name in pipeline mode (default: "overall").
 
     Example:
-        # Basic usage without status
+        # Basic usage — one yield per batch advances the bar
         @progress_task(desc="Training Epoch")
-        def train_epoch(self, dataloader, model):
-            for batch in dataloader:  # ← automatically wrapped with progress
-                loss = train_step(batch, model)
-            return loss
-
-        # With status updates (works in both standalone and pipeline mode)
-        @progress_task(desc="Training Epoch", progress_name="train")
-        def train_epoch(self, dataloader, model):
+        def train_epoch(dataloader, model):
             for batch in dataloader:
                 loss = train_step(batch, model)
-                yield batch, f"Loss: {loss:.4f}"  # ← Status appears in progress bar
+                yield Update(f"Loss: {loss:.4f}")
             return loss
     """
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        # Cache task_id per (progress_manager instance, progress_name).
+        # Lets repeated calls (e.g. per-epoch) reuse and reset the same bar
+        # instead of creating a new task every time.
+        _task_cache: dict[tuple[int, str], int] = {}
+
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            # Inspect function signature to find iterable parameter
-            sig = inspect.signature(func)
-            try:
-                bound = sig.bind(*args, **kwargs)
-                bound.apply_defaults()
-            except TypeError:
-                # If binding fails, run function as-is
+            if not inspect.isgeneratorfunction(func):
                 return func(*args, **kwargs)
 
-            # Find first iterable parameter (heuristic: has __iter__ and __len__ or __next__)
-            iterable = None
-            iterable_param = None
-
-            for param_name, param_value in bound.arguments.items():
-                # Check if it's an iterable (but not a string)
-                if param_value is not None and hasattr(param_value, "__iter__") and not isinstance(param_value, str):
-                    iterable = param_value
-                    iterable_param = param_name
-                    break
-
-            # If no iterable found, run function as-is
-            if iterable is None or iterable_param is None:
-                return func(*args, **kwargs)
-
-            # Determine task description
             task_desc = desc or func.__name__.replace("_", " ").title()
+            total = _infer_total(func, args, kwargs)
 
-            # Try to get total count
-            total = None
-            with contextlib.suppress(TypeError, AttributeError):
-                # Some iterables don't support len()
-                total = len(iterable)
-
-            # Check if running in pipeline context
             if _tipi_helpers._pipeline_context:
                 progress_mgr = _tipi_helpers._pipeline_context.get("progress_manager")
                 if progress_mgr:
-                    # Use ProgressManager from pipeline
-                    return _run_with_progress_manager(
-                        func, bound, iterable, iterable_param, progress_mgr, progress_name, task_desc, total
-                    )
+                    cache_key = (id(progress_mgr), progress_name)
+                    if cache_key in _task_cache:
+                        task_id = _task_cache[cache_key]
+                        progress_mgr.progress_dict[progress_name].reset(task_id, total=total or 0)
+                        # _toogle_visability hid the task when it reached N/N on the
+                        # previous call.  Rich's reset() doesn't restore visibility, so
+                        # we do it explicitly here so the bar is visible from the very
+                        # first step of this call rather than only after the first yield.
+                        progress_mgr.progress_dict[progress_name].update(task_id, visible=True)
+                    else:
+                        task_id = progress_mgr.add_task_to_progress(
+                            task_desc, total=total or 0, visible=True, progress_name=progress_name
+                        )
+                        _task_cache[cache_key] = task_id
+                    return _drive_with_progress_manager(func, args, kwargs, progress_mgr, progress_name, task_id)
 
-            # Standalone: use Rich Progress
-            return _run_with_rich_progress(func, bound, iterable, iterable_param, task_desc, total)
+            return _drive_with_rich_progress(func, args, kwargs, task_desc, total)
 
         return wrapper
 
     return decorator
 
 
-def _core_progress_runner(
+def _infer_total(func: Callable[..., Any], args: tuple, kwargs: dict) -> int | None:
+    """Return len() of the first iterable argument, or None if unavailable."""
+    sig = inspect.signature(func)
+    with contextlib.suppress(TypeError):
+        bound = sig.bind(*args, **kwargs)
+        bound.apply_defaults()
+        for val in bound.arguments.values():
+            if val is not None and hasattr(val, "__iter__") and not isinstance(val, str):
+                with contextlib.suppress(TypeError, AttributeError):
+                    return len(val)
+    return None
+
+
+def _drive_with_rich_progress(
     func: Callable[..., Any],
-    bound: inspect.BoundArguments,
-    iterable: Any,
-    iterable_param: str,
-    setup_task: Callable[[], Any],
-    advance_task: Callable[[Any, str], None],
-) -> Any:
-    """The core logic for wrapping an iterable and executing a function."""
-    task_id = setup_task()
-
-    def advancing_iter() -> Any:
-        for item in iterable:
-            # Support optional status via tuple unpacking
-            # User can yield: (data, "status") or just: data
-            if isinstance(item, tuple) and len(item) == 2 and isinstance(item[1], str):
-                actual_item, status = item
-                yield actual_item
-                advance_task(task_id, status)
-            else:
-                yield item
-                advance_task(task_id, "")
-
-    # Here happens the magic!
-    # we replace the iterable of the decorated function with a generator.
-    # This way we are able to plant the advance_task method at the end of the loop.
-    # This doesn't touch the original for loop.
-    bound.arguments[iterable_param] = advancing_iter()
-    return func(*bound.args, **bound.kwargs)
-
-
-def _run_with_rich_progress(
-    func: Callable[..., Any],
-    bound: inspect.BoundArguments,
-    iterable: Any,
-    iterable_param: str,
+    args: tuple,
+    kwargs: dict,
     desc: str,
     total: int | None,
 ) -> Any:
-    """Run function with standalone Rich Progress."""
-
-    def advance_task(task_id: Any, status: str) -> None:
-        progress.advance(task_id, 1)
-        if status:
-            progress.update(task_id, status=status)
-
-    # Create progress with status column for standalone mode
+    """Drive a generator function with a standalone Rich Progress bar."""
     progress = Progress(
         TextColumn("{task.description}"),
         BarColumn(),
@@ -188,39 +153,40 @@ def _run_with_rich_progress(
         "•",
         TimeRemainingColumn(),
     )
-
     with progress:
-        return _core_progress_runner(
-            func,
-            bound,
-            iterable,
-            iterable_param,
-            setup_task=lambda: progress.add_task(desc, total=total, status=""),
-            advance_task=advance_task,
-        )
+        task_id = progress.add_task(desc, total=total, status="")
+        gen = func(*args, **kwargs)
+        try:
+            while True:
+                val = next(gen)
+                step = val if isinstance(val, Update) else Update()
+                progress.advance(task_id, step.advance)
+                if step.status:
+                    progress.update(task_id, status=step.status)
+        except StopIteration as e:
+            return e.value
 
 
-def _run_with_progress_manager(
+def _drive_with_progress_manager(
     func: Callable[..., Any],
-    bound: inspect.BoundArguments,
-    iterable: Any,
-    iterable_param: str,
+    args: tuple,
+    kwargs: dict,
     progress_mgr: Any,
     progress_name: str,
-    desc: str,
-    total: int | None,
+    task_id: int,
 ) -> Any:
-    """Run function with pipeline ProgressManager."""
-    return _core_progress_runner(
-        func,
-        bound,
-        iterable,
-        iterable_param,
-        setup_task=lambda: progress_mgr.add_task_to_progress(desc, total=total or 0, visible=True),
-        advance_task=lambda tid, status: progress_mgr.advance(progress_name, tid, step=1.0, status=status),
-    )
+    """Drive a generator function using a pipeline ProgressManager."""
+    gen = func(*args, **kwargs)
+    try:
+        while True:
+            val = next(gen)
+            step = val if isinstance(val, Update) else Update()
+            progress_mgr.advance(progress_name, task_id, step=float(step.advance), status=step.status)
+    except StopIteration as e:
+        return e.value
 
 
 __all__ = [
+    "Update",
     "progress_task",
 ]
