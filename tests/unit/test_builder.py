@@ -31,6 +31,31 @@ class MockedPipelineProcess(PipelineProcess):
         return None
 
 
+class MockedBasicLogger(Permanence):
+    def __init__(self, log_dir: str = "logs/basic") -> None:
+        self.log_dir = log_dir
+
+    def cleanup(self):
+        return None
+
+
+class MockedTensorBoardLogger(Permanence):
+    def __init__(self, log_dir: str = "logs/tensorboard") -> None:
+        self.log_dir = log_dir
+
+    def cleanup(self):
+        return None
+
+
+class MockedWandBLogger(Permanence):
+    def __init__(self, project: str = "p", entity: str = "e") -> None:
+        self.project = project
+        self.entity = entity
+
+    def cleanup(self):
+        return None
+
+
 class TestPipelineBuilder:
     pipeline_builder: PipelineBuilder
 
@@ -204,3 +229,53 @@ class TestPipelineBuilder:
             else:
                 with pytest.raises(expected_error):
                     get_objects_for_pipeline(pipeline_name)
+
+
+class TestPipelineBuilderCoreLoggerSelection:
+    def setup_method(self) -> None:
+        self.builder = PipelineBuilder()
+        self.builder.register_class("MockedPermanence", MockedPermanence)
+        self.builder.register_class("BasicLogger", MockedBasicLogger)
+        self.builder.register_class("TensorBoardLogger", MockedTensorBoardLogger)
+        self.builder.register_class("WandBLogger", MockedWandBLogger)
+
+    def test_select_basic_logger_with_flag(self) -> None:
+        self.builder._config = {
+            "pipeline": {
+                "enable_basic_logger": True,
+                "basic_logger": {"log_dir": "tmp/basic"},
+            },
+            "permanences": {},
+            "processes": {},
+        }
+
+        core = self.builder._build_core_permanences()
+        assert "logger" in core
+        assert isinstance(core["logger"], MockedBasicLogger)
+
+    def test_select_wandb_logger_with_selector(self) -> None:
+        self.builder._config = {
+            "pipeline": {
+                "logger": "wandb",
+                "wandb": {"project": "demo", "entity": "unit"},
+            },
+            "permanences": {},
+            "processes": {},
+        }
+
+        core = self.builder._build_core_permanences()
+        assert "logger" in core
+        assert isinstance(core["logger"], MockedWandBLogger)
+
+    def test_raises_on_multiple_logger_flags(self) -> None:
+        self.builder._config = {
+            "pipeline": {
+                "enable_basic_logger": True,
+                "enable_wandb": True,
+            },
+            "permanences": {},
+            "processes": {},
+        }
+
+        with pytest.raises(ConfigSectionError):
+            self.builder._build_core_permanences()

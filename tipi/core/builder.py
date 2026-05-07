@@ -164,7 +164,10 @@ class PipelineBuilder:
 
         Core permanences can be enabled via simple flags in [pipeline] section:
         - enable_progress: Creates a ProgressManager
+        - enable_basic_logger: Creates a BasicLogger
+        - enable_tensorboard: Creates a TensorBoardLogger
         - enable_wandb: Creates a WandBLogger
+        - logger = "basic"|"tensorboard"|"wandb": Selects one logger backend
 
         Returns:
             Dictionary mapping core permanence names to instances
@@ -197,22 +200,70 @@ class PipelineBuilder:
             except Exception as e:
                 raise InstTypeError(f"Failed to create ProgressManager: {e}") from e
 
-        # Build WandBLogger if enabled and not explicitly overridden
-        if (
-            pipeline_config.get("enable_wandb", False)
-            and "wandb_logger" not in user_permanences
-            and "WandBManager" in self._registry
-        ):
-            try:
-                # WandBManager might need config parameters
-                wandb_config = pipeline_config.get("wandb", {})
-                perm_class = cast(type[Permanence], self._registry["WandBManager"])
-                wandb_logger = perm_class(**wandb_config)
-                core_permanences["wandb_logger"] = wandb_logger
-            except Exception as e:
-                raise InstTypeError(f"Failed to create WandBManager: {e}") from e
+        selected_backend = self._resolve_logger_backend(pipeline_config)
+        if selected_backend is not None and "logger" not in user_permanences:
+            core_permanences["logger"] = self._create_logger_permanence(selected_backend, pipeline_config)
 
         return core_permanences
+
+    def _resolve_logger_backend(self, pipeline_config: dict[str, Any]) -> str | None:
+        logger_flags = {
+            "basic": pipeline_config.get("enable_basic_logger", False),
+            "tensorboard": pipeline_config.get("enable_tensorboard", False),
+            "wandb": pipeline_config.get("enable_wandb", False),
+        }
+        selected_backends = [name for name, enabled in logger_flags.items() if enabled]
+
+        logger_selection = pipeline_config.get("logger")
+        if logger_selection is None:
+            return self._validate_selected_backends(selected_backends)
+
+        if not isinstance(logger_selection, str):
+            raise ConfigSectionError("'pipeline.logger' must be a string")
+
+        normalized_selection = logger_selection.lower()
+        if normalized_selection not in {"basic", "tensorboard", "wandb"}:
+            raise ConfigSectionError("'pipeline.logger' must be one of: basic, tensorboard, wandb")
+
+        return normalized_selection
+
+    def _validate_selected_backends(self, selected_backends: list[str]) -> str | None:
+        if len(selected_backends) > 1:
+            raise ConfigSectionError(
+                "Only one logger backend can be enabled. Use exactly one of "
+                "enable_basic_logger, enable_tensorboard, enable_wandb, or pipeline.logger"
+            )
+        if not selected_backends:
+            return None
+        return selected_backends[0]
+
+    def _create_logger_permanence(self, backend: str, pipeline_config: dict[str, Any]) -> Permanence:
+        logger_class_name_map = {
+            "basic": "BasicLogger",
+            "tensorboard": "TensorBoardLogger",
+            "wandb": "WandBLogger",
+        }
+        config_map = {
+            "basic": pipeline_config.get("basic_logger", {}),
+            "tensorboard": pipeline_config.get("tensorboard", {}),
+            "wandb": pipeline_config.get("wandb", {}),
+        }
+
+        class_name = logger_class_name_map[backend]
+        if class_name not in self._registry:
+            raise RegistryError(f"Logger class '{class_name}' is not registered")
+
+        logger_config = config_map[backend]
+        if not isinstance(logger_config, dict):
+            raise ConfigSectionError(f"'pipeline.{backend}' must be a table")
+
+        perm_class = cast(type[Permanence], self._registry[class_name])
+        try:
+            return perm_class(**logger_config)
+        except TypeError as e:
+            raise InstTypeError(f"Failed to instantiate logger '{class_name}': {e}") from e
+        except Exception as e:
+            raise InstTypeError(f"Failed to create logger '{class_name}': {e}") from e
 
     def _build_permanences(self) -> dict[str, Permanence]:
         """Build permanence instances from config.

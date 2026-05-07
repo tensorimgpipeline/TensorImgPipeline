@@ -6,6 +6,7 @@ from functools import wraps
 from typing import TYPE_CHECKING
 
 from tipi.abstractions import PipelineProcess
+from tipi.core.loggers.base import BaseLoggerManager
 from tipi.errors import BuilderError, ExecutionError
 
 if TYPE_CHECKING:
@@ -26,13 +27,13 @@ class PipelineExecutor:
     def __init__(self, controller: PipelineController) -> None:
         self.controller = controller
         self.progress_manager = controller.get_permanence("progress_manager", None)
-        self.wandb_logger = controller.get_permanence("wandb_logger", None)
+        self.logger = controller.get_permanence("logger", None)
 
     def run(self) -> None:
         """Execute the full pipeline."""
-        # Initialize WandB if present
-        if self.wandb_logger:
-            self.wandb_logger.init_wandb()
+        # Initialize selected logging backend if present.
+        if isinstance(self.logger, BaseLoggerManager) and not self.logger.is_initialized():
+            self.logger.initialize()
 
         # Execute processes with progress
         if self.progress_manager:
