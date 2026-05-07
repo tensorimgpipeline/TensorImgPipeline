@@ -90,7 +90,7 @@ class Device(Permanence):
             return False
         device_module = allowed_device_types.get(self.device.type)
         if device_module:
-            return device_module.is_available() and device_module.is_initialized()
+            return bool(device_module.is_available()) and bool(device_module.is_initialized())
         return False
 
     def _gather_device_statitics(self) -> list[DeviceWithVRAM]:

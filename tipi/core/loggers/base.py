@@ -3,14 +3,18 @@ from __future__ import annotations
 import logging
 from abc import abstractmethod
 from collections.abc import Callable
+from importlib import import_module
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 from tipi.abstractions import Permanence
 from tipi.paths import get_path_manager
+
+
+def _load_seaborn() -> Any:
+    return cast(Any, import_module("seaborn"))
 
 
 class BaseLoggerManager(Permanence):
@@ -80,6 +84,7 @@ class BaseLoggerManager(Permanence):
         kind: str = "line",
     ) -> None:
         """Create a seaborn graph and route it through log_figure."""
+        sns = _load_seaborn()
         fig, ax = plt.subplots()
         if kind == "bar":
             sns.barplot(data=data, x=x, y=y, ax=ax)
