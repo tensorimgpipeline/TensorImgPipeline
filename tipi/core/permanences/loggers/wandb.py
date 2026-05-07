@@ -10,7 +10,7 @@ import wandb
 from wandb.wandb_run import Run
 
 from tipi.abstractions import Permanence
-from tipi.core.loggers.base import BaseLoggerManager
+from tipi.core.permanences.loggers.base import BaseLoggerManager
 from tipi.errors import SweepNoConfigError
 
 

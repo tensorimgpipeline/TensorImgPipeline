@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from tipi.core.loggers.base import BaseLoggerManager
+from tipi.core.permanences.loggers.base import BaseLoggerManager
 
 
 class BasicLogger(BaseLoggerManager):

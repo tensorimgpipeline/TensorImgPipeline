@@ -1,9 +1,5 @@
 from tipi.abstractions import Permanence, PipelineProcess
-from tipi.core.loggers import BasicLogger, TensorBoardLogger, WandBLogger
-from tipi.core.permanences import (
-    Device,
-    ProgressManager,
-)
+from tipi.core.permanences import BasicLogger, Device, ProgressManager, TensorBoardLogger, WandBLogger
 
 permanences_to_register: set[type[Permanence]] = {
     BasicLogger,
