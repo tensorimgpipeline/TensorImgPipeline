@@ -63,6 +63,27 @@ class Device(Permanence):
         devices = self._gather_device_statitics()
         self.device = self._calculate_best_device(devices)
 
+    def is_initialized(self) -> bool:
+        """Check if the device is initialized.
+
+        Overrides the base method to provide logic for determining if the device is ready for use.
+
+        Returns:
+            bool: True if the device is initialized, False otherwise.
+        """
+        allowed_device_types = {
+            "cuda": torch.cuda,
+            "xpu": torch.xpu,
+        }
+        if self.device.type == "cpu":
+            return True
+        if self.device.type not in allowed_device_types:
+            return False
+        device_module = allowed_device_types.get(self.device.type)
+        if device_module:
+            return device_module.is_available() and device_module.is_initialized()
+        return False
+
     def _gather_device_statitics(self) -> list[DeviceWithVRAM]:
         """Gather device statistics using the official supported Accelerator stats.
 
