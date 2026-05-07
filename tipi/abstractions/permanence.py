@@ -55,6 +55,16 @@ class Permanence(ABC):
         """
         return
 
+    def is_initialized(self) -> bool:
+        """Check if the permanence has been initialized.
+
+        Override to provide custom logic for determining initialization state.
+
+        Returns:
+            bool: True if initialized, False otherwise.
+        """
+        return True
+
     def checkpoint(self) -> None:
         """Save intermediate state during pipeline execution.
 
@@ -88,5 +98,5 @@ class Permanence(ABC):
         """
         return {
             "type": self.__class__.__name__,
-            "initialized": True,
+            "initialized": self.is_initialized(),
         }

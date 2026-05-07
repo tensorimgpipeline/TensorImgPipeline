@@ -5,6 +5,7 @@ from pathlib import Path
 from tipi.core.builder import PipelineBuilder, get_objects_for_pipeline
 from tipi.core.controller import PipelineController
 from tipi.core.executor import PipelineExecutor
+from tipi.core.loggers.base import BaseLoggerManager
 
 
 class PipelineRunner:
@@ -70,9 +71,11 @@ class PipelineRunner:
         controller = self.build()
 
         # Check for WandB sweep
-        wandb_logger = controller.get_permanence("wandb_logger", {})
-        if wandb_logger and hasattr(wandb_logger, "sweep_id"):
-            self._run_with_sweep(controller, wandb_logger)
+        logger = controller.get_permanence("logger", {})
+        if isinstance(logger, BaseLoggerManager) and logger.supports_sweep():
+            hyperparams = controller.get_permanence("hyperparams", {})
+            sweep_config = hyperparams.hyperparams.get("sweep_configuration", {})
+            logger.run_sweep(lambda: self._run_once(controller), sweep_config)
         else:
             self._run_once(controller)
 
@@ -80,9 +83,3 @@ class PipelineRunner:
         """Execute pipeline once."""
         executor = PipelineExecutor(controller)
         executor.run()
-
-    def _run_with_sweep(self, controller: PipelineController, wandb_logger: object) -> None:
-        """Execute pipeline with WandB sweep."""
-        hyperparams = controller.get_permanence("hyperparams", {})
-        wandb_logger.create_sweep(hyperparams.hyperparams.get("sweep_configuration", {}))  # type: ignore[attr-defined]
-        wandb_logger.create_sweep_agent(lambda: self._run_once(controller))  # type: ignore[attr-defined]

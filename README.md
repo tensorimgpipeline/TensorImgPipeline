@@ -94,6 +94,10 @@ To enable the code coverage reports, see [here](https://fpgmaas.github.io/cookie
 
 ## Releasing a new version
 
+See the project changelog for release notes and migration-impacting changes:
+
+- [CHANGELOG.md](CHANGELOG.md)
+
 - Create an API Token on [PyPI](https://pypi.org/).
 - Add the API Token to your projects secrets with the name `PYPI_TOKEN` by visiting [this page](https://github.com/tensorimgpipeline/TensorImgPipeline/settings/secrets/actions/new).
 - Create a [new release](https://github.com/tensorimgpipeline/TensorImgPipeline/releases/new) on Github.

@@ -1,24 +1,33 @@
 from __future__ import annotations
 
 import inspect
-import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
-from logging import info
-from pathlib import Path
 from typing import Any
 
 import torch
-import wandb
 from rich.console import Console, Group
 from rich.live import Live
 from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeRemainingColumn
-from wandb.wandb_run import Run
 
 from tipi.abstractions import Permanence
+from tipi.core.loggers import BaseLoggerManager, BasicLogger, NullWandBLogger, TensorBoardLogger, WandBLogger
 from tipi.core.utils import create_color
-from tipi.errors import ProgressNoMatch, SweepNoConfigError
+from tipi.errors import ProgressNoMatch
+
+__all__ = [
+    "BaseLoggerManager",
+    "BasicLogger",
+    "Device",
+    "DeviceWithVRAM",
+    "NullProgressManager",
+    "NullWandBLogger",
+    "ProgressManager",
+    "TensorBoardLogger",
+    "VRAMUsageError",
+    "WandBLogger",
+]
 
 
 class VRAMUsageError(RuntimeError):
@@ -62,6 +71,27 @@ class Device(Permanence):
         """
         devices = self._gather_device_statitics()
         self.device = self._calculate_best_device(devices)
+
+    def is_initialized(self) -> bool:
+        """Check if the device is initialized.
+
+        Overrides the base method to provide logic for determining if the device is ready for use.
+
+        Returns:
+            bool: True if the device is initialized, False otherwise.
+        """
+        allowed_device_types = {
+            "cuda": torch.cuda,
+            "xpu": torch.xpu,
+        }
+        if self.device.type == "cpu":
+            return True
+        if self.device.type not in allowed_device_types:
+            return False
+        device_module = allowed_device_types.get(self.device.type)
+        if device_module:
+            return bool(device_module.is_available()) and bool(device_module.is_initialized())
+        return False
 
     def _gather_device_statitics(self) -> list[DeviceWithVRAM]:
         """Gather device statistics using the official supported Accelerator stats.
@@ -410,160 +440,7 @@ class ProgressManager(Permanence):
         self.init_live()
 
 
-@dataclass
-class NullWandBManager(Permanence): ...
-
-
-@dataclass
-class WandBManager(Permanence):
-    """
-    WandBManager class for managing logging of metrics to Weights and Biases.
-
-    This class inherits from the Permanence class and is responsible for logging metrics
-    to Weights and Biases.
-
-    Example TOML Config:
-        ```toml
-        [permanences.wandb_logger]
-        type = "WandbLogger"
-        params = {
-            project = "my_project",
-            entity = "my_entity",
-            name = "my_run",
-            tags = ["tag1", "tag2"],
-            notes = "my_notes"
-        }
-        ```
-
-    Methods:
-        __init__(project, entity):
-            Initializes the instance with the specified project and entity.
-
-        log_metrics(metrics):
-            Logs the specified metrics to Weights and Biases.
-
-        cleanup():
-            Cleans up the wandbLogger instance.
-    """
-
-    def __init__(
-        self,
-        project: str,
-        entity: str,
-        name: str = "",
-        tags: list[str] | None = None,
-        notes: str = "",
-        count: int = 10,
-    ) -> None:
-        """
-        Initializes the instance with the specified project and entity.
-
-        Example TOML Config:
-            ```toml
-            [permanences.wandb_logger]
-            type = "WandBLogger"
-            params = {
-                project = "DemoFull",
-                entity = "demos",
-                name = "<run title>",
-                tags = ["tag1", "tag2"],
-                notes = "<describe the run>"
-            }
-            ```
-
-        Args:
-            project (str): The project to log the metrics to.
-            entity (str): The entity to log the metrics to.
-        """
-
-        self.project = project
-        self.entity = entity
-        self.name = name
-        self.tags = tags
-        self.notes = notes
-        self.count = count
-
-        self.cache_path = Path.home() / ".cache/wandb_local/sweep_id"
-
-        self.sweep_id: str | None = None
-
-        self.run_ids: list[Run] = []
-
-        self.global_step = 0
-
-    def create_sweep(self, config: dict[str, Any]) -> None:
-        if not config:
-            raise SweepNoConfigError()
-        self._read_cached_sweep_id()
-        if not self._is_sweep_active():
-            self.sweep_id = wandb.sweep(config, entity=self.entity, project=self.project)
-        if self.sweep_id is not None:
-            self._write_cache_sweep_id()
-
-    def create_sweep_agent(self, func: Callable[[Any], Any]) -> None:
-        if self.sweep_id:
-            wandb.agent(self.sweep_id, function=func, entity=self.entity, project=self.project, count=self.count)
-
-    def init_wandb(self) -> None:
-        """
-        Initializes the Weights and Biases run.
-
-        This method initializes the Weights and Biases run with the specified project, entity,
-        name, tags, and notes.
-        """
-        os.environ["WANDB_SILENT"] = "true"
-        name = f"{self.name}_{wandb.util.generate_id()}"
-        notes = f"{self.notes} {self.sweep_id}" if self.sweep_id else self.notes
-        run_id = wandb.init(
-            project=self.project,
-            entity=self.entity,
-            name=name,
-            tags=self.tags,
-            notes=notes,
-        )
-        self.run_ids.append(run_id)
-
-    def _is_sweep_active(self) -> str | bool:
-        if self.sweep_id is None:
-            return False
-        api = wandb.Api()
-        try:
-            sweep = api.sweep(f"{self.entity}/{self.project}/{self.sweep_id}")
-        except wandb.errors.CommError as e:
-            info(f"Error fetching sweep: {e}")
-            return False
-        else:
-            return sweep.state.lower() in ["running", "pending"]
-
-    def _write_cache_sweep_id(self) -> None:
-        if self.sweep_id:
-            self.cache_path.parent.mkdir(parents=True, exist_ok=True)
-            with self.cache_path.open("w") as f:
-                f.write(self.sweep_id)
-
-    def _read_cached_sweep_id(self) -> None:
-        if self.cache_path.exists():
-            with self.cache_path.open() as f:
-                self.sweep_id = f.read()
-
-    def log_metrics(self, metrics: dict) -> None:
-        """
-        Logs the specified metrics to Weights and Biases.
-
-        Args:
-            metrics (dict): The metrics to log to Weights and Biases.
-        """
-
-        wandb.log(metrics, step=self.global_step)
-        self.global_step += 1
-
-    def cleanup(self) -> None:
-        """
-        Cleans up the wandbLogger instance.
-
-        This method closes the Weights and Biases run.
-        """
-        # wandb.finish()
+# Logger classes live in tipi.core.loggers and are re-exported here for backward compatibility.
 
 
 if __name__ == "__main__":
