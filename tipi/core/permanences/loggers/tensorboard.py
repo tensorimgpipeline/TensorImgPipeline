@@ -3,7 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from torch.utils.tensorboard import SummaryWriter
+
 from tipi.core.permanences.loggers.base import BaseLoggerManager
+from tipi.core.permanences.loggers.patterns import MetricFigurePattern, MetricRecord
 
 
 class TensorBoardLogger(BaseLoggerManager):
@@ -14,36 +17,33 @@ class TensorBoardLogger(BaseLoggerManager):
         log_dir: str = "logs/tensorboard",
         log_level: str = "WARNING",
         log_file: str | None = None,
+        patterns: list[MetricFigurePattern] | None = None,
     ) -> None:
         resolved_log_file = log_file or str(Path(log_dir) / "tensorboard_logger.log")
         super().__init__(log_level=log_level, log_file=resolved_log_file)
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        self.global_step = 0
         self.writer: Any | None = None
+        self.patterns = patterns or []
 
     def initialize(self) -> None:
-        try:
-            from torch.utils.tensorboard import SummaryWriter
+        super().initialize()
+        self.writer = SummaryWriter(log_dir=str(self.log_dir))
+        layout = self._build_layout()
+        self.writer.add_custom_scalars(layout)
 
-            self.writer = SummaryWriter(log_dir=str(self.log_dir))
-            super().initialize()
-        except Exception as exc:
-            self.warning("TensorBoard unavailable: %s", exc)
-
-    def log_metrics(self, metrics: dict[str, Any]) -> None:
+    def log_metrics(self, metrics: MetricRecord | list[MetricRecord]) -> None:
         if self.writer is None:
             self.initialize()
         if self.writer is None:
             return
 
-        for key, value in metrics.items():
-            if isinstance(value, int | float):
-                self.writer.add_scalar(key, value, self.global_step)
+        for record in self._resolve_metric_records(metrics):
+            if isinstance(record.value, int | float):
+                self.writer.add_scalar(f"{record.pattern}/{record.name}", float(record.value), record.step)
             else:
-                self.writer.add_text(key, str(value), self.global_step)
+                self.writer.add_text(record.name, str(record.value), record.step)
         self.writer.flush()
-        self.global_step += 1
 
     def log_figure(self, name: str, figure: Any) -> None:
         if self.writer is None:
@@ -57,3 +57,19 @@ class TensorBoardLogger(BaseLoggerManager):
         if self.writer is not None:
             self.writer.close()
             self.writer = None
+
+    def _build_layout(self) -> dict[str, Any]:
+        """Builds the layout for custom scalars in TensorBoard based on the provided patterns.
+
+        based on: https://stackoverflow.com/a/71524389/10985257
+
+        Returns:
+            dict[str, Any]: layout for custom scalars
+        """
+        layout = {"Metrics": {}}
+        for pattern in self.patterns:
+            layout["Metrics"][pattern.title] = [
+                "Multiline",
+                [f"{pattern.pattern}/{name}" for name in pattern.metric_names],
+            ]
+        return layout
