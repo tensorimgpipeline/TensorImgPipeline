@@ -3,18 +3,12 @@ from __future__ import annotations
 import logging
 from abc import abstractmethod
 from collections.abc import Callable
-from importlib import import_module
 from pathlib import Path
-from typing import Any, cast
-
-import matplotlib.pyplot as plt
+from typing import Any
 
 from tipi.abstractions import Permanence
+from tipi.core.permanences.loggers.patterns import MetricRecord, ResolvedMetricRecord
 from tipi.paths import get_path_manager
-
-
-def _load_seaborn() -> Any:
-    return cast(Any, import_module("seaborn"))
 
 
 class BaseLoggerManager(Permanence):
@@ -23,6 +17,8 @@ class BaseLoggerManager(Permanence):
     def __init__(self, log_level: str = "WARNING", log_file: str | None = None) -> None:
         self._initialized = False
         self.log_level = log_level.upper()
+        self.global_step = 0
+        self._last_logged_step: int | None = None
         default_log_file = get_path_manager().get_cache_dir() / "logs" / f"{self.__class__.__name__.lower()}.log"
         self.log_file = Path(log_file).expanduser() if log_file else default_log_file
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
@@ -68,33 +64,47 @@ class BaseLoggerManager(Permanence):
         raise RuntimeError(f"{self.__class__.__name__} does not support sweep execution")
 
     @abstractmethod
-    def log_metrics(self, metrics: dict[str, Any]) -> None:
-        """Log scalar or structured metrics for the active backend."""
+    def log_metrics(self, metrics: MetricRecord | list[MetricRecord]) -> None:
+        """Log structured metrics using MetricRecord or list of MetricRecord objects."""
 
     @abstractmethod
     def log_figure(self, name: str, figure: Any) -> None:
         """Log a pre-built figure object for the active backend."""
 
-    def log_seaborn_graph(
-        self,
-        name: str,
-        data: Any,
-        x: str | None = None,
-        y: str | None = None,
-        kind: str = "line",
-    ) -> None:
-        """Create a seaborn graph and route it through log_figure."""
-        sns = _load_seaborn()
-        fig, ax = plt.subplots()
-        if kind == "bar":
-            sns.barplot(data=data, x=x, y=y, ax=ax)
-        elif kind == "scatter":
-            sns.scatterplot(data=data, x=x, y=y, ax=ax)
-        else:
-            sns.lineplot(data=data, x=x, y=y, ax=ax)
-        ax.set_title(name)
-        self.log_figure(name, fig)
-        plt.close(fig)
+    def _resolve_metric_records(self, metrics: MetricRecord | list[MetricRecord]) -> list[ResolvedMetricRecord]:
+        """Convert MetricRecord(s) to resolved records with step assignments."""
 
-    def cleanup(self) -> None:
-        return
+        if isinstance(metrics, MetricRecord):
+            records = [metrics]
+        elif isinstance(metrics, list) and all(isinstance(m, MetricRecord) for m in metrics):
+            records = metrics
+        else:
+            msg = "metrics must be a MetricRecord or list[MetricRecord]"
+            raise TypeError(msg)
+
+        resolved_records: list[ResolvedMetricRecord] = []
+        max_advanced_step: int | None = None
+
+        for record in records:
+            resolved_step = self._resolve_metric_step(record)
+            resolved_records.append(ResolvedMetricRecord(metric=record, step=resolved_step))
+            self._last_logged_step = resolved_step
+            if record.step is not None:
+                self.global_step = max(self.global_step, record.step + 1)
+            elif record.step_policy == "advance":
+                max_advanced_step = (
+                    resolved_step if max_advanced_step is None else max(max_advanced_step, resolved_step)
+                )
+
+        if max_advanced_step is not None:
+            self.global_step = max(self.global_step, max_advanced_step + 1)
+
+        return resolved_records
+
+    def _resolve_metric_step(self, record: MetricRecord) -> int:
+        """Determine the step for a metric record based on step_policy."""
+        if record.step is not None:
+            return record.step
+        if record.step_policy == "reuse_last" and self._last_logged_step is not None:
+            return self._last_logged_step
+        return self.global_step
