@@ -87,13 +87,14 @@ class BasicLogger(BaseLoggerManager):
         metrics_filename: str = "metrics.jsonl",
         log_level: str = "WARNING",
         log_file: str | None = None,
+        theme: SeabornTheme = retro_bright_theme,
     ) -> None:
         resolved_log_file = log_file or str(Path(log_dir) / "basic_logger.log")
         super().__init__(log_level=log_level, log_file=resolved_log_file)
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.metrics_file = self.log_dir / metrics_filename
-        self.global_step = 0
+        theme.apply()
 
     def log_metrics(self, metrics: dict[str, Any]) -> None:
         payload = {
