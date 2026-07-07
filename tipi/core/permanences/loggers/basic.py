@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import dataclasses
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
+import polars as pl
 import seaborn as sns
 
 from tipi.core.permanences.loggers.base import BaseLoggerManager
+from tipi.core.permanences.loggers.patterns import MetricFigurePattern, MetricRecord
 
 
 @dataclass(frozen=True)
@@ -96,16 +99,51 @@ class BasicLogger(BaseLoggerManager):
         self.metrics_file = self.log_dir / metrics_filename
         theme.apply()
 
-    def log_metrics(self, metrics: dict[str, Any]) -> None:
-        payload = {
-            "step": self.global_step,
-            "metrics": metrics,
-        }
+    def log_metrics(self, metrics: MetricRecord | list[MetricRecord]) -> None:
+        resolved_records = self._resolve_metric_records(metrics)
         with self.metrics_file.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(payload, default=str) + "\n")
-        self.global_step += 1
+            for r in resolved_records:
+                record_dict = dataclasses.asdict(r.metric) | {"step": r.step}
+                f.write(json.dumps(record_dict, default=str) + "\n")
+
+    def log_metric_figure(self, figure_pattern: MetricFigurePattern) -> None:
+        """Rebuild a standard metric figure from logged metric history."""
+        history = self._read_metric_history_df(figure_pattern)
+        if history.is_empty():
+            return
+
+        fig, ax = plt.subplots()
+        sns.lineplot(data=history, x="Step", y="Value", hue="Metric", ax=ax)
+        ax.set_title(figure_pattern.title)
+        ax.set_ylabel(figure_pattern.ylabel)
+        self.log_figure(figure_pattern.name, fig)
+        plt.close(fig)
 
     def log_figure(self, name: str, figure: Any) -> None:
         sanitized_name = name.replace(" ", "_").lower()
         figure_path = self.log_dir / f"{sanitized_name}_{self.global_step}.png"
         figure.savefig(figure_path)
+
+    def cleanup(self) -> None:
+        """Clean up resources."""
+        pass
+
+    def _read_metric_history_df(self, figure_pattern: MetricFigurePattern) -> pl.DataFrame:
+        """Extract metric history matching a figure pattern from the metrics file and return as a Polars DataFrame."""
+        schema = {"Metric": pl.String, "Step": pl.Int64, "Value": pl.Float64}
+        if not self.metrics_file.exists():
+            return pl.DataFrame(schema=schema)
+
+        return (
+            pl.read_ndjson(self.metrics_file)
+            .select(["name", "pattern", "step", "value"])
+            .filter(pl.col("value").is_not_null())
+            .filter(
+                pl.col("pattern").eq(figure_pattern.pattern) | pl.col("name").is_in(list(figure_pattern.metric_names))
+            )
+            .select([
+                pl.col("name").alias("Metric"),
+                pl.col("step").cast(pl.Int64).alias("Step"),
+                pl.col("value").cast(pl.Float64).alias("Value"),
+            ])
+        )
