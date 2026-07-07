@@ -32,8 +32,13 @@ dependencies = [
     "tqdm>=4.67.1",
     "typer>=0.15.1",
     "types-defusedxml>=0.7.0.20240218",
-    "wandb>=0.19.6",
+
 ]
+
+[project.optional-dependencies]
+tensorboard = ["tensorboard>=2.20.0", "torch-tb-profiler>=0.4.3"]
+wandb = ["wandb>=0.19.6"]
+all = ["TensorImgPipeline[tensorboard]", "TensorImgPipeline[wandb]"]
 
 [project.urls]
 Homepage = "https://tensorimgpipeline.github.io/TensorImgPipeline/"
@@ -69,6 +74,7 @@ dev = [
     "mkdocstrings-python>=2.0.3",
 ]
 
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -97,10 +103,7 @@ ignore_errors = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["--html=test_reports/report.html"]
-markers = [
-    "integration: integration tests",
-    "e2e: end-to-end tests",
-]
+markers = ["integration: integration tests", "e2e: end-to-end tests"]
 
 [tool.ruff]
 target-version = "py311"
