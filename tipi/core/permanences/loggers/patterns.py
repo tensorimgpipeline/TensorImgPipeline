@@ -109,6 +109,33 @@ class MetricFigurePattern:
         return metric_name in self.metric_names
 
 
+@dataclass(frozen=True)
+class ConfusionMatrixFigurePattern:
+    """Blueprint for constructing confusion matrix figures.
+
+    The class is intentionally generic so it can represent both binary and
+    multiclass confusion matrices by changing the configured class values.
+    """
+
+    name: str
+    title: str
+    class_values: tuple[Any, ...]
+    class_labels: tuple[str, ...]
+    xlabel: str = "Predicted"
+    ylabel: str = "Actual"
+    cmap: str = "Blues"
+    normalize: bool = False
+    annotation_format: str = ".2f"
+
+    def __post_init__(self) -> None:
+        if len(self.class_values) < 2:
+            msg = "class_values must contain at least two classes"
+            raise ValueError(msg)
+        if len(self.class_values) != len(self.class_labels):
+            msg = "class_values and class_labels must have the same length"
+            raise ValueError(msg)
+
+
 # Pre-defined metric patterns for common use cases
 BATCH_LOSS = MetricPattern(
     name="batch_loss",
@@ -171,6 +198,14 @@ ACCURACY_CURVE = MetricFigurePattern(
     title="Accuracy",
     ylabel="Accuracy",
     metric_names=("train_accuracy", "validation_accuracy", "test_accuracy"),
+)
+
+BINARY_CONFUSION_MATRIX = ConfusionMatrixFigurePattern(
+    name="binary_confusion_matrix",
+    title="Binary Confusion Matrix",
+    class_values=(0, 1),
+    class_labels=("Negative", "Positive"),
+    annotation_format="d",
 )
 
 

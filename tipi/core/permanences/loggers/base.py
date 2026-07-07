@@ -2,12 +2,20 @@ from __future__ import annotations
 
 import logging
 from abc import abstractmethod
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
 from tipi.abstractions import Permanence
-from tipi.core.permanences.loggers.patterns import MetricRecord, ResolvedMetricRecord
+from tipi.core.permanences.loggers.patterns import (
+    ConfusionMatrixFigurePattern,
+    MetricRecord,
+    ResolvedMetricRecord,
+)
 from tipi.paths import get_path_manager
 
 
@@ -108,3 +116,50 @@ class BaseLoggerManager(Permanence):
         if record.step_policy == "reuse_last" and self._last_logged_step is not None:
             return self._last_logged_step
         return self.global_step
+
+    def build_confusion_matrix_figure(
+        self,
+        figure_pattern: ConfusionMatrixFigurePattern,
+        y_true: Sequence[Any],
+        y_pred: Sequence[Any],
+    ) -> Any:
+        """Build a confusion matrix figure using the provided pattern blueprint."""
+        if len(y_true) != len(y_pred):
+            msg = "y_true and y_pred must have the same length"
+            raise ValueError(msg)
+
+        class_to_idx = {value: idx for idx, value in enumerate(figure_pattern.class_values)}
+        matrix = np.zeros((len(figure_pattern.class_values), len(figure_pattern.class_values)), dtype=np.int64)
+
+        for expected, predicted in zip(y_true, y_pred, strict=True):
+            if expected not in class_to_idx:
+                msg = f"Found unknown true label: {expected!r}"
+                raise ValueError(msg)
+            if predicted not in class_to_idx:
+                msg = f"Found unknown predicted label: {predicted!r}"
+                raise ValueError(msg)
+            matrix[class_to_idx[expected], class_to_idx[predicted]] += 1
+
+        heatmap_values: np.ndarray[Any, Any]
+        if figure_pattern.normalize:
+            row_sums = matrix.sum(axis=1, keepdims=True)
+            row_sums = np.where(row_sums == 0, 1, row_sums)
+            heatmap_values = matrix / row_sums
+        else:
+            heatmap_values = matrix
+
+        fig, ax = plt.subplots()
+        sns.heatmap(
+            heatmap_values,
+            annot=True,
+            fmt=figure_pattern.annotation_format,
+            cmap=figure_pattern.cmap,
+            xticklabels=figure_pattern.class_labels,
+            yticklabels=figure_pattern.class_labels,
+            ax=ax,
+        )
+        ax.set_title(figure_pattern.title)
+        ax.set_xlabel(figure_pattern.xlabel)
+        ax.set_ylabel(figure_pattern.ylabel)
+        fig.tight_layout()
+        return fig
