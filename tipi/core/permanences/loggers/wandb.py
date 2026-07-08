@@ -1,5 +1,3 @@
-"""WandB Logger Module. Currently needs work for new structure in MetricLogging."""
-
 from __future__ import annotations
 
 import os
@@ -14,8 +12,6 @@ from wandb.wandb_run import Run
 from tipi.abstractions import Permanence
 from tipi.core.permanences.loggers.base import BaseLoggerManager
 from tipi.errors import SweepNoConfigError
-
-raise NotImplementedError("WandB Logger is not yet implemented for the new MetricLogging structure.")
 
 
 @dataclass
@@ -47,6 +43,7 @@ class WandBLogger(BaseLoggerManager):
         self.cache_path = Path.home() / ".cache/wandb_local/sweep_id"
         self.sweep_id: str | None = None
         self.run_ids: list[Run] = []
+        self.global_step = 0
 
     def create_sweep(self, config: dict[str, Any]) -> None:
         if not config:
@@ -105,13 +102,9 @@ class WandBLogger(BaseLoggerManager):
             with self.cache_path.open() as f:
                 self.sweep_id = f.read()
 
-    def log_metrics(self, metrics: Any) -> None:
-        payloads_by_step: dict[int, dict[str, Any]] = {}
-        for record in self._resolve_metric_records(metrics):
-            payloads_by_step.setdefault(record.step, {})[record.name] = record.value
-
-        for step, payload in sorted(payloads_by_step.items()):
-            wandb.log(payload, step=step)
+    def log_metrics(self, metrics: dict[str, Any]) -> None:
+        wandb.log(metrics, step=self.global_step)
+        self.global_step += 1
 
     def log_figure(self, name: str, figure: Any) -> None:
         wandb.log({name: wandb.Image(figure)}, step=self.global_step)
