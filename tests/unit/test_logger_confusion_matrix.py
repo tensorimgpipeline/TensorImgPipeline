@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from tipi.core.permanences import BasicLogger
+from tipi.core.permanences.loggers.basic import BasicLogger
 from tipi.core.permanences.loggers.patterns import BINARY_CONFUSION_MATRIX, ConfusionMatrixFigurePattern
 
 

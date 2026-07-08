@@ -11,11 +11,11 @@ from polars.exceptions import InvalidOperationError
 from tipi.core.permanences import (
     ACCURACY_CURVE,
     LOSS_CURVE,
-    BasicLogger,
     batch_loss,
     test_accuracy,
     test_loss,
 )
+from tipi.core.permanences.loggers.basic import BasicLogger
 
 
 class TestMetricPatterns:
