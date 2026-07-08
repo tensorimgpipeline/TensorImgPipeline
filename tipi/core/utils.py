@@ -7,7 +7,7 @@ import types
 import numpy as np
 from matplotlib.colors import hex2color, rgb2hex
 
-INSTALL_MAPPING = {}
+INSTALL_MAPPING: dict[str, str] = {}
 
 PACKAGE_EXTRAS = {
     "wandb": "TensorImagePipeline[wandb]",
@@ -47,7 +47,7 @@ def create_color(hex_colors: list[str]) -> str:
     return rgb2hex(colorsys.hsv_to_rgb(*selected_color))
 
 
-def import_optional_dependency(name: str) -> types.ModuleType | None:
+def import_optional_dependency(name: str) -> types.ModuleType:
     """Imports optional dependencies of this library.
 
     It raises with a nice error msg, if users try to launch a depending module, which depends on it.
