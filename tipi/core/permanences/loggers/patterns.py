@@ -230,7 +230,11 @@ def test_loss(value: Any, *, step: int | None = None) -> MetricRecord:
     return TEST_LOSS.metric(value, step=step)
 
 
-test_loss.__test__ = False  # Prevent pytest from treating this as a test
+def _disable_pytest_collection(func: Any) -> None:
+    func.__test__ = False
+
+
+_disable_pytest_collection(test_loss)
 
 
 def train_accuracy(value: Any, *, step: int | None = None) -> MetricRecord:
@@ -248,7 +252,7 @@ def test_accuracy(value: Any, *, step: int | None = None) -> MetricRecord:
     return TEST_ACCURACY.metric(value, step=step)
 
 
-test_accuracy.__test__ = False  # Prevent pytest from treating this as a test
+_disable_pytest_collection(test_accuracy)
 
 
 MetricLogInput: TypeAlias = dict[str, Any] | MetricRecord | list[MetricRecord]

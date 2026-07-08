@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import importlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -8,10 +9,11 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import polars as pl
-import seaborn as sns
 
 from tipi.core.permanences.loggers.base import BaseLoggerManager
 from tipi.core.permanences.loggers.patterns import MetricFigurePattern, MetricRecord
+
+sns: Any = importlib.import_module("seaborn")
 
 
 @dataclass(frozen=True)
@@ -25,7 +27,7 @@ class SeabornTheme:
     palette: list[str]
     style_type: str = "whitegrid"  # or "darkgrid"
 
-    def apply(self, context="talk") -> None:
+    def apply(self, context: str = "talk") -> None:
         sns.set_theme(style=self.style_type, context=context)
         sns.set_palette(sns.color_palette(self.palette))
 

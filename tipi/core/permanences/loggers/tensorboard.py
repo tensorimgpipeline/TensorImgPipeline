@@ -1,12 +1,20 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 from torch.utils.tensorboard import SummaryWriter
 
 from tipi.core.permanences.loggers.base import BaseLoggerManager
 from tipi.core.permanences.loggers.patterns import MetricFigurePattern, MetricRecord
+
+MetricLayoutEntry = list[str | list[str]]
+
+MetricDict = dict[str, MetricLayoutEntry]
+
+
+class TensorBoardMetricDict(TypedDict):
+    Metrics: MetricDict
 
 
 class TensorBoardLogger(BaseLoggerManager):
@@ -29,7 +37,7 @@ class TensorBoardLogger(BaseLoggerManager):
     def initialize(self) -> None:
         super().initialize()
         self.writer = SummaryWriter(log_dir=str(self.log_dir))
-        layout = self._build_layout()
+        layout: TensorBoardMetricDict = self._build_layout()
         self.writer.add_custom_scalars(layout)
 
     def log_metrics(self, metrics: MetricRecord | list[MetricRecord]) -> None:
@@ -58,15 +66,15 @@ class TensorBoardLogger(BaseLoggerManager):
             self.writer.close()
             self.writer = None
 
-    def _build_layout(self) -> dict[str, Any]:
+    def _build_layout(self) -> TensorBoardMetricDict:
         """Builds the layout for custom scalars in TensorBoard based on the provided patterns.
 
         based on: https://stackoverflow.com/a/71524389/10985257
 
         Returns:
-            dict[str, Any]: layout for custom scalars
+            TensorBoardMetricDict: layout for custom scalars
         """
-        layout = {"Metrics": {}}
+        layout: TensorBoardMetricDict = {"Metrics": {}}
         for pattern in self.patterns:
             layout["Metrics"][pattern.title] = [
                 "Multiline",

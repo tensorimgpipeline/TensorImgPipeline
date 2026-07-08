@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import logging
 from abc import abstractmethod
 from collections.abc import Callable, Sequence
@@ -8,7 +9,6 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 
 from tipi.abstractions import Permanence
 from tipi.core.permanences.loggers.patterns import (
@@ -17,6 +17,8 @@ from tipi.core.permanences.loggers.patterns import (
     ResolvedMetricRecord,
 )
 from tipi.paths import get_path_manager
+
+sns: Any = importlib.import_module("seaborn")
 
 
 class BaseLoggerManager(Permanence):
