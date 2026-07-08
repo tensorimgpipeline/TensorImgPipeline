@@ -10,7 +10,8 @@ import wandb
 from wandb.wandb_run import Run
 
 from tipi.abstractions import Permanence
-from tipi.core.loggers.base import BaseLoggerManager
+from tipi.core.permanences.loggers.base import BaseLoggerManager
+from tipi.core.permanences.loggers.patterns import MetricRecord
 from tipi.errors import SweepNoConfigError
 
 
@@ -102,9 +103,14 @@ class WandBLogger(BaseLoggerManager):
             with self.cache_path.open() as f:
                 self.sweep_id = f.read()
 
-    def log_metrics(self, metrics: dict[str, Any]) -> None:
-        wandb.log(metrics, step=self.global_step)
-        self.global_step += 1
+    def log_metrics(self, metrics: MetricRecord | list[MetricRecord]) -> None:
+        for record in self._resolve_metric_records(metrics):
+            wandb.log({record.name: record.value}, step=record.step)
 
     def log_figure(self, name: str, figure: Any) -> None:
         wandb.log({name: wandb.Image(figure)}, step=self.global_step)
+
+    def cleanup(self) -> None:
+        if self.run_ids:
+            wandb.finish()
+            self.run_ids.clear()

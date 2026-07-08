@@ -6,7 +6,7 @@ from functools import wraps
 from typing import TYPE_CHECKING
 
 from tipi.abstractions import PipelineProcess
-from tipi.core.loggers.base import BaseLoggerManager
+from tipi.core.permanences.loggers.base import BaseLoggerManager
 from tipi.errors import BuilderError, ExecutionError
 
 if TYPE_CHECKING:

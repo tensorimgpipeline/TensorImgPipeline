@@ -5,7 +5,7 @@ from pathlib import Path
 from tipi.core.builder import PipelineBuilder, get_objects_for_pipeline
 from tipi.core.controller import PipelineController
 from tipi.core.executor import PipelineExecutor
-from tipi.core.loggers.base import BaseLoggerManager
+from tipi.core.permanences.loggers.base import BaseLoggerManager
 
 
 class PipelineRunner:
