@@ -2,6 +2,36 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.1] - 2026-07-08
+
+### Added
+
+- Introduced pattern-based metric plotting integrated into the logging system.
+- Added support for defining reusable metric plot patterns for cleaner, more consistent visual tracking.
+
+### Changed
+
+- Extended the logging architecture to support pattern-driven plotting workflows.
+- Updated metric/logging flow to better accommodate structured visualization output.
+- Refined logger integration to prepare for additional backend support beyond current options.
+
+### Removed
+
+- No explicit removals in this PR.
+
+### Notes
+
+- Current supported loggers remain:
+	- basic
+	- tensorboard
+- This feature lays groundwork for future logger backends such as:
+	- Weights & Biases (wandb)
+	- ZanLM
+	- ClearLM
+	- MLflow
+	- Neptune
+
+
 ## [1.2.0] - 2026-05-07
 
 ### Added
