@@ -6,13 +6,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import wandb
 from wandb.wandb_run import Run
 
 from tipi.abstractions import Permanence
 from tipi.core.permanences.loggers.base import BaseLoggerManager
 from tipi.core.permanences.loggers.patterns import MetricRecord
+from tipi.core.utils import import_optional_dependency
 from tipi.errors import SweepNoConfigError
+
+wandb = import_optional_dependency("wandb")
 
 
 @dataclass

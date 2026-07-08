@@ -18,6 +18,9 @@ import wandb
 
 from tipi.abstractions import PipelineProcess
 
+## TODO: This needs some love after the recent changes.
+## TODO: Only loggers should create figures etc.
+
 
 class ProgressTaskCallable(Protocol):
     """Protocol for functions decorated with progress_task."""

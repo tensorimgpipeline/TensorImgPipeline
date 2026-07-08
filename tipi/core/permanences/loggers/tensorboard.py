@@ -7,10 +7,13 @@ from torch.utils.tensorboard import SummaryWriter
 
 from tipi.core.permanences.loggers.base import BaseLoggerManager
 from tipi.core.permanences.loggers.patterns import MetricFigurePattern, MetricRecord
+from tipi.core.utils import import_optional_dependency
 
 MetricLayoutEntry = list[str | list[str]]
 
 MetricDict = dict[str, MetricLayoutEntry]
+
+import_optional_dependency("tensorboard")
 
 
 class TensorBoardMetricDict(TypedDict):

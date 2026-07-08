@@ -1,9 +1,18 @@
 """Core utility functions for TensorImgPipeline."""
 
 import colorsys
+import importlib
+import types
 
 import numpy as np
 from matplotlib.colors import hex2color, rgb2hex
+
+INSTALL_MAPPING = {}
+
+PACKAGE_EXTRAS = {
+    "wandb": "TensorImagePipeline[wandb]",
+    "tensorboard": "TensorImagePipeline[tensorboard]",
+}
 
 
 def create_color(hex_colors: list[str]) -> str:
@@ -36,3 +45,32 @@ def create_color(hex_colors: list[str]) -> str:
     selected_color[0] = selected_color[0] + (distance_between[selected_distance] / 2)[0]
 
     return rgb2hex(colorsys.hsv_to_rgb(*selected_color))
+
+
+def import_optional_dependency(name: str) -> types.ModuleType | None:
+    """Imports optional dependencies of this library.
+
+    It raises with a nice error msg, if users try to launch a depending module, which depends on it.
+
+    Args:
+        name (str): name of the module
+
+    Returns:
+        types.ModuleType | None: the imported module
+    """
+
+    package_name = INSTALL_MAPPING.get(name)
+    install_name = package_name if package_name is not None else name
+
+    msg = (
+        f"`Import {install_name}` failed. "
+        f"If intended to use this module please install this Package with extras: "
+        f"pip install tensorimagepipeline[{install_name}] or pip install tensorimagepipeline[all]"
+    )
+
+    try:
+        module = importlib.import_module(name)
+    except ImportError as err:
+        raise ImportError(msg) from err
+
+    return module
