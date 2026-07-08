@@ -1,16 +1,33 @@
+import importlib
+from types import ModuleType
+
 from tipi.abstractions import Permanence, PipelineProcess
 from tipi.core.permanences.device import Device
 from tipi.core.permanences.loggers.basic import BasicLogger
-from tipi.core.permanences.loggers.tensorboard import TensorBoardLogger
-from tipi.core.permanences.loggers.wandb import WandBLogger
 from tipi.core.permanences.progress import ProgressManager
+
+
+def import_optional_dependency_based_classes(module_name: str, class_name: str) -> ModuleType | None:
+    module_path = "tipi.core.permanences.loggers." + module_name
+
+    try:
+        module = importlib.import_module(module_path)
+        class_obj = getattr(module, class_name)
+    except ImportError:
+        return None
+    return class_obj
+
+
+WandBLogger = import_optional_dependency_based_classes("wandb", "WandBLogger")
+TensorBoardLogger = import_optional_dependency_based_classes("tensorboard", "TensorBoardLogger")
+
 
 permanences_to_register: set[type[Permanence]] = {
     BasicLogger,
     Device,
     ProgressManager,
-    TensorBoardLogger,
     WandBLogger,
+    TensorBoardLogger,
 }
 
 processes_to_register: set[type[PipelineProcess]] = set()
