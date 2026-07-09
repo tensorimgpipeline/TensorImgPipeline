@@ -1,0 +1,78 @@
+class LoadDataProcess(PipelineProcess):
+    """Load data from the data directory."""
+
+    def __init__(self, controller: Any, force: bool):
+        """Initialize the load data process.
+
+        Args:
+            controller: Controller providing access to permanences
+            force: Whether to force execution even if data exists
+        """
+        super().__init__(controller, force)
+        self.config = controller.get_permanence("config")
+        self.data = controller.get_permanence("data")
+
+    def skip(self) -> bool:
+        """Check if process should be skipped."""
+        # Skip if data already loaded and not forcing
+        if not self.force and self.data.get_data("raw_data") is not None:
+            return True
+        return False
+
+    def execute(self) -> None:
+        """Execute the data loading process."""
+        print(f"Loading data from {self.data.data_dir}")
+
+        # Example: Load some dummy data
+        raw_data = {
+            "samples": list(range(100)),
+            "labels": list(range(100)),
+        }
+
+        self.data.set_data("raw_data", raw_data)
+        print(f"Loaded {len(raw_data['samples'])} samples")
+
+
+class ProcessDataProcess(PipelineProcess):
+    """Process the loaded data."""
+
+    def __init__(self, controller: Any, force: bool):
+        """Initialize the process data process.
+
+        Args:
+            controller: Controller providing access to permanences
+            force: Whether to force execution
+        """
+        super().__init__(controller, force)
+        self.config = controller.get_permanence("config")
+        self.data = controller.get_permanence("data")
+
+    def skip(self) -> bool:
+        """Check if process should be skipped."""
+        # Skip if no raw data available
+        if self.data.get_data("raw_data") is None:
+            print("No raw data to process, skipping...")
+            return True
+
+        # Skip if already processed and not forcing
+        if not self.force and self.data.get_processed("processed_data") is not None:
+            return True
+
+        return False
+
+    def execute(self) -> None:
+        """Execute the data processing process."""
+        raw_data = self.data.get_data("raw_data")
+        batch_size = self.config.get("batch_size", 32)
+
+        print(f"Processing data with batch size {batch_size}")
+
+        # Example: Simple processing
+        processed_data = {
+            "normalized_samples": [x / 100.0 for x in raw_data["samples"]],
+            "labels": raw_data["labels"],
+            "num_batches": len(raw_data["samples"]) // batch_size,
+        }
+
+        self.data.set_processed("processed_data", processed_data)
+        print(f"Processed {len(processed_data['normalized_samples'])} samples into {processed_data['num_batches']} batches")

@@ -1,0 +1,36 @@
+# {{ project_name }} Pipeline Configuration
+#
+# This file configures the permanences and processes for your pipeline.
+
+[pipeline]
+# Core framework features - enable with simple flags
+{% if example == "pause" %}
+enable_progress = true
+{% else %}
+enable_progress = false  # Enable progress bars for pipeline execution
+{% endif %}
+enable_wandb = false     # Enable Weights & Biases logging
+# enable_basic_logger = true   # Alternative backend: local file logger
+# enable_tensorboard = true    # Alternative backend: tensorboard logger
+# logger = "wandb"            # Preferred selector: basic|tensorboard|wandb
+
+# Optional: WandB configuration (only used if enable_wandb = true)
+# [pipeline.wandb]
+# project = "my-project"
+# entity = "my-team"
+# log_file = "logs/wandb/framework.log"
+
+# Optional: Basic logger configuration
+# [pipeline.basic_logger]
+# log_dir = "logs/basic"
+# log_file = "logs/basic/framework.log"
+
+# Optional: TensorBoard logger configuration
+# [pipeline.tensorboard]
+# log_dir = "logs/tensorboard"
+# log_file = "logs/tensorboard/framework.log"
+[permanences]
+{% include "project/" + example + "/permanence_config.toml.j2" %}
+
+[processes]
+{% include "project/" + example + "/process_config.toml.j2" %}

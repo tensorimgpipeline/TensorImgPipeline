@@ -1,0 +1,11 @@
+"""Processes for {{ project_name }}.
+
+Processes are the building blocks of the pipeline.
+Each process performs a specific task and can access permanences via the controller.
+"""
+
+from typing import Any
+
+from tipi.abstractions import PipelineProcess
+
+{% include "project/" + example + "/processes.py.j2" %}

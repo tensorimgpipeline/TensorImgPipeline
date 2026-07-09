@@ -1,0 +1,32 @@
+# Example process template
+class MyProcess(PipelineProcess):
+    """A custom process for your pipeline."""
+
+    def __init__(self, controller: Any, force: bool):
+        """Initialize the process.
+
+        Args:
+            controller: Controller providing access to permanences
+            force: Whether to force execution
+        """
+        super().__init__(controller, force)
+        # Access permanences from the controller
+        # self.my_permanence = controller.get_permanence("my_permanence")
+
+    def skip(self) -> bool:
+        """Check if process should be skipped.
+
+        Returns:
+            True if process should be skipped, False otherwise
+        """
+        # Implement your skip logic here
+        # For example, skip if output already exists and not forcing
+        return False
+
+    def execute(self) -> None:
+        """Execute the process logic.
+
+        This is where you implement the main work of the process.
+        """
+        # Implement your process logic here
+        print("Executing MyProcess")

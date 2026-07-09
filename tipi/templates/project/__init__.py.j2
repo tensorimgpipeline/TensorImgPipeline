@@ -1,0 +1,58 @@
+"""{{ project_name }} - A TensorImgPipeline project.
+
+This module registers permanences and processes for the {{ project_name }} pipeline.
+"""
+
+from tipi.abstractions import Permanence, PipelineProcess
+
+from {{ project_name }}.permanences import (
+{% if example == "full" %}
+    ConfigPermanence,
+    DataPermanence,
+{% elif example == "basic" %}
+    MyPermanence
+{% elif example == "pause" %}
+    MyPermanence
+{% endif %}
+)
+from {{ project_name }}.processes import (
+{% if example == "full" %}
+    LoadDataProcess,
+    ProcessDataProcess,
+{% elif example == "basic" %}
+    MyProcess
+{% elif example == "pause" %}
+    MyProcess
+{% endif %}
+)
+
+# Register permanences that will be available throughout the pipeline
+permanences_to_register: set[type[Permanence]] = {
+{% if example == "full" %}
+    ConfigPermanence,
+    DataPermanence,
+{% elif example == "basic" %}
+    # Add your permanences here
+    MyPermanence,
+{% elif example == "pause" %}
+    MyPermanence,
+{% endif %}
+}
+
+# Register processes that define the pipeline steps
+processes_to_register: set[type[PipelineProcess]] = {
+{% if example == "full" %}
+    LoadDataProcess,
+    ProcessDataProcess,
+{% elif example == "basic" %}
+    # Add your processes here
+    MyProcess,
+{% elif example == "pause" %}
+    MyProcess,
+{% endif %}
+}
+
+__all__ = [
+    "permanences_to_register",
+    "processes_to_register",
+]

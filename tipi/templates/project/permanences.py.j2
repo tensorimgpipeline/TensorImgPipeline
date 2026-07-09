@@ -1,0 +1,12 @@
+"""Permanences for {{ project_name }}.
+
+Permanences are objects that persist throughout the pipeline lifecycle.
+They store state, data, models, or any resources needed by multiple processes.
+"""
+
+from pathlib import Path
+from typing import Any
+
+from tipi.abstractions import Permanence
+
+{% include "project/" + example + "/permanences.py.j2" %}

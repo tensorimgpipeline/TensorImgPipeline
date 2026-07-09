@@ -1,0 +1,81 @@
+# {{ project_name }}
+
+A TensorImgPipeline project.
+
+## Description
+
+{{ description }}
+
+## Installation
+
+```bash
+# Install dependencies
+pip install tensorimgpipeline
+
+# Link this project to the main pipeline system
+tipi add .
+```
+
+## Usage
+
+```bash
+# Run the pipeline
+tipi run {{ project_name }}
+
+# Validate the pipeline configuration
+tipi validate {{ project_name }}
+
+# Inspect the pipeline components
+tipi inspect {{ project_name }}
+```
+
+## Project Structure
+
+```
+{{ project_name }}/
+├── {{ project_name }}/           # Main package
+│   ├── __init__.py          # Registers permanences and processes
+│   ├── permanences.py       # Permanence definitions
+│   └── processes.py         # Process definitions
+├── configs/                 # Configuration files
+│   └── pipeline_config.toml # Main pipeline configuration
+├── pyproject.toml          # Project metadata and dependencies
+├── README.md               # This file
+└── .gitignore             # Git ignore rules
+```
+
+## Permanences
+
+{% if example == "full" %}
+- **ConfigPermanence**: Stores configuration parameters
+- **DataPermanence**: Stores data throughout the pipeline
+{% elif example == "basic" %}
+Define your permanences in `{{ project_name }}/permanences.py`.
+{% endif %}
+
+## Processes
+
+{% if example == "full" %}
+- **LoadDataProcess**: Loads data from the data directory
+- **ProcessDataProcess**: Processes the loaded data
+{% elif example == "basic" %}
+Define your processes in `{{ project_name }}/processes.py`.
+{% endif %}
+
+## Configuration
+
+Edit `configs/pipeline_config.toml` to configure permanences and processes.
+
+## Development
+
+```bash
+# Install in development mode
+uv sync
+
+# Run tests (if you add them)
+pytest tests/
+```
+
+## License
+
+{{ license }}

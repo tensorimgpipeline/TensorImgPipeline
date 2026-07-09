@@ -7,7 +7,7 @@ creating new pipeline projects.
 from pathlib import Path
 from typing import Any, Literal
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, PackageLoader, select_autoescape
 from pydantic import BaseModel, field_validator
 
 # Define the allowed values as constants
@@ -61,9 +61,8 @@ class TemplateManager:
 
     def __init__(self) -> None:
         """Initialize the template manager."""
-        self.template_dir = Path(__file__).parent.parent / "templates"
         self.env = Environment(
-            loader=FileSystemLoader(str(self.template_dir)),
+            loader=PackageLoader("tipi", "templates"),
             autoescape=select_autoescape(),
             trim_blocks=True,
             lstrip_blocks=True,

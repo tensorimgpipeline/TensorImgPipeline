@@ -1,0 +1,22 @@
+import time
+
+# Example permanence template
+class MyPermanence(Permanence):
+    """A custom permanence for your pipeline."""
+
+    def __init__(self, param: str):
+        """Initialize the permanence.
+
+        Args:
+            param: Configuration parameter
+        """
+        self.param = param
+        # Initialize your resources here
+
+    def cleanup(self) -> None:
+        """Clean up resources.
+
+        Raise an exception if cleanup fails.
+        """
+        # Clean up any resources (close files, release memory, etc.)
+        time.sleep(1)
