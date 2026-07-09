@@ -38,7 +38,8 @@ def _exit_with_error(message: str, code: int = 1, err: Exception | None = None) 
     message = f"[bold red]Error:[/bold red][red] {message}[red]"
     rprint(message, file=sys.stderr)
     if err:
-        typer.utils.echo(f"Error: {err}", err=True)
+        err_message = f"[red]Caused by: {type(err).__name__}: {err}[/red]"
+        rprint(err_message, file=sys.stderr)
     raise typer.Exit(code=code)
 
 
