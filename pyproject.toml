@@ -82,6 +82,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["tipi"]
+include = ["tipi/templates/**/*.j2"]
 
 [tool.mypy]
 files = ["tipi"]
