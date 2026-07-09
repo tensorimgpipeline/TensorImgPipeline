@@ -38,7 +38,7 @@ def _exit_with_error(message: str, code: int = 1, err: Exception | None = None) 
     message = f"[bold red]Error:[/bold red][red] {message}[red]"
     rprint(message, file=sys.stderr)
     if err:
-        raise typer.Exit(code=code) from err
+        typer.utils.echo(f"Error: {err}", err=True)
     raise typer.Exit(code=code)
 
 
@@ -275,7 +275,7 @@ def create_project(
 
         template_manager.create_project(project_data=project_data)
     except Exception as err:
-        _exit_with_error("Failed to create projec", err=err)
+        _exit_with_error("Failed to create project", err=err)
 
     # Success message
     example_note = " with working example" if example != "basic" else ""
