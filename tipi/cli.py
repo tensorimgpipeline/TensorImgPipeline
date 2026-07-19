@@ -13,6 +13,7 @@ the Free Software Foundation, either version 3 of the License, or
 import shutil
 import subprocess
 import sys
+import traceback
 from pathlib import Path
 
 import typer
@@ -27,6 +28,8 @@ from tipi.core.runner import PipelineRunner
 from tipi.paths import get_path_manager
 from tipi.template_manager import ProjectSetup, template_manager
 
+DEBUG_MODE = False
+
 
 def _exit_with_error(message: str, code: int = 1, err: Exception | None = None) -> None:
     """Print error message and exit.
@@ -38,8 +41,12 @@ def _exit_with_error(message: str, code: int = 1, err: Exception | None = None) 
     message = f"[bold red]Error:[/bold red][red] {message}[red]"
     rprint(message, file=sys.stderr)
     if err:
-        err_message = f"[red]Caused by: {type(err).__name__}: {err}[/red]"
-        rprint(err_message, file=sys.stderr)
+        if DEBUG_MODE:
+            rprint("[yellow]Debug mode enabled: printing full traceback[/yellow]", file=sys.stderr)
+            traceback.print_exception(type(err), err, err.__traceback__, file=sys.stderr)
+        else:
+            err_message = f"[red]Caused by: {type(err).__name__}: {err}[/red]"
+            rprint(err_message, file=sys.stderr)
     raise typer.Exit(code=code)
 
 
@@ -52,6 +59,20 @@ console = Console()
 
 # Get path manager
 path_manager = get_path_manager()
+
+
+@app.callback()
+def main(
+    debug: bool = typer.Option(
+        False,
+        "--debug",
+        help="Enable debug mode and print full Python tracebacks for errors",
+        envvar="TIPI_DEBUG",
+    ),
+) -> None:
+    """Configure global CLI options."""
+    global DEBUG_MODE
+    DEBUG_MODE = debug
 
 
 @app.command(name="run")
@@ -179,7 +200,7 @@ def inspect_pipeline(
         # Use path manager to import module
         module = path_manager.import_project_module(pipeline_name)
     except ImportError as err:
-        _exit_with_error(f"Pipeline '{pipeline_name}' not found.\nCaused by Error: {err}")
+        _exit_with_error(f"Pipeline '{pipeline_name}' not found.", err=err)
 
     try:
         permanences = getattr(module, "permanences_to_register", {})
